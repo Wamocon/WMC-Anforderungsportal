@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" fill="none">
+  <!-- WMC Letters -->
+  <g fill="currentColor">
+    <!-- W -->
+    <path d="M20 20 L50 140 L80 60 L110 140 L140 20 L125 20 L105 110 L80 40 L55 110 L35 20 Z"/>
+    <!-- M -->
+    <path d="M155 20 L155 140 L170 140 L170 50 L200 110 L230 50 L230 140 L245 140 L245 20 L225 20 L200 80 L175 20 Z"/>
+    <!-- C -->
+    <path d="M310 20 L270 20 Q255 20 255 35 L255 125 Q255 140 270 140 L310 140 L310 127 L272 127 Q268 127 268 123 L268 37 Q268 33 272 33 L310 33 Z"/>
+  </g>
+  <!-- Tagline -->
+  <text x="200" y="175" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="600" fill="#FE0404">IT-Testmanagement</text>
+</svg>
