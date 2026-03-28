@@ -115,7 +115,7 @@ export function FormFillClient({
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     {
       role: 'assistant',
-      content: `Hi! I'm your AI requirements assistant for "${projectName}". If you need help with any question or want to discuss your requirements, just ask me here.`,
+      content: t('form.aiGreeting', { project: projectName }),
     },
   ]);
   const [chatInput, setChatInput] = useState('');
@@ -454,7 +454,7 @@ export function FormFillClient({
     } catch {
       setChatMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: "Sorry, I couldn't process that. Please try again." },
+        { role: 'assistant', content: t('form.aiError') },
       ]);
     } finally {
       setChatLoading(false);
@@ -465,31 +465,31 @@ export function FormFillClient({
   if (!section) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-muted-foreground">No questions found.</p>
+        <p className="text-muted-foreground">{t('form.noQuestions')}</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 pb-20">
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 pb-24 sm:pb-20">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-border/40 bg-white/80 backdrop-blur-xl shadow-sm">
+      <header className="sticky top-0 z-50 border-b border-border/40 bg-card/80 backdrop-blur-xl shadow-sm">
         <div className="container mx-auto flex h-14 items-center justify-between px-4">
           <Link href="/">
             <WmcLogo size="sm" />
           </Link>
 
-          <div className="flex items-center gap-3 text-sm">
-            <Badge variant="secondary" className="gap-1.5 text-xs">
+          <div className="flex items-center gap-2 sm:gap-3 text-sm">
+            <Badge variant="secondary" className="gap-1.5 text-xs hidden sm:inline-flex">
               <Sparkles className="h-3 w-3 text-[#FE0404]" />
-              AI-Assisted
+              {t('form.aiAssisted')}
             </Badge>
             {saving ? (
-              <span className="text-muted-foreground animate-pulse text-xs">
+              <span className="text-muted-foreground animate-pulse text-xs hidden sm:inline">
                 {t('form.saving')}
               </span>
             ) : lastSaved ? (
-              <span className="text-muted-foreground text-xs">
+              <span className="text-muted-foreground text-xs hidden sm:inline">
                 {t('form.autoSaved')}
               </span>
             ) : null}
@@ -513,7 +513,7 @@ export function FormFillClient({
       </header>
 
       {/* Section Navigation (pills) */}
-      <div className="border-b border-border/40 bg-white/50 backdrop-blur-sm">
+      <div className="border-b border-border/40 bg-card/50 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-3 overflow-x-auto">
           <div className="flex gap-2 min-w-max">
             {sections.map((s, idx) => {
@@ -554,11 +554,11 @@ export function FormFillClient({
         <div className="mb-6">
           <h2 className="text-2xl font-bold">{section.title}</h2>
           <p className="text-muted-foreground mt-1">
-            {section.questions.filter((q) => q.required).length} required questions
+            {section.questions.filter((q) => q.required).length} {t('form.requiredQuestions')}
             <span className="mx-2">·</span>
             <span className="text-xs inline-flex items-center gap-1">
               <Sparkles className="h-3 w-3" />
-              AI will ask follow-ups if needed
+              {t('form.smartFollowups')}
             </span>
           </p>
         </div>
@@ -572,7 +572,7 @@ export function FormFillClient({
             return (
             <div key={question.id} className={`space-y-2 ${isSkipped ? 'opacity-50' : ''} ${isLater ? 'border-l-4 border-amber-400 pl-3' : ''}`}>
               {/* Main Question Card */}
-              <Card className="border-0 shadow-md shadow-black/5 bg-white/80 backdrop-blur-sm transition-all hover:shadow-lg hover:shadow-black/10">
+              <Card className="border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm transition-all hover:shadow-lg hover:shadow-black/10">
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between gap-2 mb-3">
                     <Label className="text-base font-medium flex items-center gap-2">
@@ -603,9 +603,10 @@ export function FormFillClient({
                             value={(answers[question.id] as string) || ''}
                             onChange={(e) => updateAnswer(question.id, e.target.value)}
                             onBlur={() => requestFollowUp(question.id, question.label)}
-                            placeholder="Your answer..."
+                            placeholder={t('form.yourAnswer')}
                           />
                           <VoiceRecorder
+                            locale={locale}
                             onTranscript={(text) =>
                               updateAnswer(question.id, ((answers[question.id] as string) || '') + ' ' + text)
                             }
@@ -619,11 +620,12 @@ export function FormFillClient({
                             value={(answers[question.id] as string) || ''}
                             onChange={(e) => updateAnswer(question.id, e.target.value)}
                             onBlur={() => requestFollowUp(question.id, question.label)}
-                            placeholder="Your answer..."
+                            placeholder={t('form.yourAnswer')}
                             rows={4}
                           />
                           <div className="flex justify-end">
                             <VoiceRecorder
+                              locale={locale}
                               onTranscript={(text) =>
                                 updateAnswer(question.id, ((answers[question.id] as string) || '') + ' ' + text)
                               }
@@ -693,10 +695,10 @@ export function FormFillClient({
                             />
                             <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                             <p className="text-sm text-muted-foreground">
-                              Drop files here or click to upload
+                              {t('form.dropFilesHere')}
                             </p>
                             <p className="text-xs text-muted-foreground mt-1">
-                              PDF, Word, PowerPoint, Excel, Images (max 10MB each)
+                              {t('form.allowedFileTypes')}
                             </p>
                           </label>
                           {files.length > 0 && (
@@ -713,7 +715,7 @@ export function FormFillClient({
                                     <span className="truncate flex-1">{file.name}</span>
                                     <span className="text-xs text-muted-foreground shrink-0">{(file.size / 1024).toFixed(0)} KB</span>
                                     {file.uploading ? (
-                                      <span className="text-xs text-[#FE0404] animate-pulse">Uploading...</span>
+                                      <span className="text-xs text-[#FE0404] animate-pulse">{t('form.uploading')}</span>
                                     ) : (
                                       <button onClick={() => removeFile(question.id, idx)} className="text-muted-foreground hover:text-destructive">
                                         <X className="h-3.5 w-3.5" />
@@ -732,7 +734,7 @@ export function FormFillClient({
                         <div className="mt-2">
                           <label className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground cursor-pointer transition-colors">
                             <Paperclip className="h-3 w-3" />
-                            Attach document
+                            {t('form.attachDocument')}
                             <input
                               type="file"
                               className="hidden"
@@ -761,13 +763,13 @@ export function FormFillClient({
 
                   {isSkipped && (
                     <p className="text-sm text-muted-foreground italic">
-                      Skipped — <button onClick={() => skipQuestion(question.id)} className="text-[#FE0404] hover:underline">undo</button>
+                      {t('form.skippedPrefix')} — <button onClick={() => skipQuestion(question.id)} className="text-[#FE0404] hover:underline">{t('form.undoSkip')}</button>
                     </p>
                   )}
 
                   {isLater && !isSkipped && (
                     <p className="text-sm text-amber-700">
-                      Marked for later — <button onClick={() => toggleAnswerLater(question.id)} className="text-[#FE0404] hover:underline">answer now</button>
+                      {t('form.markedLaterPrefix')} — <button onClick={() => toggleAnswerLater(question.id)} className="text-[#FE0404] hover:underline">{t('form.answerNow')}</button>
                     </p>
                   )}
 
@@ -780,7 +782,7 @@ export function FormFillClient({
                           className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
                         >
                           <SkipForward className="h-3 w-3" />
-                          Skip
+                          {t('form.skipQuestion')}
                         </button>
                       )}
                       <button
@@ -788,7 +790,7 @@ export function FormFillClient({
                         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
                       >
                         <Clock className="h-3 w-3" />
-                        Answer later
+                        {t('form.answerLater')}
                       </button>
                     </div>
                   )}
@@ -797,11 +799,11 @@ export function FormFillClient({
 
               {/* AI Follow-up (inline, below the question) */}
               {followUps[question.id] && !followUps[question.id].dismissed && (
-                <div className="ml-6 animate-slide-up">
+                <div className="ml-2 sm:ml-6 animate-slide-up">
                   {followUps[question.id].loading ? (
                     <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
                       <Loader2 className="h-3.5 w-3.5 animate-spin text-[#FE0404]" />
-                      <span>AI is analyzing your answer...</span>
+                      <span>{t('form.aiAnalyzing')}</span>
                     </div>
                   ) : (
                     <Card className="border border-[#FE0404]/15 bg-gradient-to-r from-[#FE0404]/[0.03] to-transparent shadow-sm">
@@ -826,11 +828,12 @@ export function FormFillClient({
                               <Input
                                 value={followUps[question.id].answer}
                                 onChange={(e) => updateFollowUpAnswer(question.id, e.target.value)}
-                                placeholder="Your clarification..."
+                                placeholder={t('form.yourClarification')}
                                 className="text-sm h-9 border-[#FE0404]/20 focus:border-[#FE0404] focus:ring-[#FE0404]/20"
                               />
                               <VoiceRecorder
                                 compact
+                                locale={locale}
                                 onTranscript={(text) =>
                                   updateFollowUpAnswer(question.id, followUps[question.id].answer + ' ' + text)
                                 }
@@ -883,16 +886,16 @@ export function FormFillClient({
       </main>
 
       {/* Floating AI Chat Assistant */}
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
         {chatOpen && (
-          <Card className="mb-3 w-[360px] max-h-[480px] flex flex-col border-0 shadow-2xl shadow-black/15 bg-white/95 backdrop-blur-xl animate-slide-up overflow-hidden rounded-2xl">
+          <Card className="mb-3 w-[calc(100vw-3rem)] sm:w-[360px] max-h-[70vh] sm:max-h-[480px] flex flex-col border-0 shadow-2xl shadow-black/15 bg-card/95 backdrop-blur-xl animate-slide-up overflow-hidden rounded-2xl">
             {/* Chat Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b bg-gradient-to-r from-[#FE0404] to-[#D00303] text-white rounded-t-2xl">
               <div className="flex items-center gap-2">
                 <Bot className="h-4 w-4" />
-                <span className="font-medium text-sm">AI Assistant</span>
+                <span className="font-medium text-sm">{t('form.aiAssistant')}</span>
               </div>
-              <button onClick={() => setChatOpen(false)} className="hover:bg-white/20 rounded p-1 transition-colors">
+              <button onClick={() => setChatOpen(false)} className="hover:bg-card/20 rounded p-1 transition-colors">
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -934,7 +937,7 @@ export function FormFillClient({
                       sendChatMessage();
                     }
                   }}
-                  placeholder="Ask anything..."
+                  placeholder={t('form.askAnything')}
                   disabled={chatLoading}
                   className="text-sm h-9"
                 />

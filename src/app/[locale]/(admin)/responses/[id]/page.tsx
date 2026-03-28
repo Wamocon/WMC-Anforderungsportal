@@ -192,7 +192,7 @@ export default function ResponseDetailPage() {
     if (url) {
       window.open(url, '_blank');
     } else {
-      toast.error('Could not generate download link');
+      toast.error(t('admin.downloadLinkError'));
     }
   }
 
@@ -272,7 +272,7 @@ export default function ResponseDetailPage() {
         setAiSummary(content);
       }
     } catch {
-      toast.error('Failed to generate AI summary');
+      toast.error(t('admin.failedSummary'));
     } finally {
       setSummaryLoading(false);
     }
@@ -309,17 +309,17 @@ export default function ResponseDetailPage() {
         });
       }
 
-      toast.success('Follow-up request sent');
+      toast.success(t('admin.followUpSent'));
       setFollowUpText('');
     } catch {
-      toast.error('Failed to send follow-up');
+      toast.error(t('admin.followUpFailed'));
     } finally {
       setSendingFollowUp(false);
     }
   }
 
   const statusColors: Record<string, string> = {
-    draft: 'bg-gray-100 text-gray-800',
+    draft: 'bg-muted text-muted-foreground',
     in_progress: 'bg-blue-100 text-blue-800',
     submitted: 'bg-green-100 text-green-800',
     reviewed: 'bg-purple-100 text-purple-800',
@@ -337,9 +337,9 @@ export default function ResponseDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
         <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
-        <h2 className="text-xl font-semibold mb-2">Response not found</h2>
+        <h2 className="text-xl font-semibold mb-2">{t('admin.responseNotFound')}</h2>
         <Link href="/responses">
-          <Button variant="outline">Back to Responses</Button>
+          <Button variant="outline">{t('admin.backToResponses')}</Button>
         </Link>
       </div>
     );
@@ -350,26 +350,26 @@ export default function ResponseDetailPage() {
   return (
     <div className="space-y-6 max-w-4xl">
       {/* Header */}
-      <div className="flex items-start gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-start gap-4">
         <Link href="/responses">
-          <Button variant="ghost" size="icon" className="mt-1">
+          <Button variant="ghost" size="icon" className="mt-1 shrink-0">
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </Link>
-        <div className="flex-1">
-          <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-3xl font-bold tracking-tight">
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight break-all">
               {response.respondent_name || response.respondent_email}
             </h1>
             <Badge className={statusColors[response.status] || ''}>
               {response.status.replace('_', ' ')}
             </Badge>
           </div>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-1 truncate">
             {projectName} · {response.respondent_email}
           </p>
         </div>
-        <Button variant="outline" className="gap-2 shrink-0" onClick={() => {
+        <Button variant="outline" className="gap-2 shrink-0 w-full sm:w-auto" onClick={() => {
           const data = sections.map(sec => ({
             section: getLabel(sec.title),
             questions: questions.filter(q => q.section_id === sec.id).map(q => {
@@ -390,7 +390,7 @@ export default function ResponseDetailPage() {
       </div>
 
       {/* Info Cards */}
-      <div className="grid gap-4 sm:grid-cols-4">
+      <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
             <User className="h-5 w-5 text-muted-foreground" />
@@ -413,11 +413,11 @@ export default function ResponseDetailPage() {
           <CardContent className="p-4 flex items-center gap-3">
             <Calendar className="h-5 w-5 text-muted-foreground" />
             <div>
-              <p className="text-xs text-muted-foreground">Submitted</p>
+              <p className="text-xs text-muted-foreground">{t('admin.submitted')}</p>
               <p className="text-sm font-medium">
                 {response.submitted_at
-                  ? new Date(response.submitted_at).toLocaleDateString('de-DE')
-                  : 'Not yet'}
+                  ? new Date(response.submitted_at).toLocaleDateString(locale)
+                  : t('admin.notYet')}
               </p>
             </div>
           </CardContent>
@@ -426,7 +426,7 @@ export default function ResponseDetailPage() {
           <CardContent className="p-4 flex items-center gap-3">
             <FileText className="h-5 w-5 text-muted-foreground" />
             <div>
-              <p className="text-xs text-muted-foreground">Answers</p>
+              <p className="text-xs text-muted-foreground">{t('admin.answersLabel')}</p>
               <p className="text-sm font-medium">{answers.length} / {questions.length}</p>
             </div>
           </CardContent>
@@ -564,7 +564,7 @@ export default function ResponseDetailPage() {
       {/* AI Summary */}
       <Card className="border-0 shadow-md shadow-black/5">
         <CardHeader className="bg-gradient-to-r from-[#FE0404]/5 to-transparent">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <CardTitle className="text-lg flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-[#FE0404]" />
               AI Executive Summary
@@ -572,7 +572,7 @@ export default function ResponseDetailPage() {
             <Button
               onClick={generateAiSummary}
               disabled={summaryLoading}
-              className="bg-[#FE0404] hover:bg-[#E00303] text-white gap-2"
+              className="bg-[#FE0404] hover:bg-[#E00303] text-white gap-2 w-full sm:w-auto"
               size="sm"
             >
               {summaryLoading ? (
@@ -600,17 +600,17 @@ export default function ResponseDetailPage() {
       {/* Follow-up Request */}
       <Card className="border-0 shadow-md shadow-black/5">
         <CardHeader>
-          <CardTitle className="text-lg">Request Follow-up</CardTitle>
+          <CardTitle className="text-lg">{t('admin.requestFollowUp')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <p className="text-sm text-muted-foreground">
-            Need more information from the client? Send a follow-up request that will be shown to them when they revisit the form.
+            {t('admin.followUpDescription')}
           </p>
           <div className="flex gap-2">
             <Textarea
               value={followUpText}
               onChange={(e) => setFollowUpText(e.target.value)}
-              placeholder="e.g., Could you clarify the user roles section? We need specific permission levels..."
+              placeholder={t('admin.followUpPlaceholder')}
               rows={2}
               className="flex-1"
             />
@@ -627,16 +627,16 @@ export default function ResponseDetailPage() {
               ) : (
                 <Send className="h-4 w-4" />
               )}
-              Send Follow-up
+              {t('admin.sendFollowUp')}
             </Button>
           </div>
         </CardContent>
       </Card>
 
       {/* Actions */}
-      <div className="flex items-center justify-between pt-4 border-t">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t">
         <Link href="/responses">
-          <Button variant="outline" className="gap-2">
+          <Button variant="outline" className="gap-2 w-full sm:w-auto">
             <ArrowLeft className="h-4 w-4" />
             Back to Responses
           </Button>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
+import { useLocale } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
@@ -30,6 +31,8 @@ type ResponseRow = {
 
 export default function DashboardPage() {
   const t = useTranslations('admin');
+  const tResponse = useTranslations('response');
+  const locale = useLocale();
   const [loading, setLoading] = useState(true);
   const [totalProjects, setTotalProjects] = useState(0);
   const [activeProjects, setActiveProjects] = useState(0);
@@ -66,7 +69,7 @@ export default function DashboardPage() {
   }, []);
 
   const statusColors: Record<string, string> = {
-    draft: 'bg-gray-100 text-gray-800',
+    draft: 'bg-muted text-muted-foreground',
     in_progress: 'bg-blue-100 text-blue-800',
     submitted: 'bg-green-100 text-green-800',
     reviewed: 'bg-purple-100 text-purple-800',
@@ -126,7 +129,7 @@ export default function DashboardPage() {
       {/* Stats Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat, i) => (
-          <Card key={stat.title} className={`group border-0 shadow-md shadow-black/5 hover:shadow-xl hover:shadow-black/10 transition-all duration-300 hover:-translate-y-1 bg-white/80 backdrop-blur-sm ring-1 ${stat.ring} animate-slide-up stagger-${i + 1}`}>
+          <Card key={stat.title} className={`group border-0 shadow-md shadow-black/5 hover:shadow-xl hover:shadow-black/10 transition-all duration-300 hover:-translate-y-1 bg-card/80 backdrop-blur-sm ring-1 ${stat.ring} animate-slide-up stagger-${i + 1}`}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -147,26 +150,26 @@ export default function DashboardPage() {
       {/* Recent Activity + Quick Actions */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Recent Activity */}
-        <Card className="lg:col-span-2 border-0 shadow-md shadow-black/5 bg-white/80 backdrop-blur-sm">
+        <Card className="lg:col-span-2 border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <div className="rounded-lg bg-gradient-to-br from-gray-100 to-gray-50 p-1.5">
                 <Users className="h-4 w-4 text-muted-foreground" />
               </div>
-              Recent Activity
+              {t('recentActivity')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {recentResponses.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <MessageSquareText className="h-10 w-10 mx-auto mb-3 opacity-30" />
-                <p className="text-sm">No responses yet. Share a project link to get started.</p>
+                <p className="text-sm">{t('noResponsesYet')}</p>
               </div>
             ) : (
               <div className="space-y-3">
                 {recentResponses.map((r) => (
                   <Link key={r.id} href={`/responses/${r.id}`}>
-                    <div className="flex items-center justify-between rounded-lg border p-3 hover:bg-accent/30 transition-colors cursor-pointer">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 rounded-lg border p-3 hover:bg-accent/30 transition-colors cursor-pointer">
                       <div className="flex items-center gap-3 min-w-0">
                         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FE0404]/10 text-[#FE0404] font-semibold text-sm shrink-0">
                           {(r.respondent_name || r.respondent_email)?.[0]?.toUpperCase() ?? '?'}
@@ -174,12 +177,12 @@ export default function DashboardPage() {
                         <div className="min-w-0">
                           <p className="font-medium text-sm truncate">{r.respondent_name || r.respondent_email}</p>
                           <p className="text-xs text-muted-foreground">
-                            {new Date(r.updated_at).toLocaleDateString('de-DE', { day: '2-digit', month: 'short', year: 'numeric' })}
+                            {new Date(r.updated_at).toLocaleDateString(locale, { day: '2-digit', month: 'short', year: 'numeric' })}
                           </p>
                         </div>
                       </div>
-                      <Badge variant="secondary" className={statusColors[r.status] || ''}>
-                        {r.status.replace('_', ' ')}
+                      <Badge variant="secondary" className={`${statusColors[r.status] || ''} self-start sm:self-center shrink-0`}>
+                        {tResponse(`status.${r.status}`, { defaultValue: r.status.replace('_', ' ') })}
                       </Badge>
                     </div>
                   </Link>
@@ -190,7 +193,7 @@ export default function DashboardPage() {
         </Card>
 
         {/* Quick Actions */}
-        <Card className="border-0 shadow-md shadow-black/5 bg-white/80 backdrop-blur-sm">
+        <Card className="border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="text-lg">{t('quickActions')}</CardTitle>
           </CardHeader>
@@ -206,7 +209,7 @@ export default function DashboardPage() {
                 <div className="text-left">
                   <p className="font-medium">{t('createProject')}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Start a new requirement collection
+                    {t('createProjectDesc')}
                   </p>
                 </div>
               </Button>
@@ -223,7 +226,7 @@ export default function DashboardPage() {
                 <div className="text-left">
                   <p className="font-medium">{t('manageTemplates')}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Create or edit form templates
+                    {t('manageTemplatesActionDesc')}
                   </p>
                 </div>
               </Button>
@@ -240,7 +243,7 @@ export default function DashboardPage() {
                 <div className="text-left">
                   <p className="font-medium">{t('viewResponses')}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Review client submissions
+                    {t('viewResponsesDesc')}
                   </p>
                 </div>
               </Button>

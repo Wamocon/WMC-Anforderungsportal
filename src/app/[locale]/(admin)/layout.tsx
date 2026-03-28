@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { LanguageSwitcher } from '@/components/language-switcher';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { WmcLogo } from '@/components/wmc-logo';
 import {
   LayoutDashboard,
@@ -133,12 +134,15 @@ export default function AdminLayout({
             </div>
           )}
           {(!collapsed || isMobile) && <LanguageSwitcher />}
+          <div className={cn('flex items-center', collapsed && !isMobile ? 'justify-center' : 'px-3')}>
+            <ThemeToggle />
+          </div>
           <button
             onClick={handleLogout}
             className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-200"
           >
             <LogOut className="h-5 w-5 shrink-0" />
-            {(!collapsed || isMobile) && <span>Log out</span>}
+            {(!collapsed || isMobile) && <span>{t('logout')}</span>}
           </button>
         </div>
       </div>
@@ -148,7 +152,7 @@ export default function AdminLayout({
   // Show loading spinner while checking auth
   if (!authChecked) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gray-50/30">
+      <div className="flex h-screen items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
           <WmcLogo size="md" />
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -158,11 +162,11 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50/30">
+    <div className="flex h-screen overflow-hidden bg-muted/30">
       {/* Desktop Sidebar */}
       <aside
         className={cn(
-          'hidden lg:flex flex-col border-r border-border/50 bg-white/80 backdrop-blur-xl transition-all duration-300',
+          'hidden lg:flex flex-col border-r border-border/50 bg-card/80 backdrop-blur-xl transition-all duration-300',
           collapsed ? 'w-[72px]' : 'w-64'
         )}
       >
@@ -179,7 +183,7 @@ export default function AdminLayout({
       {/* Main Content */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Mobile Header */}
-        <header className="flex h-16 items-center border-b border-border/50 bg-white/80 backdrop-blur-xl px-4 lg:hidden">
+        <header className="flex h-16 items-center border-b border-border/50 bg-card/80 backdrop-blur-xl px-4 lg:hidden">
           <button
             onClick={() => setMobileOpen(true)}
             className="inline-flex items-center justify-center rounded-lg p-2 text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
@@ -189,14 +193,15 @@ export default function AdminLayout({
           <div className="ml-3">
             <WmcLogo size="sm" />
           </div>
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-2">
+            <ThemeToggle />
             <LanguageSwitcher />
           </div>
         </header>
 
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto">
-          <div className="container mx-auto p-6 max-w-7xl animate-fade-in">
+          <div className="container mx-auto p-4 sm:p-6 max-w-7xl animate-fade-in">
             {children}
           </div>
         </main>

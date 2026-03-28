@@ -118,13 +118,13 @@ export default function TemplatesPage() {
         return;
       }
 
-      toast.success('Template created');
+      toast.success(t('admin.templateCreated'));
       setDialogOpen(false);
       setNewName('');
       setNewDesc('');
       await loadTemplates();
     } catch {
-      toast.error('Failed to create template');
+      toast.error(t('admin.failedTemplate'));
     } finally {
       setCreating(false);
     }
@@ -140,18 +140,18 @@ export default function TemplatesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
             {t('admin.templates')}
           </h1>
           <p className="text-muted-foreground mt-1">
-            Create and manage requirement form templates
+            {t('admin.manageTemplatesDesc')}
           </p>
         </div>
         <Button
           onClick={() => setDialogOpen(true)}
-          className="bg-[#FE0404] hover:bg-[#E00303] text-white gap-2"
+          className="bg-[#FE0404] hover:bg-[#E00303] text-white gap-2 w-full sm:w-auto"
         >
           <Plus className="h-4 w-4" />
           {t('template.newTemplate')}
@@ -168,14 +168,14 @@ export default function TemplatesPage() {
       )}
 
       {templates.length === 0 ? (
-        <Card className="border-0 shadow-md shadow-black/5 bg-white/80 backdrop-blur-sm">
+        <Card className="border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm">
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
             <div className="rounded-2xl bg-muted p-4 mb-4">
               <FileText className="h-10 w-10 text-muted-foreground" />
             </div>
-            <h3 className="text-lg font-semibold mb-2">No templates yet</h3>
+            <h3 className="text-lg font-semibold mb-2">{t('admin.noTemplatesYet')}</h3>
             <p className="text-muted-foreground max-w-md mb-6">
-              Templates define the questions your clients will answer.
+              {t('admin.templatesDescription')}
             </p>
             <Button
               onClick={() => setDialogOpen(true)}
@@ -190,29 +190,29 @@ export default function TemplatesPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {templates.map((template) => (
             <Link key={template.id} href={`/templates/${template.id}`}>
-              <Card className="border-0 shadow-md shadow-black/5 bg-white/80 backdrop-blur-sm transition-all hover:shadow-lg hover:border-[#FE0404]/20 h-full cursor-pointer">
+              <Card className="border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm transition-all hover:shadow-lg hover:border-[#FE0404]/20 h-full cursor-pointer">
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold">{template.name}</h3>
                       <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                        {template.description || 'No description'}
+                        {template.description || t('admin.noDescription')}
                       </p>
                     </div>
                     {template.is_default && (
                       <Badge variant="secondary" className="bg-[#FE0404]/10 text-[#FE0404] shrink-0 ml-2">
-                        Default
+                        {t('common.default')}
                       </Badge>
                     )}
                   </div>
                   <div className="mt-4 flex items-center gap-4 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1">
                       <Layers className="h-3 w-3" />
-                      {template.sectionCount} sections
+                      {template.sectionCount} {t('admin.sections')}
                     </span>
                     <span className="flex items-center gap-1">
                       <HelpCircle className="h-3 w-3" />
-                      {template.questionCount} questions
+                      {template.questionCount} {t('admin.questions')}
                     </span>
                   </div>
                 </CardContent>
@@ -226,35 +226,35 @@ export default function TemplatesPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create New Template</DialogTitle>
+            <DialogTitle>{t('admin.createNewTemplate')}</DialogTitle>
             <DialogDescription>
-              Define a new requirement form template with questions for your clients.
+              {t('admin.createNewTemplateDesc')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label htmlFor="tmpl-name">Template Name *</Label>
+              <Label htmlFor="tmpl-name">{t('admin.templateNameRequired')}</Label>
               <Input
                 id="tmpl-name"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
-                placeholder="e.g., Mobile App Requirements"
+                placeholder={t('admin.templateNamePlaceholder')}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="tmpl-desc">Description</Label>
+              <Label htmlFor="tmpl-desc">{t('admin.descriptionLabel')}</Label>
               <Textarea
                 id="tmpl-desc"
                 value={newDesc}
                 onChange={(e) => setNewDesc(e.target.value)}
-                placeholder="What is this template for?"
+                placeholder={t('admin.descPlaceholder')}
                 rows={3}
               />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               onClick={handleCreateTemplate}
@@ -262,7 +262,7 @@ export default function TemplatesPage() {
               className="bg-[#FE0404] hover:bg-[#E00303] text-white gap-2"
             >
               {creating && <Loader2 className="h-4 w-4 animate-spin" />}
-              Create Template
+              {t('admin.createTemplate')}
             </Button>
           </DialogFooter>
         </DialogContent>

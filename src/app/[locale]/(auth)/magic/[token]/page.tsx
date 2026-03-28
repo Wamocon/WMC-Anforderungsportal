@@ -1,4 +1,4 @@
-import { setRequestLocale } from 'next-intl/server';
+import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
@@ -65,23 +65,29 @@ export default async function MagicLinkPage({
 }
 
 function MagicLinkError({ locale, reason }: { locale: string; reason: string }) {
+  return <MagicLinkErrorContent locale={locale} reason={reason} />;
+}
+
+async function MagicLinkErrorContent({ locale, reason }: { locale: string; reason: string }) {
+  const t = await getTranslations('errors');
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-gray-100" />
-      <Card className="relative w-full max-w-md text-center border-0 shadow-2xl shadow-black/5 bg-white/80 backdrop-blur-xl">
+      <Card className="relative w-full max-w-md text-center border-0 shadow-2xl shadow-black/5 bg-card/80 backdrop-blur-xl">
         <CardContent className="p-8">
           <AlertCircle className="h-12 w-12 mx-auto mb-4 text-destructive" />
           <h1 className="text-xl font-bold mb-2">
-            {reason === 'expired' ? 'Link Expired' : reason === 'revoked' ? 'Link Revoked' : 'Link Not Found'}
+            {reason === 'expired' ? t('linkExpiredTitle') : reason === 'revoked' ? t('linkRevokedTitle') : t('linkNotFoundTitle')}
           </h1>
           <p className="text-muted-foreground mb-6">
             {reason === 'expired'
-              ? 'This magic link has expired. Please request a new one.'
-              : 'This link is no longer valid. Please contact the project administrator.'}
+              ? t('linkExpired')
+              : t('linkRevoked')}
           </p>
           <Link href="/login">
             <Button className="bg-[#FE0404] hover:bg-[#E00303] text-white">
-              Go to Login
+              {t('goToLogin')}
             </Button>
           </Link>
         </CardContent>

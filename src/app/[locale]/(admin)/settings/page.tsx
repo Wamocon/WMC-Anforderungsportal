@@ -54,9 +54,9 @@ export default function SettingsPage() {
         .update({ name: form.name, slug: form.slug })
         .eq('id', org.id);
       if (error) throw error;
-      toast.success('Settings saved');
+      toast.success(t('admin.settingsSaved'));
     } catch {
-      toast.error('Failed to save settings');
+      toast.error(t('admin.failedSaveSettings'));
     } finally {
       setSaving(false);
     }
@@ -77,17 +77,17 @@ export default function SettingsPage() {
           {t('admin.settings')}
         </h1>
         <p className="text-muted-foreground mt-1">
-          Manage your organization settings
+          {t('admin.manageSettings')}
         </p>
       </div>
 
-      <Card className="border-0 shadow-md shadow-black/5 bg-white/80 backdrop-blur-sm">
+      <Card className="border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm">
         <CardHeader>
-          <CardTitle>Organization</CardTitle>
+          <CardTitle>{t('admin.organization')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="orgName">Organization Name</Label>
+            <Label htmlFor="orgName">{t('admin.organizationName')}</Label>
             <Input
               id="orgName"
               value={form.name}
@@ -95,7 +95,7 @@ export default function SettingsPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="orgSlug">Slug</Label>
+            <Label htmlFor="orgSlug">{t('admin.slug')}</Label>
             <Input
               id="orgSlug"
               value={form.slug}
@@ -105,13 +105,13 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
-      <Card className="border-0 shadow-md shadow-black/5 bg-white/80 backdrop-blur-sm">
+      <Card className="border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm">
         <CardHeader>
-          <CardTitle>Branding</CardTitle>
+          <CardTitle>{t('admin.branding')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label>Primary Color</Label>
+            <Label>{t('admin.primaryColor')}</Label>
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-lg bg-[#FE0404] border" />
               <Input
@@ -122,11 +122,11 @@ export default function SettingsPage() {
             </div>
           </div>
           <div className="space-y-2">
-            <Label>Logo</Label>
+            <Label>{t('admin.logo')}</Label>
             <div className="flex items-center gap-4">
               <WmcLogo size="lg" />
               <Button variant="outline" size="sm">
-                Upload Logo
+                {t('admin.uploadLogo')}
               </Button>
             </div>
           </div>

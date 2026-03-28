@@ -61,9 +61,10 @@ interface VoiceRecorderProps {
   onTranscript: (text: string) => void;
   onAudioBlob?: (blob: Blob) => void;
   compact?: boolean;
+  locale?: string;
 }
 
-export function VoiceRecorder({ onTranscript, onAudioBlob, compact }: VoiceRecorderProps) {
+export function VoiceRecorder({ onTranscript, onAudioBlob, compact, locale }: VoiceRecorderProps) {
   const t = useTranslations('form');
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
@@ -90,7 +91,7 @@ export function VoiceRecorder({ onTranscript, onAudioBlob, compact }: VoiceRecor
       window.SpeechRecognition || (window as unknown as { webkitSpeechRecognition: typeof window.SpeechRecognition }).webkitSpeechRecognition;
 
     if (!SpeechRecognitionAPI) {
-      toast.error('Voice recording is not supported in this browser. Please use Chrome or Edge.');
+      toast.error(t('voiceNotSupported'));
       return;
     }
 
@@ -140,7 +141,7 @@ export function VoiceRecorder({ onTranscript, onAudioBlob, compact }: VoiceRecor
     const recognition = new SpeechRecognitionAPI();
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.lang = document.documentElement.lang || 'de-DE';
+    recognition.lang = locale || document.documentElement.lang || 'de-DE';
 
     let finalTranscript = '';
 
@@ -163,7 +164,7 @@ export function VoiceRecorder({ onTranscript, onAudioBlob, compact }: VoiceRecor
       setIsRecording(false);
       setLiveTranscript('');
       if (event.error !== 'aborted') {
-        toast.error('Voice recognition error. Please try again.');
+          toast.error(t('voiceError'));
       }
     };
 
@@ -174,11 +175,23 @@ export function VoiceRecorder({ onTranscript, onAudioBlob, compact }: VoiceRecor
       }
       if (finalTranscript.trim()) {
         setIsTranscribing(true);
-        setTimeout(() => {
-          onTranscript(finalTranscript.trim());
-          setIsTranscribing(false);
-          setLiveTranscript('');
-        }, 300);
+        // AI grammar correction
+        fetch('/api/ai/polish-text', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: finalTranscript.trim(), locale: locale || document.documentElement.lang || 'de' }),
+        })
+          .then(res => res.json())
+          .then(data => {
+            onTranscript(data.polished || finalTranscript.trim());
+            setIsTranscribing(false);
+            setLiveTranscript('');
+          })
+          .catch(() => {
+            onTranscript(finalTranscript.trim());
+            setIsTranscribing(false);
+            setLiveTranscript('');
+          });
       } else {
         setLiveTranscript('');
       }

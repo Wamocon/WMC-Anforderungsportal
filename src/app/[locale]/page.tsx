@@ -14,8 +14,9 @@ import {
   Sparkles,
   CheckCircle2,
 } from 'lucide-react';
-import { LanguageSwitcher } from '@/components/language-switcher';
 import { WmcLogo } from '@/components/wmc-logo';
+import { LandingHeader } from '@/components/landing-header';
+import { RevealOnScroll } from '@/components/reveal-on-scroll';
 
 export default async function HomePage({
   params,
@@ -30,77 +31,65 @@ export default async function HomePage({
   const features = [
     {
       icon: ClipboardCheck,
-      title: 'Smart Forms',
-      description: 'Intelligent requirement forms with conditional logic, validation, and auto-save that never loses your progress.',
+      title: t('landing.smartForms'),
+      description: t('landing.smartFormsDesc'),
       gradient: 'from-blue-500 to-cyan-500',
       bg: 'bg-blue-500/10',
     },
     {
       icon: Mic,
-      title: 'Voice Input',
-      description: 'Speak your answers in any language — our free browser-native speech recognition transcribes in real-time.',
+      title: t('landing.voiceInput'),
+      description: t('landing.voiceInputDesc'),
       gradient: 'from-violet-500 to-purple-500',
       bg: 'bg-violet-500/10',
     },
     {
       icon: Bot,
-      title: 'AI Interviewer',
-      description: 'Let Gemini AI guide your clients through requirements via natural conversation in their preferred language.',
+      title: t('landing.aiInterviewer'),
+      description: t('landing.aiInterviewerDesc'),
       gradient: 'from-[#FE0404] to-orange-500',
       bg: 'bg-[#FE0404]/10',
     },
     {
       icon: Globe,
-      title: '25 Languages',
-      description: 'Complete support for all EU official languages plus Turkish and Russian — reach every client.',
+      title: t('landing.multiLanguage'),
+      description: t('landing.multiLanguageDesc'),
       gradient: 'from-emerald-500 to-teal-500',
       bg: 'bg-emerald-500/10',
     },
     {
       icon: Shield,
-      title: 'GDPR Compliant',
-      description: 'Enterprise-grade security with row-level policies, encrypted data, and full DSGVO compliance.',
+      title: t('landing.gdprCompliant'),
+      description: t('landing.gdprCompliantDesc'),
       gradient: 'from-amber-500 to-yellow-500',
       bg: 'bg-amber-500/10',
     },
     {
       icon: BarChart3,
-      title: 'Real-time Dashboard',
-      description: 'Track response progress, completion rates, and project timelines — all in one elegant dashboard.',
+      title: t('landing.realtimeDashboard'),
+      description: t('landing.realtimeDashboardDesc'),
       gradient: 'from-pink-500 to-rose-500',
       bg: 'bg-pink-500/10',
     },
   ];
 
   const stats = [
-    { value: '25', label: 'Languages Supported', icon: Globe },
-    { value: '100%', label: 'GDPR Compliant', icon: Shield },
-    { value: '< 5min', label: 'Setup Time', icon: Zap },
-    { value: '24/7', label: 'AI Available', icon: Bot },
+    { value: '25', label: t('landing.languagesSupported'), icon: Globe },
+    { value: '100%', label: t('landing.gdprCompliant'), icon: Shield },
+    { value: '< 5min', label: t('landing.setupTime'), icon: Zap },
+    { value: '24/7', label: t('landing.aiAvailable'), icon: Bot },
   ];
 
   const steps = [
-    { step: '01', title: 'Create a Project', desc: 'Set up your requirement collection in seconds with customizable templates.' },
-    { step: '02', title: 'Share the Link', desc: 'Send your clients a magic link — no account needed on their end.' },
-    { step: '03', title: 'Collect & Analyze', desc: 'Responses flow in real-time. Review, export, and start building.' },
+    { step: '01', title: t('landing.step1Title'), desc: t('landing.step1Desc') },
+    { step: '02', title: t('landing.step2Title'), desc: t('landing.step2Desc') },
+    { step: '03', title: t('landing.step3Title'), desc: t('landing.step3Desc') },
   ];
 
   return (
     <div className="flex min-h-screen flex-col overflow-hidden">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full glass">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
-          <WmcLogo size="md" showTagline />
-          <div className="flex items-center gap-3">
-            <LanguageSwitcher />
-            <Link href="/login">
-              <Button size="sm" className="bg-[#FE0404] hover:bg-[#D00303] text-white shadow-sm hover:shadow-md transition-all duration-300">
-                {t('auth.login')}
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </header>
+      <LandingHeader />
 
       <main className="flex-1">
         {/* Hero */}
@@ -111,25 +100,25 @@ export default async function HomePage({
             <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/8 rounded-full blur-3xl animate-pulse-glow" style={{ animationDelay: '2s' }} />
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-[#FE0404]/5 to-purple-500/5 rounded-full blur-3xl animate-pulse-glow" style={{ animationDelay: '4s' }} />
             {/* Grid pattern */}
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem]" />
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.02)_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:4rem_4rem]" />
           </div>
 
           <div className="container mx-auto px-4 sm:px-6 relative">
             <div className="mx-auto max-w-4xl text-center">
               {/* Badge */}
-              <div className="animate-slide-up inline-flex items-center gap-2 rounded-full border border-[#FE0404]/20 bg-white/80 backdrop-blur-sm px-4 py-2 text-sm font-medium text-[#FE0404] shadow-sm mb-8">
+              <div className="animate-slide-up inline-flex items-center gap-2 rounded-full border border-[#FE0404]/20 bg-card/80 backdrop-blur-sm px-4 py-2 text-sm font-medium text-[#FE0404] shadow-sm mb-8">
                 <Sparkles className="h-4 w-4" />
                 <span>{t('common.poweredBy')}</span>
               </div>
 
               {/* Heading */}
-              <h1 className="animate-slide-up stagger-1 text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1]">
-                <span className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent">
-                  Collect Requirements
+              <h1 className="animate-slide-up stagger-1 text-3xl xs:text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1]">
+                <span className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 dark:from-gray-100 dark:via-gray-200 dark:to-gray-100 bg-clip-text text-transparent">
+                  {t('landing.heroTitle1')}
                 </span>
                 <br />
                 <span className="bg-gradient-to-r from-[#FE0404] via-[#FF3333] to-[#CC0000] bg-clip-text text-transparent animate-gradient bg-[length:200%_200%]">
-                  Like a Pro
+                  {t('landing.heroTitle2')}
                 </span>
               </h1>
 
@@ -142,31 +131,31 @@ export default async function HomePage({
               <div className="animate-slide-up stagger-3 flex flex-col sm:flex-row items-center justify-center gap-4 mt-10">
                 <Link href="/login">
                   <Button size="lg" className="bg-[#FE0404] hover:bg-[#D00303] text-white gap-2 h-14 px-10 text-base font-semibold rounded-xl shadow-xl shadow-[#FE0404]/25 hover:shadow-2xl hover:shadow-[#FE0404]/30 hover:-translate-y-0.5 transition-all duration-300">
-                    Get Started Free
+                    {t('landing.getStarted')}
                     <ArrowRight className="h-5 w-5" />
                   </Button>
                 </Link>
                 <Link href="/login">
                   <Button variant="outline" size="lg" className="gap-2 h-14 px-10 text-base font-semibold rounded-xl hover:bg-accent/50 transition-all duration-300">
                     <Bot className="h-5 w-5" />
-                    Try AI Interview
+                    {t('landing.tryAiInterview')}
                   </Button>
                 </Link>
               </div>
 
               {/* Trust indicators */}
-              <div className="animate-slide-up stagger-4 mt-12 flex items-center justify-center gap-6 text-sm text-muted-foreground">
+              <div className="animate-slide-up stagger-4 mt-12 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1.5">
                   <CheckCircle2 className="h-4 w-4 text-green-500" />
-                  No credit card
+                  {t('landing.noCreditCard')}
                 </span>
                 <span className="flex items-center gap-1.5">
                   <CheckCircle2 className="h-4 w-4 text-green-500" />
-                  GDPR ready
+                  {t('landing.gdprReady')}
                 </span>
                 <span className="flex items-center gap-1.5">
                   <CheckCircle2 className="h-4 w-4 text-green-500" />
-                  25 languages
+                  {t('landing.langCount')}
                 </span>
               </div>
             </div>
@@ -174,37 +163,40 @@ export default async function HomePage({
         </section>
 
         {/* Stats */}
-        <section className="relative border-y bg-gradient-to-r from-gray-50 via-white to-gray-50">
-          <div className="container mx-auto px-4 sm:px-6 py-16">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+        <RevealOnScroll>
+        <section className="relative border-y bg-gradient-to-r from-gray-50 via-white to-gray-50 dark:from-muted/50 dark:via-background dark:to-muted/50">
+          <div className="container mx-auto px-4 sm:px-6 py-12 sm:py-16">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
               {stats.map((stat, i) => (
                 <div key={stat.label} className={`animate-slide-up stagger-${i + 1} text-center group`}>
                   <div className="inline-flex items-center justify-center rounded-2xl bg-[#FE0404]/10 p-3 mb-4 group-hover:bg-[#FE0404] group-hover:text-white transition-all duration-300 group-hover:shadow-lg group-hover:shadow-[#FE0404]/20">
                     <stat.icon className="h-6 w-6 text-[#FE0404] group-hover:text-white transition-colors" />
                   </div>
-                  <p className="text-3xl sm:text-4xl font-extrabold text-gray-900">{stat.value}</p>
+                  <p className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground">{stat.value}</p>
                   <p className="text-sm text-muted-foreground mt-1 font-medium">{stat.label}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
+        </RevealOnScroll>
 
         {/* Features */}
+        <RevealOnScroll delay={100}>
         <section className="relative py-24 sm:py-32">
           <div className="container mx-auto px-4 sm:px-6">
             <div className="text-center mb-16">
               <div className="inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-medium text-muted-foreground mb-4">
                 <Zap className="h-3.5 w-3.5 text-[#FE0404]" />
-                Features
+                {t('landing.features')}
               </div>
               <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4">
-                Everything you need to collect
+                {t('landing.everythingYouNeed1')}
                 <br />
-                <span className="text-[#FE0404]">perfect requirements</span>
+                <span className="text-[#FE0404]">{t('landing.everythingYouNeed2')}</span>
               </h2>
               <p className="text-muted-foreground max-w-xl mx-auto text-lg">
-                Professional tools designed for IT consultancies who want to impress clients from day one.
+                {t('landing.everythingYouNeedDesc')}
               </p>
             </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -227,17 +219,19 @@ export default async function HomePage({
             </div>
           </div>
         </section>
+        </RevealOnScroll>
 
         {/* How it works */}
-        <section className="relative py-24 bg-gradient-to-b from-gray-50 to-white">
+        <RevealOnScroll delay={100}>
+        <section className="relative py-16 sm:py-24 bg-gradient-to-b from-gray-50 to-white dark:from-muted/30 dark:to-background">
           <div className="container mx-auto px-4 sm:px-6">
             <div className="text-center mb-16">
               <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4">
-                Three steps to{' '}
-                <span className="text-[#FE0404]">better requirements</span>
+                {t('landing.stepsTitle1')}{' '}
+                <span className="text-[#FE0404]">{t('landing.stepsTitle2')}</span>
               </h2>
               <p className="text-muted-foreground max-w-lg mx-auto text-lg">
-                From project creation to analysis, we make it effortless.
+                {t('landing.stepsDesc')}
               </p>
             </div>
             <div className="grid gap-8 lg:grid-cols-3 max-w-5xl mx-auto">
@@ -259,8 +253,10 @@ export default async function HomePage({
             </div>
           </div>
         </section>
+        </RevealOnScroll>
 
         {/* CTA */}
+        <RevealOnScroll delay={150}>
         <section className="relative py-24">
           <div className="container mx-auto px-4 sm:px-6">
             <div className="relative rounded-3xl overflow-hidden">
@@ -271,16 +267,16 @@ export default async function HomePage({
 
               <div className="relative px-8 py-16 sm:px-16 sm:py-20 text-center text-white">
                 <h2 className="text-3xl sm:text-4xl font-extrabold mb-4">
-                  Ready to transform how you
+                  {t('landing.ctaTitle1')}
                   <br />
-                  collect requirements?
+                  {t('landing.ctaTitle2')}
                 </h2>
                 <p className="text-white/80 max-w-lg mx-auto mb-10 text-lg">
-                  Join professional IT consultancies who save hours on every project with WMC Anforderungsportal.
+                  {t('landing.ctaDesc')}
                 </p>
                 <Link href="/login">
-                  <Button size="lg" className="bg-white text-[#FE0404] hover:bg-gray-100 h-14 px-10 text-base font-bold rounded-xl shadow-2xl hover:-translate-y-0.5 transition-all duration-300 gap-2">
-                    Start Collecting Now
+                  <Button size="lg" className="bg-card text-[#FE0404] hover:bg-accent h-14 px-10 text-base font-bold rounded-xl shadow-2xl hover:-translate-y-0.5 transition-all duration-300 gap-2">
+                    {t('landing.ctaButton')}
                     <ArrowRight className="h-5 w-5" />
                   </Button>
                 </Link>
@@ -288,16 +284,27 @@ export default async function HomePage({
             </div>
           </div>
         </section>
+        </RevealOnScroll>
       </main>
 
       {/* Footer */}
-      <footer className="border-t bg-gray-50/50">
+      <footer className="border-t bg-muted/50">
         <div className="container mx-auto px-4 sm:px-6 py-10">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <WmcLogo size="sm" showTagline />
-            <p className="text-sm text-muted-foreground">
-              {t('common.copyright', { year: new Date().getFullYear() })}
-            </p>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium text-muted-foreground">
+                <svg viewBox="0 0 24 16" className="h-3.5 w-5 shrink-0 rounded-sm overflow-hidden shadow-sm">
+                  <rect width="24" height="5.33" fill="#000" />
+                  <rect y="5.33" width="24" height="5.33" fill="#D00000" />
+                  <rect y="10.67" width="24" height="5.33" fill="#FFCC00" />
+                </svg>
+                Made in Germany
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {t('common.copyright', { year: new Date().getFullYear() })}
+              </p>
+            </div>
           </div>
         </div>
       </footer>

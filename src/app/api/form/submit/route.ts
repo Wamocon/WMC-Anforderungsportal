@@ -13,6 +13,21 @@ export async function POST(req: NextRequest) {
 
     const supabase = await createClient();
 
+    // Verify response exists and is in_progress
+    const { data: existing } = await supabase
+      .from('responses')
+      .select('id, status')
+      .eq('id', responseId)
+      .single();
+
+    if (!existing) {
+      return NextResponse.json({ error: 'Response not found' }, { status: 404 });
+    }
+
+    if (existing.status === 'submitted') {
+      return NextResponse.json({ error: 'Already submitted' }, { status: 409 });
+    }
+
     const { error } = await supabase
       .from('responses')
       .update({
@@ -23,7 +38,7 @@ export async function POST(req: NextRequest) {
       .eq('id', responseId);
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: 'Submission failed' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });

@@ -56,7 +56,7 @@ export default function ProjectsPage() {
   }, []);
 
   const statusColors: Record<string, string> = {
-    draft: 'bg-gray-100 text-gray-800',
+    draft: 'bg-muted text-muted-foreground',
     active: 'bg-green-100 text-green-800',
     archived: 'bg-orange-100 text-orange-800',
   };
@@ -71,17 +71,17 @@ export default function ProjectsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
             {t('admin.projects')}
           </h1>
           <p className="text-muted-foreground mt-1">
-            Manage your requirement collection projects
+            {t('admin.manageProjects')}
           </p>
         </div>
         <Link href="/projects/new">
-          <Button className="bg-[#FE0404] hover:bg-[#E00303] text-white gap-2">
+          <Button className="bg-[#FE0404] hover:bg-[#E00303] text-white gap-2 w-full sm:w-auto">
             <Plus className="h-4 w-4" />
             {t('project.newProject')}
           </Button>
@@ -94,7 +94,7 @@ export default function ProjectsPage() {
             <div className="rounded-2xl bg-muted p-4 mb-4">
               <FolderKanban className="h-10 w-10 text-muted-foreground" />
             </div>
-            <h3 className="text-lg font-semibold mb-2">No projects yet</h3>
+            <h3 className="text-lg font-semibold mb-2">{t('admin.noProjectsYet')}</h3>
             <p className="text-muted-foreground max-w-md mb-6">
               {t('project.noProjects')}
             </p>
@@ -118,7 +118,7 @@ export default function ProjectsPage() {
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold truncate">{project.name}</h3>
                         <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                          {project.description || 'No description'}
+                          {project.description || t('admin.noDescription')}
                         </p>
                       </div>
                       <DropdownMenu>
@@ -132,12 +132,12 @@ export default function ProjectsPage() {
                           <DropdownMenuItem className="text-destructive" onClick={async (e) => {
                             e.stopPropagation();
                             e.preventDefault();
-                            if (!confirm(`Delete project "${project.name}"? This cannot be undone.`)) return;
+                            if (!confirm(t('admin.deleteProjectConfirm', { name: project.name }))) return;
                             const supabase = createClient();
                             const { error } = await supabase.from('projects').delete().eq('id', project.id);
                             if (error) { toast.error(error.message); return; }
                             setProjects(prev => prev.filter(p => p.id !== project.id));
-                            toast.success('Project deleted');
+                            toast.success(t('admin.projectDeleted'));
                           }}>
                             {t('common.delete')}
                           </DropdownMenuItem>

@@ -52,6 +52,24 @@ export default async function middleware(request: NextRequest) {
     intlResponse.cookies.set(cookie.name, cookie.value, cookie);
   });
 
+  // Security headers
+  intlResponse.headers.set('X-Frame-Options', 'DENY');
+  intlResponse.headers.set('X-Content-Type-Options', 'nosniff');
+  intlResponse.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  intlResponse.headers.set('Permissions-Policy', 'camera=(), geolocation=(), microphone=(self)');
+  intlResponse.headers.set(
+    'Content-Security-Policy',
+    [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' https://fonts.gstatic.com",
+      "img-src 'self' data: blob: https://*.supabase.co",
+      "connect-src 'self' https://*.supabase.co https://generativelanguage.googleapis.com wss://*.supabase.co",
+      "frame-ancestors 'none'",
+    ].join('; ')
+  );
+
   return intlResponse;
 }
 

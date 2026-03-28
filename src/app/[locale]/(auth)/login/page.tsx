@@ -37,7 +37,7 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<'password' | 'magic'>('password');
   const [errorMsg, setErrorMsg] = useState<string | null>(
-    authError === 'auth_failed' ? 'Authentication failed. Please try again.' : null
+    authError === 'auth_failed' ? t('auth.authFailed') : null
   );
 
   async function handleLogin(e: React.FormEvent) {
@@ -66,7 +66,7 @@ function LoginForm() {
         });
         if (error) {
           if (error.message.includes('Invalid login')) {
-            setErrorMsg('Invalid email or password. Please check your credentials.');
+            setErrorMsg(t('auth.invalidCredentials'));
           } else {
             setErrorMsg(error.message);
           }
@@ -86,7 +86,7 @@ function LoginForm() {
         }
       }
     } catch {
-      setErrorMsg('Login failed. Please check your credentials and try again.');
+      setErrorMsg(t('auth.loginFailed'));
     } finally {
       setLoading(false);
     }
@@ -111,7 +111,7 @@ function LoginForm() {
         </Link>
 
         {/* Card */}
-        <Card className="border-0 shadow-2xl shadow-black/5 bg-white/80 backdrop-blur-xl">
+        <Card className="border-0 shadow-2xl shadow-black/5 bg-card/80 backdrop-blur-xl">
           <CardHeader className="text-center pb-2">
             <CardTitle className="text-2xl font-bold">{t('auth.loginTitle')}</CardTitle>
             <CardDescription className="text-base">{t('auth.loginSubtitle')}</CardDescription>
@@ -131,7 +131,7 @@ function LoginForm() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="name@example.com"
+                    placeholder={t('auth.emailPlaceholder')}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -184,7 +184,7 @@ function LoginForm() {
                   <div className="w-full border-t border-border/60" />
                 </div>
                 <div className="relative flex justify-center text-xs">
-                  <span className="bg-white/80 px-3 text-muted-foreground">or</span>
+                  <span className="bg-card/80 px-3 text-muted-foreground">{t('auth.or')}</span>
                 </div>
               </div>
 
@@ -196,12 +196,12 @@ function LoginForm() {
                 {mode === 'password' ? (
                   <>
                     <Mail className="h-4 w-4" />
-                    Use magic link instead
+                    {t('auth.useMagicLink')}
                   </>
                 ) : (
                   <>
                     <Lock className="h-4 w-4" />
-                    Use password instead
+                    {t('auth.usePassword')}
                   </>
                 )}
               </button>

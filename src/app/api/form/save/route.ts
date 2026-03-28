@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
         .single();
 
       if (respErr) {
-        return NextResponse.json({ error: respErr.message }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to create response' }, { status: 500 });
       }
       currentResponseId = resp.id;
     } else {
@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
         .upsert(answerRows, { onConflict: 'response_id,question_id' });
 
       if (ansErr) {
-        return NextResponse.json({ error: ansErr.message }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to save answers' }, { status: 500 });
       }
     }
 

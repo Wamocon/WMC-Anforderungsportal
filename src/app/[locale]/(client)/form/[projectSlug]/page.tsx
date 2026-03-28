@@ -33,14 +33,14 @@ export default async function FormWelcomePage({
     return (
       <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-gray-100" />
-        <Card className="relative max-w-md w-full mx-4 border-0 shadow-2xl shadow-black/5 bg-white/80 backdrop-blur-xl">
+        <Card className="relative max-w-md w-full mx-4 border-0 shadow-2xl shadow-black/5 bg-card/80 backdrop-blur-xl">
           <CardContent className="p-8 text-center">
             <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-orange-100 mb-4">
               <AlertTriangle className="h-8 w-8 text-orange-600" />
             </div>
-            <h1 className="text-2xl font-bold mb-2">Project Not Found</h1>
+            <h1 className="text-2xl font-bold mb-2">{t('form.projectNotFound')}</h1>
             <p className="text-muted-foreground">
-              This project link may be invalid or the project is no longer accepting responses.
+              {t('form.projectNotFoundDesc')}
             </p>
           </CardContent>
         </Card>
@@ -93,7 +93,7 @@ export default async function FormWelcomePage({
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl" />
 
       {/* Header */}
-      <header className="relative border-b border-border/40 bg-white/80 backdrop-blur-xl">
+      <header className="relative border-b border-border/40 bg-card/80 backdrop-blur-xl">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <WmcLogo size="md" />
           <LanguageSwitcher />
@@ -114,7 +114,7 @@ export default async function FormWelcomePage({
           </p>
         </div>
 
-        <Card className="mb-8 border-0 shadow-md shadow-black/5 bg-white/80 backdrop-blur-sm">
+        <Card className="mb-8 border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm">
           <CardContent className="p-6 sm:p-8">
             <p className="text-foreground leading-relaxed whitespace-pre-line">
               {welcomeMessage}
@@ -124,7 +124,7 @@ export default async function FormWelcomePage({
 
         {/* Info Cards */}
         <div className="grid gap-4 sm:grid-cols-3 mb-8">
-          <Card className="border-0 shadow-sm bg-white/60">
+          <Card className="border-0 shadow-sm bg-card/60">
             <CardContent className="p-4 flex items-center gap-3">
               <div className="rounded-xl bg-gradient-to-br from-blue-50 to-blue-100/50 p-2.5">
                 <Clock className="h-5 w-5 text-blue-600" />
@@ -134,25 +134,25 @@ export default async function FormWelcomePage({
                   {t('form.estimatedTime', { minutes: '15-20' })}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {sectionCount} sections
+                  {sectionCount} {t('form.sectionsCount')}
                 </p>
               </div>
             </CardContent>
           </Card>
-          <Card className="border-0 shadow-sm bg-white/60">
+          <Card className="border-0 shadow-sm bg-card/60">
             <CardContent className="p-4 flex items-center gap-3">
               <div className="rounded-xl bg-gradient-to-br from-purple-50 to-purple-100/50 p-2.5">
                 <Sparkles className="h-5 w-5 text-purple-600" />
               </div>
               <div>
-                <p className="text-sm font-medium">AI-Assisted</p>
+                <p className="text-sm font-medium">{t('form.aiAssisted')}</p>
                 <p className="text-xs text-muted-foreground">
-                  Smart follow-up questions
+                  {t('form.smartFollowups')}
                 </p>
               </div>
             </CardContent>
           </Card>
-          <Card className="border-0 shadow-sm bg-white/60">
+          <Card className="border-0 shadow-sm bg-card/60">
             <CardContent className="p-4 flex items-center gap-3">
               <div className="rounded-xl bg-gradient-to-br from-green-50 to-green-100/50 p-2.5">
                 <Shield className="h-5 w-5 text-green-600" />
@@ -160,7 +160,7 @@ export default async function FormWelcomePage({
               <div>
                 <p className="text-sm font-medium">{t('form.autoSaved')}</p>
                 <p className="text-xs text-muted-foreground">
-                  Progress saved automatically
+                  {t('form.progressAutoSaved')}
                 </p>
               </div>
             </CardContent>

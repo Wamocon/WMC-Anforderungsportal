@@ -65,15 +65,15 @@ type QuestionRow = {
 };
 
 const QUESTION_TYPES = [
-  { value: 'text', label: 'Short Text' },
-  { value: 'textarea', label: 'Long Text' },
-  { value: 'radio', label: 'Single Choice' },
-  { value: 'multi_select', label: 'Multiple Choice' },
-  { value: 'checkbox', label: 'Checkbox' },
-  { value: 'select', label: 'Dropdown' },
-  { value: 'date', label: 'Date' },
-  { value: 'file', label: 'File Upload' },
-  { value: 'rating', label: 'Rating (1-5)' },
+  { value: 'text', labelKey: 'shortText' },
+  { value: 'textarea', labelKey: 'longText' },
+  { value: 'radio', labelKey: 'singleChoice' },
+  { value: 'multi_select', labelKey: 'multipleChoice' },
+  { value: 'checkbox', labelKey: 'checkbox' },
+  { value: 'select', labelKey: 'dropdown' },
+  { value: 'date', labelKey: 'dateField' },
+  { value: 'file', labelKey: 'fileUpload' },
+  { value: 'rating', labelKey: 'ratingField' },
 ];
 
 export default function TemplateDetailPage() {
@@ -153,7 +153,7 @@ export default function TemplateDetailPage() {
         .eq('id', templateId);
 
       if (error) toast.error(error.message);
-      else toast.success('Template saved');
+      else toast.success(t('admin.templateSaved'));
     } finally {
       setSaving(false);
     }
@@ -177,7 +177,7 @@ export default function TemplateDetailPage() {
       return;
     }
 
-    toast.success('Section added');
+    toast.success(t('admin.sectionAdded'));
     setSectionDialogOpen(false);
     setNewSectionTitle('');
     setNewSectionDesc('');
@@ -208,7 +208,7 @@ export default function TemplateDetailPage() {
       return;
     }
 
-    toast.success('Question added');
+    toast.success(t('admin.questionAdded'));
     setQuestionDialogOpen(false);
     setNewQuestionLabel('');
     setNewQuestionType('text');
@@ -222,14 +222,14 @@ export default function TemplateDetailPage() {
     // Delete questions first
     await supabase.from('template_questions').delete().eq('section_id', sectionId);
     await supabase.from('template_sections').delete().eq('id', sectionId);
-    toast.success('Section deleted');
+    toast.success(t('admin.sectionDeleted'));
     loadTemplate();
   }
 
   async function deleteQuestion(questionId: string) {
     const supabase = createClient();
     await supabase.from('template_questions').delete().eq('id', questionId);
-    toast.success('Question deleted');
+    toast.success(t('admin.questionDeleted'));
     loadTemplate();
   }
 
@@ -244,39 +244,39 @@ export default function TemplateDetailPage() {
   return (
     <div className="space-y-6 max-w-4xl">
       {/* Header */}
-      <div className="flex items-start gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-start gap-4">
         <Link href="/templates">
-          <Button variant="ghost" size="icon" className="mt-1">
+          <Button variant="ghost" size="icon" className="mt-1 shrink-0">
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </Link>
-        <div className="flex-1">
-          <div className="flex items-center gap-3">
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
             <Input
               value={templateName}
               onChange={(e) => setTemplateName(e.target.value)}
-              className="text-2xl font-bold border-none shadow-none focus-visible:ring-0 px-0 h-auto"
-              placeholder="Template Name"
+              className="text-xl sm:text-2xl font-bold border-none shadow-none focus-visible:ring-0 px-0 h-auto"
+              placeholder={t('admin.templateNameLabel')}
             />
             {isDefault && (
-              <Badge className="bg-[#FE0404]/10 text-[#FE0404] shrink-0">Default</Badge>
+              <Badge className="bg-[#FE0404]/10 text-[#FE0404] shrink-0 self-start">Default</Badge>
             )}
           </div>
           <Input
             value={templateDesc}
             onChange={(e) => setTemplateDesc(e.target.value)}
             className="text-muted-foreground border-none shadow-none focus-visible:ring-0 px-0 text-sm h-auto mt-1"
-            placeholder="Template description..."
+              placeholder={t('admin.templateDescPlaceholder')}
           />
         </div>
-        <div className="flex gap-2 shrink-0">
+        <div className="flex gap-2 shrink-0 w-full sm:w-auto">
           <Button
             onClick={saveTemplate}
             disabled={saving}
-            className="bg-[#FE0404] hover:bg-[#E00303] text-white gap-2"
+            className="bg-[#FE0404] hover:bg-[#E00303] text-white gap-2 w-full sm:w-auto"
           >
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            Save
+            {t('common.save')}
           </Button>
         </div>
       </div>
@@ -285,11 +285,11 @@ export default function TemplateDetailPage() {
       <div className="flex items-center gap-6 text-sm text-muted-foreground">
         <span className="flex items-center gap-1.5">
           <Layers className="h-4 w-4" />
-          {sections.length} sections
+          {sections.length} {t('admin.sections')}
         </span>
         <span className="flex items-center gap-1.5">
           <HelpCircle className="h-4 w-4" />
-          {questions.length} questions
+          {questions.length} {t('admin.questions')}
         </span>
       </div>
 
@@ -299,15 +299,15 @@ export default function TemplateDetailPage() {
         return (
           <Card key={sec.id} className="border-0 shadow-md shadow-black/5">
             <CardHeader className="bg-muted/30 rounded-t-xl">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <GripVertical className="h-4 w-4 text-muted-foreground cursor-grab" />
-                  <CardTitle className="text-lg">{getLabel(sec.title)}</CardTitle>
-                  <Badge variant="secondary" className="text-xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <GripVertical className="h-4 w-4 text-muted-foreground cursor-grab shrink-0" />
+                  <CardTitle className="text-base sm:text-lg truncate">{getLabel(sec.title)}</CardTitle>
+                  <Badge variant="secondary" className="text-xs shrink-0">
                     {sQuestions.length} questions
                   </Badge>
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 self-end sm:self-center">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -339,11 +339,11 @@ export default function TemplateDetailPage() {
               ) : (
                 <div className="divide-y">
                   {sQuestions.map((q) => (
-                    <div key={q.id} className="flex items-center gap-3 px-4 py-3 hover:bg-muted/20 group">
-                      <GripVertical className="h-4 w-4 text-muted-foreground/50 cursor-grab shrink-0" />
+                    <div key={q.id} className="flex items-center gap-3 px-3 sm:px-4 py-3 hover:bg-muted/20 group">
+                      <GripVertical className="h-4 w-4 text-muted-foreground/50 cursor-grab shrink-0 hidden sm:block" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{getLabel(q.label)}</p>
-                        <div className="flex items-center gap-2 mt-0.5">
+                        <p className="text-sm font-medium break-words">{getLabel(q.label)}</p>
+                        <div className="flex flex-wrap items-center gap-2 mt-0.5">
                           <Badge variant="outline" className="text-xs">{q.type}</Badge>
                           {q.is_required && (
                             <Badge variant="outline" className="text-xs text-[#FE0404] border-[#FE0404]/30">Required</Badge>
@@ -356,7 +356,7 @@ export default function TemplateDetailPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive"
+                        className="h-7 w-7 sm:opacity-0 sm:group-hover:opacity-100 text-muted-foreground hover:text-destructive shrink-0"
                         onClick={() => deleteQuestion(q.id)}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -447,7 +447,7 @@ export default function TemplateDetailPage() {
                 </SelectTrigger>
                 <SelectContent>
                   {QUESTION_TYPES.map((qt) => (
-                    <SelectItem key={qt.value} value={qt.value}>{qt.label}</SelectItem>
+                    <SelectItem key={qt.value} value={qt.value}>{t(`admin.${qt.labelKey}`)}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

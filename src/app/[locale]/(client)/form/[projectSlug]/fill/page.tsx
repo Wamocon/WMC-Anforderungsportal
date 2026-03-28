@@ -94,7 +94,10 @@ export default async function FormFillPage({
 
   if (user) {
     // Find the user's latest non-submitted response for this project
-    const { data: existingResponse } = await supabase
+    let existingResponse = null;
+
+    // Try by respondent_id first
+    const { data: byId } = await supabase
       .from('responses')
       .select('id')
       .eq('project_id', project.id)
@@ -103,6 +106,31 @@ export default async function FormFillPage({
       .order('created_at', { ascending: false })
       .limit(1)
       .single();
+
+    existingResponse = byId;
+
+    // Fallback: try by email (for responses created before user was linked)
+    if (!existingResponse && user.email) {
+      const { data: byEmail } = await supabase
+        .from('responses')
+        .select('id')
+        .eq('project_id', project.id)
+        .eq('respondent_email', user.email)
+        .in('status', ['draft', 'in_progress'])
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      existingResponse = byEmail;
+
+      // Link this response to the user for future lookups
+      if (existingResponse) {
+        await supabase
+          .from('responses')
+          .update({ respondent_id: user.id })
+          .eq('id', existingResponse.id);
+      }
+    }
 
     if (existingResponse) {
       existingResponseId = existingResponse.id;

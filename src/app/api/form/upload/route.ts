@@ -23,6 +23,17 @@ export async function POST(req: NextRequest) {
 
     const supabase = await createClient();
 
+    // Verify project exists and is active
+    const { data: project } = await supabase
+      .from('projects')
+      .select('id, status')
+      .eq('slug', projectSlug)
+      .single();
+
+    if (!project || project.status !== 'active') {
+      return NextResponse.json({ error: 'Invalid project' }, { status: 404 });
+    }
+
     // Build storage path: projectSlug/responseId-or-temp/questionId/filename
     const folder = responseId || `temp-${Date.now()}`;
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
@@ -37,13 +48,13 @@ export async function POST(req: NextRequest) {
       });
 
     if (uploadError) {
-      return NextResponse.json({ error: uploadError.message }, { status: 500 });
+      return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
     }
 
     // Get public URL (signed for private bucket)
     const { data: urlData } = await supabase.storage
       .from('response-attachments')
-      .createSignedUrl(path, 60 * 60 * 24 * 365); // 1 year URL
+      .createSignedUrl(path, 60 * 60 * 24 * 30); // 30 days URL
 
     return NextResponse.json({
       success: true,

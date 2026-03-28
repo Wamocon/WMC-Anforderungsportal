@@ -1,5 +1,7 @@
 import { google } from '@ai-sdk/google';
 import { generateText } from 'ai';
+import { rateLimit } from '@/lib/rate-limit';
+import { getLanguageName } from '@/lib/lang-map';
 
 export const runtime = 'edge';
 
@@ -24,7 +26,12 @@ RULES:
 
 export async function POST(req: Request) {
   try {
+    const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+    const { allowed } = rateLimit(ip);
+    if (!allowed) return Response.json({ followUp: null });
+
     const { questionLabel, userAnswer, locale } = await req.json();
+    const language = getLanguageName(locale);
 
     if (!questionLabel || !userAnswer || userAnswer.trim().length < 5) {
       return Response.json({ followUp: null });
@@ -33,7 +40,7 @@ export async function POST(req: Request) {
     const { text } = await generateText({
       model: google('gemini-2.5-flash'),
       system: SYSTEM_PROMPT,
-      prompt: `Locale: ${locale || 'de'}\nQuestion asked: "${questionLabel}"\nClient's answer: "${userAnswer}"\n\nShould we ask a follow-up? If yes, provide the follow-up question in the language matching the locale. If no, respond with NO_FOLLOWUP.`,
+      prompt: `Language: ${language}\nQuestion asked: "${questionLabel}"\nClient's answer: "${userAnswer}"\n\nShould we ask a follow-up? If yes, provide the follow-up question in ${language}. If no, respond with NO_FOLLOWUP.`,
       maxOutputTokens: 150,
       temperature: 0.5,
     });

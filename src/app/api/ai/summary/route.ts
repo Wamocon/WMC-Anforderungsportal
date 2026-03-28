@@ -1,5 +1,7 @@
 import { google } from '@ai-sdk/google';
 import { streamText } from 'ai';
+import { rateLimit, getRateLimitHeaders } from '@/lib/rate-limit';
+import { getLanguageName } from '@/lib/lang-map';
 
 export const runtime = 'edge';
 
@@ -66,19 +68,22 @@ RULES:
 
 export async function POST(req: Request) {
   try {
+    const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+    const { allowed, remaining } = rateLimit(ip);
+    if (!allowed) {
+      return new Response('Too many requests. Please wait a moment.', {
+        status: 429,
+        headers: getRateLimitHeaders(remaining),
+      });
+    }
+
     const { responseData, projectName, respondentName, locale } = await req.json();
 
     if (!responseData || !Array.isArray(responseData)) {
       return new Response('Missing response data', { status: 400 });
     }
 
-    const langMap: Record<string, string> = {
-      de: 'German (Deutsch)',
-      en: 'English',
-      tr: 'Turkish (Türkçe)',
-      ru: 'Russian (Русский)',
-    };
-    const language = langMap[locale] || 'German (Deutsch)';
+    const language = getLanguageName(locale);
 
     const prompt = `IMPORTANT: Write the entire summary in ${language}.
 

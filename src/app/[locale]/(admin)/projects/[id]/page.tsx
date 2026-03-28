@@ -111,11 +111,11 @@ export default function ProjectDetailPage() {
 
       const magicUrl = `${window.location.origin}/${locale}/magic/${tokenHash}`;
       await navigator.clipboard.writeText(magicUrl);
-      toast.success(`Magic link copied! Share it with ${inviteEmail}`);
+      toast.success(t('admin.magicLinkCopied', { email: inviteEmail }));
       setInviteDialogOpen(false);
       setInviteEmail('');
       loadData();
-    } catch { toast.error('Failed to create invitation'); }
+    } catch { toast.error(t('admin.failedInvitation')); }
     finally { setSending(false); }
   }
 
@@ -123,15 +123,15 @@ export default function ProjectDetailPage() {
     if (!project) return;
     const url = `${window.location.origin}/${locale}/form/${project.slug}`;
     navigator.clipboard.writeText(url);
-    toast.success('Link copied to clipboard');
+    toast.success(t('admin.linkCopied'));
   }
 
-  const statusColor: Record<string, string> = { active: 'bg-green-100 text-green-800', draft: 'bg-yellow-100 text-yellow-800', archived: 'bg-gray-100 text-gray-800' };
+  const statusColor: Record<string, string> = { active: 'bg-green-100 text-green-800', draft: 'bg-yellow-100 text-yellow-800', archived: 'bg-muted text-muted-foreground' };
   const respStatusColor: Record<string, string> = { submitted: 'bg-green-100 text-green-800', in_progress: 'bg-blue-100 text-blue-800', draft: 'bg-yellow-100 text-yellow-800', reviewed: 'bg-purple-100 text-purple-800' };
-  const invStatusColor: Record<string, string> = { sent: 'bg-yellow-100 text-yellow-800', opened: 'bg-blue-100 text-blue-800', in_progress: 'bg-blue-100 text-blue-800', submitted: 'bg-green-100 text-green-800', expired: 'bg-gray-100 text-gray-800', revoked: 'bg-red-100 text-red-800' };
+  const invStatusColor: Record<string, string> = { sent: 'bg-yellow-100 text-yellow-800', opened: 'bg-blue-100 text-blue-800', in_progress: 'bg-blue-100 text-blue-800', submitted: 'bg-green-100 text-green-800', expired: 'bg-muted text-muted-foreground', revoked: 'bg-red-100 text-red-800' };
 
   if (loading) return <div className="flex items-center justify-center py-24"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>;
-  if (!project) return <div className="flex flex-col items-center justify-center py-24"><AlertCircle className="h-12 w-12 text-muted-foreground mb-4" /><h2 className="text-xl font-semibold mb-2">Project not found</h2><Link href="/projects"><Button variant="outline">Back to Projects</Button></Link></div>;
+  if (!project) return <div className="flex flex-col items-center justify-center py-24"><AlertCircle className="h-12 w-12 text-muted-foreground mb-4" /><h2 className="text-xl font-semibold mb-2">{t('admin.projectNotFound')}</h2><Link href="/projects"><Button variant="outline">{t('admin.backToProjects')}</Button></Link></div>;
 
   const formUrl = `${window.location.origin}/${locale}/form/${project.slug}`;
 
@@ -144,57 +144,59 @@ export default function ProjectDetailPage() {
             <h1 className="text-3xl font-bold tracking-tight">{project.name}</h1>
             <Badge className={statusColor[project.status] || ''}>{project.status}</Badge>
           </div>
-          <p className="text-muted-foreground mt-1">{project.description || 'No description'}</p>
+          <p className="text-muted-foreground mt-1">{project.description || t('admin.noDescription')}</p>
         </div>
       </div>
 
       {project.status === 'active' && (
         <Card className="border-[#FE0404]/20 bg-[#FE0404]/5">
-          <CardContent className="p-4 flex items-center justify-between gap-4">
+          <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <a href={formUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 min-w-0 group">
               <ExternalLink className="h-5 w-5 text-[#FE0404] shrink-0" />
               <div className="min-w-0">
-                <p className="text-sm font-medium group-hover:text-[#FE0404] transition-colors">Open Client Form</p>
-                <p className="text-xs text-muted-foreground">Click to preview the form your clients will see</p>
+                <p className="text-sm font-medium group-hover:text-[#FE0404] transition-colors">{t('admin.openClientForm')}</p>
+                <p className="text-xs text-muted-foreground">{t('admin.previewFormTooltip')}</p>
               </div>
             </a>
-            <Button variant="outline" size="sm" className="gap-2 shrink-0" onClick={copyFormLink}><Copy className="h-3.5 w-3.5" />Copy Link</Button>
+            <Button variant="outline" size="sm" className="gap-2 shrink-0 w-full sm:w-auto" onClick={copyFormLink}><Copy className="h-3.5 w-3.5" />{t('admin.copyLink')}</Button>
           </CardContent>
         </Card>
       )}
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card><CardContent className="p-4 flex items-center gap-3"><div className="rounded-lg bg-blue-50 p-2"><Mail className="h-5 w-5 text-blue-600" /></div><div><p className="text-2xl font-bold">{invitations.length}</p><p className="text-xs text-muted-foreground">Invitations sent</p></div></CardContent></Card>
-        <Card><CardContent className="p-4 flex items-center gap-3"><div className="rounded-lg bg-green-50 p-2"><Users className="h-5 w-5 text-green-600" /></div><div><p className="text-2xl font-bold">{responses.length}</p><p className="text-xs text-muted-foreground">Responses received</p></div></CardContent></Card>
-        <Card><CardContent className="p-4 flex items-center gap-3"><div className="rounded-lg bg-purple-50 p-2"><Clock className="h-5 w-5 text-purple-600" /></div><div><p className="text-2xl font-bold">{project.deadline_days}</p><p className="text-xs text-muted-foreground">Days deadline</p></div></CardContent></Card>
+        <Card><CardContent className="p-4 flex items-center gap-3"><div className="rounded-lg bg-blue-50 p-2"><Mail className="h-5 w-5 text-blue-600" /></div><div><p className="text-2xl font-bold">{invitations.length}</p><p className="text-xs text-muted-foreground">{t('admin.invitationsSent')}</p></div></CardContent></Card>
+        <Card><CardContent className="p-4 flex items-center gap-3"><div className="rounded-lg bg-green-50 p-2"><Users className="h-5 w-5 text-green-600" /></div><div><p className="text-2xl font-bold">{responses.length}</p><p className="text-xs text-muted-foreground">{t('admin.responsesReceived')}</p></div></CardContent></Card>
+        <Card><CardContent className="p-4 flex items-center gap-3"><div className="rounded-lg bg-purple-50 p-2"><Clock className="h-5 w-5 text-purple-600" /></div><div><p className="text-2xl font-bold">{project.deadline_days}</p><p className="text-xs text-muted-foreground">{t('admin.daysDeadline')}</p></div></CardContent></Card>
       </div>
 
       <Tabs defaultValue="responses">
         <TabsList>
           <TabsTrigger value="responses">{t('admin.responses')}</TabsTrigger>
-          <TabsTrigger value="invitations">Invitations</TabsTrigger>
+          <TabsTrigger value="invitations">{t('admin.invitations')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="responses" className="mt-4 space-y-3">
           {responses.length === 0
-            ? <Card><CardContent className="p-6 text-center text-muted-foreground">No responses yet. Invite clients to start collecting requirements.</CardContent></Card>
+            ? <Card><CardContent className="p-6 text-center text-muted-foreground">{t('admin.noResponsesInvite')}</CardContent></Card>
             : responses.map((resp) => (
               <Card key={resp.id}>
-                <CardContent className="p-4 flex items-center gap-4">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#FE0404]/10 text-[#FE0404] font-semibold text-sm">
-                    {(resp.respondent_name || resp.respondent_email).slice(0, 2).toUpperCase()}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate">{resp.respondent_name || resp.respondent_email}</p>
-                    <p className="text-xs text-muted-foreground">{resp.respondent_email}</p>
-                  </div>
+                <CardContent className="p-4 space-y-3">
                   <div className="flex items-center gap-3">
-                    <div className="text-right">
-                      <p className="text-sm font-medium">{resp.progress_percent}%</p>
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#FE0404]/10 text-[#FE0404] font-semibold text-sm">
+                      {(resp.respondent_name || resp.respondent_email).slice(0, 2).toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium truncate">{resp.respondent_name || resp.respondent_email}</p>
+                      <p className="text-xs text-muted-foreground truncate">{resp.respondent_email}</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <p className="text-sm font-medium shrink-0">{resp.progress_percent}%</p>
                       <div className="w-20 h-1.5 bg-muted rounded-full overflow-hidden"><div className="h-full bg-[#FE0404] rounded-full" style={{ width: `${resp.progress_percent}%` }} /></div>
                     </div>
                     <Badge variant="secondary" className={respStatusColor[resp.status] || ''}>{resp.status.replace('_', ' ')}</Badge>
-                    <Link href={`/responses/${resp.id}`}><Button variant="ghost" size="sm" className="gap-1 h-8"><Eye className="h-3.5 w-3.5" />View</Button></Link>
+                    <Link href={`/responses/${resp.id}`} className="ml-auto"><Button variant="ghost" size="sm" className="gap-1 h-8"><Eye className="h-3.5 w-3.5" />{t('admin.view')}</Button></Link>
                   </div>
                 </CardContent>
               </Card>
@@ -205,16 +207,16 @@ export default function ProjectDetailPage() {
         <TabsContent value="invitations" className="mt-4 space-y-4">
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">Invite Client</CardTitle>
-                <Button className="bg-[#FE0404] hover:bg-[#E00303] text-white gap-2" size="sm" onClick={() => setInviteDialogOpen(true)}>
-                  <Mail className="h-4 w-4" />Send Invitation
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <CardTitle className="text-lg">{t('admin.inviteClient')}</CardTitle>
+                <Button className="bg-[#FE0404] hover:bg-[#E00303] text-white gap-2 w-full sm:w-auto" size="sm" onClick={() => setInviteDialogOpen(true)}>
+                  <Mail className="h-4 w-4" />{t('admin.sendInvitation')}
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
               {invitations.length === 0
-                ? <p className="text-muted-foreground text-sm">No invitations sent yet. Click &quot;Send Invitation&quot; to invite a client.</p>
+                ? <p className="text-muted-foreground text-sm">{t('admin.noInvitations')}</p>
                 : <div className="space-y-3">
                     {invitations.map((inv) => (
                       <div key={inv.id} className="flex items-center justify-between gap-4 p-3 rounded-lg bg-muted/30">
@@ -222,7 +224,7 @@ export default function ProjectDetailPage() {
                           <Mail className="h-4 w-4 text-muted-foreground shrink-0" />
                           <div className="min-w-0">
                             <p className="text-sm font-medium truncate">{inv.email}</p>
-                            <p className="text-xs text-muted-foreground">Expires: {new Date(inv.expires_at).toLocaleDateString('de-DE')}</p>
+                            <p className="text-xs text-muted-foreground">{t('admin.expires')}: {new Date(inv.expires_at).toLocaleDateString(locale)}</p>
                           </div>
                         </div>
                         <Badge variant="secondary" className={invStatusColor[inv.status] || ''}>{inv.status}</Badge>
@@ -238,23 +240,23 @@ export default function ProjectDetailPage() {
       <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Invite Client</DialogTitle>
-            <DialogDescription>Send a magic link to a client so they can fill the requirement form.</DialogDescription>
+            <DialogTitle>{t('admin.inviteDialogTitle')}</DialogTitle>
+            <DialogDescription>{t('admin.inviteDialogDesc')}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label>Client Email *</Label>
-              <Input type="email" value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} placeholder="client@company.com" />
+              <Label>{t('admin.clientEmailLabel')}</Label>
+              <Input type="email" value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} placeholder={t('admin.clientEmailPlaceholder')} />
             </div>
             <div className="rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
-              A magic link will be created and copied to your clipboard. Share it with the client. Expires in <strong>{project.deadline_days} days</strong>.
+              {t('admin.magicLinkDescription')} <strong>{project.deadline_days} {t('admin.days')}</strong>.
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setInviteDialogOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setInviteDialogOpen(false)}>{t('common.cancel')}</Button>
             <Button onClick={sendInvitation} disabled={!inviteEmail.trim() || sending} className="bg-[#FE0404] hover:bg-[#E00303] text-white gap-2">
               {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-              Create & Copy Link
+              {t('admin.createCopyLink')}
             </Button>
           </DialogFooter>
         </DialogContent>

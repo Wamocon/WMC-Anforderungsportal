@@ -91,7 +91,7 @@ export default function MyProjectsPage() {
   }, []);
 
   const statusConfig: Record<string, { icon: React.ElementType; color: string; bg: string }> = {
-    draft: { icon: FileEdit, color: 'text-gray-600', bg: 'bg-gray-100' },
+    draft: { icon: FileEdit, color: 'text-gray-600', bg: 'bg-muted' },
     in_progress: { icon: Clock, color: 'text-blue-600', bg: 'bg-blue-100' },
     submitted: { icon: CheckCircle, color: 'text-green-600', bg: 'bg-green-100' },
     reviewed: { icon: CheckCircle, color: 'text-purple-600', bg: 'bg-purple-100' },
@@ -119,7 +119,7 @@ export default function MyProjectsPage() {
 
       {/* Projects */}
       {projects.length === 0 ? (
-        <Card className="border-0 shadow-md bg-white/80 backdrop-blur-sm">
+        <Card className="border-0 shadow-md bg-card/80 backdrop-blur-sm">
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
             <div className="rounded-full bg-gray-100 p-4 mb-4">
               <Inbox className="h-8 w-8 text-muted-foreground" />
@@ -141,16 +141,16 @@ export default function MyProjectsPage() {
             return (
               <Card
                 key={project.id}
-                className="border-0 shadow-md shadow-black/5 bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-200"
+                className="border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm hover:shadow-lg transition-all duration-200"
               >
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-start gap-4 min-w-0">
-                      <div className="rounded-xl bg-gradient-to-br from-[#FE0404]/10 to-[#FE0404]/5 p-3 shrink-0">
-                        <FolderKanban className="h-6 w-6 text-[#FE0404]" />
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                    <div className="flex items-start gap-3 sm:gap-4 min-w-0">
+                      <div className="rounded-xl bg-gradient-to-br from-[#FE0404]/10 to-[#FE0404]/5 p-2.5 sm:p-3 shrink-0">
+                        <FolderKanban className="h-5 w-5 sm:h-6 sm:w-6 text-[#FE0404]" />
                       </div>
                       <div className="min-w-0">
-                        <h3 className="text-lg font-semibold truncate">{project.name}</h3>
+                        <h3 className="text-base sm:text-lg font-semibold truncate">{project.name}</h3>
                         {project.description && (
                           <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
                             {project.description}
@@ -170,9 +170,9 @@ export default function MyProjectsPage() {
                       </div>
                     </div>
 
-                    <div className="shrink-0">
+                    <div className="shrink-0 self-start sm:self-center w-full sm:w-auto">
                       {isSubmitted ? (
-                        <Button variant="outline" size="sm" disabled className="gap-1">
+                        <Button variant="outline" size="sm" disabled className="gap-1 w-full sm:w-auto">
                           <CheckCircle className="h-4 w-4" />
                           {t('client.submitted')}
                         </Button>
@@ -180,7 +180,7 @@ export default function MyProjectsPage() {
                         <a href={`/${locale}/form/${project.slug}${resp === 'in_progress' || resp === 'draft' ? '/fill' : ''}`}>
                           <Button
                             size="sm"
-                            className="gap-1 bg-gradient-to-r from-[#FE0404] to-[#D00303] hover:from-[#E00303] hover:to-[#BB0000] text-white shadow-sm"
+                            className="gap-1 bg-gradient-to-r from-[#FE0404] to-[#D00303] hover:from-[#E00303] hover:to-[#BB0000] text-white shadow-sm w-full sm:w-auto"
                           >
                             {resp === 'in_progress' || resp === 'draft'
                               ? t('form.continueForm')

@@ -1,5 +1,7 @@
 import { google } from '@ai-sdk/google';
 import { generateText } from 'ai';
+import { rateLimit } from '@/lib/rate-limit';
+import { getLanguageName } from '@/lib/lang-map';
 
 export const runtime = 'edge';
 
@@ -19,7 +21,12 @@ RULES:
 
 export async function POST(req: Request) {
   try {
+    const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+    const { allowed } = rateLimit(ip);
+    if (!allowed) return Response.json({ questions: [] });
+
     const { answers, existingQuestions, locale } = await req.json();
+    const language = getLanguageName(locale);
 
     if (!answers || Object.keys(answers).length < 2) {
       return Response.json({ questions: [] });
@@ -35,7 +42,7 @@ export async function POST(req: Request) {
     const { text } = await generateText({
       model: google('gemini-2.5-flash'),
       system: SYSTEM_PROMPT,
-      prompt: `Locale: ${locale || 'de'}\n\nExisting questions already asked: ${existingLabels}\n\nClient's answers so far:\n${answeredSummary}\n\nGenerate additional questions as JSON array:`,
+      prompt: `Language: ${language}\n\nExisting questions already asked: ${existingLabels}\n\nClient's answers so far:\n${answeredSummary}\n\nGenerate additional questions in ${language} as JSON array:`,
       maxOutputTokens: 300,
       temperature: 0.6,
     });

@@ -56,7 +56,7 @@ export default function ResetPasswordPage() {
           <WmcLogo size="xl" showTagline />
         </Link>
 
-        <Card className="border-0 shadow-2xl shadow-black/5 bg-white/80 backdrop-blur-xl">
+        <Card className="border-0 shadow-2xl shadow-black/5 bg-card/80 backdrop-blur-xl">
           <CardHeader className="text-center pb-2">
             <CardTitle className="text-2xl font-bold">{t('auth.resetPassword')}</CardTitle>
             <CardDescription className="text-base">

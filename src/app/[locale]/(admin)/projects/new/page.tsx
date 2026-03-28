@@ -40,7 +40,7 @@ export default function NewProjectPage() {
   const [error, setError] = useState<string | null>(null);
   const [templates, setTemplates] = useState<TemplateOption[]>([]);
 
-  const defaultWelcome = `Thank you for your interest in WMC and selecting us. Please provide your requirements within 5 days, so we can start analyzing and planning this app in our WMC Development Pipeline without any delay.`;
+  const defaultWelcome = t('project.defaultWelcome', { days: '5' });
 
   const [form, setForm] = useState({
     name: '',
@@ -98,19 +98,19 @@ export default function NewProjectPage() {
       // Refresh session to pick up latest JWT claims (org_id, role)
       const { error: refreshError } = await supabase.auth.refreshSession();
       if (refreshError) {
-        setError('Session expired. Please log out and log back in.');
+        setError(t('auth.sessionExpired'));
         return;
       }
 
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        setError('You must be logged in to create a project. Please refresh the page.');
+        setError(t('auth.notLoggedIn'));
         return;
       }
 
       const orgId = user.app_metadata?.org_id;
       if (!orgId) {
-        setError('Your account is not linked to any organization. Please contact an admin.');
+        setError(t('auth.noOrganization'));
         return;
       }
 
@@ -133,9 +133,9 @@ export default function NewProjectPage() {
 
       if (insertError) {
         if (insertError.code === '23505') {
-          setError('A project with this slug already exists. Please choose a different name.');
+          setError(t('auth.slugExists'));
         } else if (insertError.code === '42501') {
-          setError('Permission denied. Please log out and log back in, then try again.');
+          setError(t('auth.permissionDenied'));
         } else {
           setError(`Failed to create project: ${insertError.message}`);
         }
@@ -145,7 +145,7 @@ export default function NewProjectPage() {
       toast.success(t('project.projectCreated'));
       router.push('/projects');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unexpected error occurred. Please try again.');
+      setError(err instanceof Error ? err.message : t('auth.unexpectedError'));
     } finally {
       setLoading(false);
     }
@@ -166,7 +166,7 @@ export default function NewProjectPage() {
             {t('project.newProject')}
           </h1>
           <p className="text-muted-foreground mt-1">
-            Set up a new requirement collection project
+            {t('admin.setUpProject')}
           </p>
         </div>
       </div>
@@ -181,9 +181,9 @@ export default function NewProjectPage() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <Card className="border-0 shadow-md shadow-black/5 bg-white/80 backdrop-blur-sm">
+        <Card className="border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle>Project Details</CardTitle>
+            <CardTitle>{t('admin.projectDetails')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -192,7 +192,7 @@ export default function NewProjectPage() {
                 id="name"
                 value={form.name}
                 onChange={(e) => handleNameChange(e.target.value)}
-                placeholder="e.g., Children's Club App"
+                placeholder={t('project.placeholderName')}
                 required
               />
             </div>
@@ -203,7 +203,7 @@ export default function NewProjectPage() {
                 id="slug"
                 value={form.slug}
                 onChange={(e) => setForm((prev) => ({ ...prev, slug: e.target.value }))}
-                placeholder="childrens-club-app"
+                placeholder={t('project.slugPlaceholder')}
               />
               <p className="text-xs text-muted-foreground">
                 URL: /form/{form.slug || 'your-project'}
@@ -216,7 +216,7 @@ export default function NewProjectPage() {
                 id="description"
                 value={form.description}
                 onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
-                placeholder="Brief description of what this project collects requirements for..."
+                placeholder={t('project.descPlaceholder')}
                 rows={3}
               />
             </div>
@@ -292,7 +292,7 @@ export default function NewProjectPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-md shadow-black/5 bg-white/80 backdrop-blur-sm">
+        <Card className="border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Globe className="h-5 w-5 text-muted-foreground" />

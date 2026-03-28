@@ -60,7 +60,7 @@ function UpdatePasswordForm() {
     const error = searchParams.get('error');
     const errorDescription = searchParams.get('error_description');
     if (error) {
-      setErrorMsg(errorDescription || 'Invalid or expired reset link.');
+      setErrorMsg(errorDescription || t('auth.invalidResetLink'));
     }
 
     return () => subscription.unsubscribe();
@@ -99,7 +99,7 @@ function UpdatePasswordForm() {
         router.push('/login');
       }, 2000);
     } catch {
-      setErrorMsg('An unexpected error occurred. Please try again.');
+      setErrorMsg(t('auth.unexpectedError'));
     } finally {
       setLoading(false);
     }
@@ -122,7 +122,7 @@ function UpdatePasswordForm() {
           <WmcLogo size="xl" showTagline />
         </Link>
 
-        <Card className="border-0 shadow-2xl shadow-black/5 bg-white/80 backdrop-blur-xl">
+        <Card className="border-0 shadow-2xl shadow-black/5 bg-card/80 backdrop-blur-xl">
           <CardHeader className="text-center pb-2">
             <CardTitle className="text-2xl font-bold">{t('auth.updatePassword')}</CardTitle>
             <CardDescription className="text-base">
@@ -153,7 +153,7 @@ function UpdatePasswordForm() {
                 {!sessionReady && !errorMsg && (
                   <div className="flex items-center justify-center gap-2 py-4">
                     <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">Verifying reset link...</span>
+                    <span className="text-sm text-muted-foreground">{t('auth.verifyingLink')}</span>
                   </div>
                 )}
 

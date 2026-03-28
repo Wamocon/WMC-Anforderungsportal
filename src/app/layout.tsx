@@ -2,8 +2,18 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "WMC Anforderungsportal",
+  title: "WMC Requirement Manager",
   description: "Professional requirement collection platform by WAMOCON",
+  icons: {
+    icon: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
+  openGraph: {
+    title: "WMC Requirement Manager",
+    description: "AI-powered requirement collection with voice input, smart forms, and 25 languages.",
+    siteName: "WMC Requirement Manager",
+    type: "website",
+  },
 };
 
 // This root layout only provides the html/body shell.

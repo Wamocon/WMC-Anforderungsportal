@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -26,6 +26,7 @@ interface Message {
 
 export function InterviewClient({ projectName }: { projectName: string }) {
   const t = useTranslations();
+  const locale = useLocale();
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
@@ -64,6 +65,7 @@ export function InterviewClient({ projectName }: { projectName: string }) {
             role: m.role,
             content: m.content,
           })),
+          locale,
         }),
       });
 
@@ -121,7 +123,7 @@ export function InterviewClient({ projectName }: { projectName: string }) {
   return (
     <div className="flex min-h-screen flex-col">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-border/40 bg-white/80 backdrop-blur-xl shadow-sm">
+      <header className="sticky top-0 z-50 border-b border-border/40 bg-card/80 backdrop-blur-xl shadow-sm">
         <div className="container mx-auto flex h-14 items-center justify-between px-4">
           <div className="flex items-center gap-3">
             <Link href="../">
@@ -194,7 +196,7 @@ export function InterviewClient({ projectName }: { projectName: string }) {
       </main>
 
       {/* Input */}
-      <div className="sticky bottom-0 border-t border-border/40 bg-white/80 backdrop-blur-xl">
+      <div className="sticky bottom-0 border-t border-border/40 bg-card/80 backdrop-blur-xl">
         <div className="container mx-auto max-w-2xl px-4 py-3">
           <div className="flex items-center gap-2">
             <VoiceRecorder
@@ -206,7 +208,7 @@ export function InterviewClient({ projectName }: { projectName: string }) {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Type your answer..."
+              placeholder={t('form.interviewPlaceholder')}
               disabled={isLoading}
               className="flex-1 h-11 rounded-xl"
             />
