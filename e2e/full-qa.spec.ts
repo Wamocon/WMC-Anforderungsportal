@@ -11,10 +11,10 @@ function requireEnv(name: string): string {
 }
 
 const BASE = process.env.E2E_BASE_URL || 'http://localhost:3000';
-const ADMIN_EMAIL = requireEnv('E2E_ADMIN_EMAIL');
-const ADMIN_PASS = requireEnv('E2E_ADMIN_PASS');
-const MANAGER_EMAIL = requireEnv('E2E_MANAGER_EMAIL');
-const MANAGER_PASS = requireEnv('E2E_MANAGER_PASS');
+const ADMIN_EMAIL = requireEnv('E2E_SUPER_ADMIN_EMAIL');
+const ADMIN_PASS = requireEnv('E2E_SUPER_ADMIN_PASS');
+const MANAGER_EMAIL = requireEnv('E2E_PRODUCT_OWNER_EMAIL');
+const MANAGER_PASS = requireEnv('E2E_PRODUCT_OWNER_PASS');
 const CLIENT_EMAIL = requireEnv('E2E_CLIENT_EMAIL');
 const CLIENT_PASS = requireEnv('E2E_CLIENT_PASS');
 
@@ -78,12 +78,12 @@ test.describe('Authentication', () => {
     await expect(page).toHaveURL(/login/);
   });
 
-  test('admin can log in successfully', async ({ page }) => {
+  test('super admin can log in successfully', async ({ page }) => {
     await adminLogin(page);
     await expect(page).toHaveURL(/dashboard/);
   });
 
-  test('admin can log out', async ({ page }) => {
+  test('super admin can log out', async ({ page }) => {
     await adminLogin(page);
     // Click logout button in sidebar
     await page.click('button:has(svg.lucide-log-out)');
@@ -575,8 +575,8 @@ test.describe('i18n Translated Content', () => {
 
 // ─── 17. New User Accounts ─────────────────────────────────────────
 
-test.describe('Manager Account (waleri.moretz)', () => {
-  test('manager can log in and reaches dashboard', async ({ page }) => {
+test.describe('Product Owner Account (waleri.moretz)', () => {
+  test('product owner can log in and reaches dashboard', async ({ page }) => {
     await page.goto(`${BASE}/de/login`);
     await page.fill('input[type="email"]', MANAGER_EMAIL);
     await page.fill('input[type="password"]', MANAGER_PASS);
@@ -585,7 +585,7 @@ test.describe('Manager Account (waleri.moretz)', () => {
     await expect(page).toHaveURL(/dashboard/);
   });
 
-  test('manager can access settings and sees password change form', async ({ page }) => {
+  test('product owner can access settings and sees password change form', async ({ page }) => {
     await page.goto(`${BASE}/de/login`);
     await page.fill('input[type="email"]', MANAGER_EMAIL);
     await page.fill('input[type="password"]', MANAGER_PASS);
@@ -600,7 +600,7 @@ test.describe('Manager Account (waleri.moretz)', () => {
     await expect(page.locator('input#confirmNewPassword')).toBeVisible();
   });
 
-  test('manager can access projects page', async ({ page }) => {
+  test('product owner can access projects page', async ({ page }) => {
     await page.goto(`${BASE}/de/login`);
     await page.fill('input[type="email"]', MANAGER_EMAIL);
     await page.fill('input[type="password"]', MANAGER_PASS);
@@ -613,7 +613,7 @@ test.describe('Manager Account (waleri.moretz)', () => {
     expect(body).toBeTruthy();
   });
 
-  test('manager can access templates page', async ({ page }) => {
+  test('product owner can access templates page', async ({ page }) => {
     await page.goto(`${BASE}/de/login`);
     await page.fill('input[type="email"]', MANAGER_EMAIL);
     await page.fill('input[type="password"]', MANAGER_PASS);
@@ -626,7 +626,7 @@ test.describe('Manager Account (waleri.moretz)', () => {
     expect(body).toBeTruthy();
   });
 
-  test('manager can access responses page', async ({ page }) => {
+  test('product owner can access responses page', async ({ page }) => {
     await page.goto(`${BASE}/de/login`);
     await page.fill('input[type="email"]', MANAGER_EMAIL);
     await page.fill('input[type="password"]', MANAGER_PASS);

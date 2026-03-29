@@ -29,8 +29,8 @@ export async function GET(request: NextRequest) {
 
         // Role-based redirect when no explicit next URL
         if (!next && data.user) {
-          const role = data.user.app_metadata?.role || 'user';
-          const adminRoles = ['super_admin', 'admin', 'manager'];
+          const role = data.user.app_metadata?.role || 'client';
+          const adminRoles = ['super_admin', 'product_owner'];
           const dest = adminRoles.includes(role) ? `/${locale}/dashboard` : `/${locale}/my-projects`;
           return NextResponse.redirect(`${origin}${dest}`);
         }

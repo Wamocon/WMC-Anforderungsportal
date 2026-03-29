@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
-const ADMIN_ROLES = ['super_admin', 'admin', 'manager'];
+const ADMIN_ROLES = ['super_admin', 'product_owner'];
 
 const navItems = [
   { key: 'dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -57,7 +57,7 @@ export default function AdminLayout({
       }
 
       // Check role — redirect non-admin users to client portal
-      const role = user.app_metadata?.role || 'user';
+      const role = user.app_metadata?.role || 'client';
       if (!ADMIN_ROLES.includes(role)) {
         const locale = pathname.split('/')[1] || 'de';
         router.replace(`/${locale}/my-projects`);

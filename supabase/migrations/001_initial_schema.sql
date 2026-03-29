@@ -47,7 +47,7 @@ create table public.project_members (
   id uuid primary key default uuid_generate_v4(),
   project_id uuid references public.projects(id) on delete cascade not null,
   user_id uuid not null,
-  role text default 'client' not null check (role in ('super_admin', 'admin', 'client')),
+  role text default 'client' not null check (role in ('super_admin', 'product_owner', 'client')),
   created_at timestamptz default now() not null,
   unique(project_id, user_id)
 );
@@ -165,7 +165,7 @@ create table public.magic_links (
   project_id uuid references public.projects(id) on delete cascade not null,
   email text not null,
   token_hash text unique not null,
-  role text default 'client' not null check (role in ('super_admin', 'admin', 'client')),
+  role text default 'client' not null check (role in ('super_admin', 'product_owner', 'client')),
   status text default 'sent' not null check (status in ('sent', 'opened', 'in_progress', 'submitted', 'expired', 'revoked')),
   expires_at timestamptz not null,
   used_at timestamptz,
@@ -246,7 +246,7 @@ create policy "org_manage" on public.organizations
     (select public.get_user_role()) = 'super_admin'
   );
 
--- Projects: members can view, admins can modify
+-- Projects: members can view, product_owners can modify
 create policy "project_select" on public.projects
   for select using (
     org_id = (select public.get_user_org_id())
@@ -260,7 +260,7 @@ create policy "project_select" on public.projects
 create policy "project_manage" on public.projects
   for all using (
     org_id = (select public.get_user_org_id())
-    and (select public.get_user_role()) in ('super_admin', 'admin')
+    and (select public.get_user_role()) in ('super_admin', 'product_owner')
   );
 
 -- Project Members: visible to project participants
@@ -276,10 +276,10 @@ create policy "members_select" on public.project_members
 
 create policy "members_manage" on public.project_members
   for all using (
-    (select public.get_user_role()) in ('super_admin', 'admin')
+    (select public.get_user_role()) in ('super_admin', 'product_owner')
   );
 
--- Templates: org members can view, admins can modify
+-- Templates: org members can view, product_owners can modify
 create policy "templates_select" on public.requirement_templates
   for select using (
     org_id is null  -- system defaults visible to all
@@ -288,7 +288,7 @@ create policy "templates_select" on public.requirement_templates
 
 create policy "templates_manage" on public.requirement_templates
   for all using (
-    (select public.get_user_role()) in ('super_admin', 'admin')
+    (select public.get_user_role()) in ('super_admin', 'product_owner')
   );
 
 -- Sections: inherit from template
@@ -303,7 +303,7 @@ create policy "sections_select" on public.template_sections
 
 create policy "sections_manage" on public.template_sections
   for all using (
-    (select public.get_user_role()) in ('super_admin', 'admin')
+    (select public.get_user_role()) in ('super_admin', 'product_owner')
   );
 
 -- Questions: inherit from section → template
@@ -319,10 +319,10 @@ create policy "questions_select" on public.template_questions
 
 create policy "questions_manage" on public.template_questions
   for all using (
-    (select public.get_user_role()) in ('super_admin', 'admin')
+    (select public.get_user_role()) in ('super_admin', 'product_owner')
   );
 
--- Responses: clients see own, admins see all in org
+-- Responses: clients see own, product_owners see all in org
 create policy "responses_select" on public.responses
   for select using (
     respondent_id = (select auth.uid())
@@ -336,13 +336,13 @@ create policy "responses_select" on public.responses
 create policy "responses_insert" on public.responses
   for insert with check (
     respondent_id = (select auth.uid())
-    or (select public.get_user_role()) in ('super_admin', 'admin')
+    or (select public.get_user_role()) in ('super_admin', 'product_owner')
   );
 
 create policy "responses_update" on public.responses
   for update using (
     respondent_id = (select auth.uid())
-    or (select public.get_user_role()) in ('super_admin', 'admin')
+    or (select public.get_user_role()) in ('super_admin', 'product_owner')
   );
 
 -- Response Answers
@@ -369,15 +369,15 @@ create policy "answers_upsert" on public.response_answers
       where r.id = response_answers.response_id
         and (
           r.respondent_id = (select auth.uid())
-          or (select public.get_user_role()) in ('super_admin', 'admin')
+          or (select public.get_user_role()) in ('super_admin', 'product_owner')
         )
     )
   );
 
--- Magic Links: admins manage, token lookup for anonymous
+-- Magic Links: product_owners manage, token lookup for anonymous
 create policy "magic_links_manage" on public.magic_links
   for all using (
-    (select public.get_user_role()) in ('super_admin', 'admin')
+    (select public.get_user_role()) in ('super_admin', 'product_owner')
   );
 
 -- AI Conversations: linked to response access
@@ -397,10 +397,10 @@ create policy "ai_conv_access" on public.ai_conversations
     )
   );
 
--- Audit Log: admins can view
+-- Audit Log: product_owners can view
 create policy "audit_log_select" on public.audit_log
   for select using (
-    (select public.get_user_role()) in ('super_admin', 'admin')
+    (select public.get_user_role()) in ('super_admin', 'product_owner')
   );
 
 create policy "audit_log_insert" on public.audit_log

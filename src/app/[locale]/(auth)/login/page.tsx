@@ -76,8 +76,8 @@ function LoginForm() {
         if (redirectTo) {
           window.location.href = redirectTo;
         } else {
-          const role = data.user?.app_metadata?.role || 'user';
-          const adminRoles = ['super_admin', 'admin', 'manager'];
+          const role = data.user?.app_metadata?.role || 'client';
+          const adminRoles = ['super_admin', 'product_owner'];
           if (adminRoles.includes(role)) {
             router.push('/dashboard');
           } else {

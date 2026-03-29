@@ -14,7 +14,7 @@ export type QuestionType =
 
 export type ProjectStatus = 'draft' | 'active' | 'archived';
 export type ResponseStatus = 'draft' | 'in_progress' | 'submitted' | 'reviewed';
-export type MemberRole = 'super_admin' | 'admin' | 'client';
+export type MemberRole = 'super_admin' | 'product_owner' | 'client';
 export type InvitationStatus = 'sent' | 'opened' | 'in_progress' | 'submitted' | 'expired' | 'revoked';
 
 export type Organization = {
