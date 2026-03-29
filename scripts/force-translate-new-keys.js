@@ -1,6 +1,11 @@
 const fs = require('fs');
+require('dotenv').config({ path: '.env.local' });
 
-const API_KEY = 'process.env.GOOGLE_GENERATIVE_AI_API_KEY';
+const API_KEY = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+if (!API_KEY) {
+  console.error('ERROR: GOOGLE_GENERATIVE_AI_API_KEY is not set. Add it to .env.local');
+  process.exit(1);
+}
 
 const NEW_KEYS = {
   common: { requirementManager: 'Requirement Manager', switchToLightMode: 'Switch to light mode', switchToDarkMode: 'Switch to dark mode' },
