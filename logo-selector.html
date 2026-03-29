@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WMC Anforderungsportal — Logo Selection</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #f8f9fa; color: #1a1a1a; }
+    .header { background: linear-gradient(135deg, #FE0404 0%, #CC0000 100%); color: white; padding: 3rem 2rem; text-align: center; }
+    .header h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .header p { font-size: 1.1rem; opacity: 0.9; }
+    .section { max-width: 1200px; margin: 0 auto; padding: 3rem 1.5rem; }
+    .section-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem; color: #1a1a1a; }
+    .section-desc { color: #666; margin-bottom: 2rem; font-size: 1rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem; }
+    .card { background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 2px 12px rgba(0,0,0,0.06); border: 2px solid transparent; transition: all 0.3s; cursor: pointer; position: relative; }
+    .card:hover { border-color: #FE0404; box-shadow: 0 8px 30px rgba(254,4,4,0.12); transform: translateY(-2px); }
+    .card.selected { border-color: #FE0404; background: #FFF5F5; }
+    .card.selected::after { content: '✓ Selected'; position: absolute; top: 12px; right: 12px; background: #FE0404; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .logo-preview { display: flex; align-items: center; justify-content: center; min-height: 100px; margin-bottom: 1.5rem; }
+    .logo-preview.dark { background: #1a1a1a; border-radius: 12px; padding: 1.5rem; }
+    .logo-name { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .logo-desc { font-size: 0.85rem; color: #888; line-height: 1.5; }
+    .tag { display: inline-block; background: #FE0404; color: white; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; margin-top: 0.75rem; }
+    .divider { border: none; border-top: 1px solid #eee; margin: 3rem 0; }
+    .note-box { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 1.5rem; margin-top: 2rem; }
+    .note-box h3 { color: #92400E; font-size: 1rem; margin-bottom: 0.5rem; }
+    .note-box p { color: #78350F; font-size: 0.9rem; line-height: 1.6; }
+    /* Logo SVG inline styles */
+    .logo-svg { display: flex; align-items: center; gap: 12px; }
+    .logo-svg-lg { display: flex; align-items: center; gap: 16px; }
+    @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🎨 WMC Logo Selection</h1>
+  <p>Professional logo options for WMC Anforderungsportal — click one you like and let me know!</p>
+</div>
+
+<!-- ============================== -->
+<!-- SECTION 1: FULL LOGOS          -->
+<!-- ============================== -->
+<div class="section">
+  <h2 class="section-title">Option A — Clipboard + Shield (Professional Trust)</h2>
+  <p class="section-desc">Combines a clipboard (requirements) with a shield (security/compliance). Premium SaaS feel.</p>
+  <div class="grid">
+
+    <!-- A1: Light -->
+    <div class="card" onclick="this.classList.toggle('selected')">
+      <div class="logo-preview">
+        <svg width="320" height="64" viewBox="0 0 320 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Icon: Clipboard + Shield combined -->
+          <rect x="4" y="8" width="40" height="48" rx="6" fill="#FE0404"/>
+          <!-- Clipboard clip -->
+          <rect x="14" y="2" width="20" height="10" rx="4" fill="#CC0000"/>
+          <rect x="16" y="4" width="16" height="6" rx="3" fill="#FE0404"/>
+          <!-- Shield inside clipboard -->
+          <path d="M24 22 L15 26 L15 34 Q15 42 24 46 Q33 42 33 34 L33 26 Z" fill="white" fill-opacity="0.95"/>
+          <!-- Checkmark in shield -->
+          <path d="M19 33 L22.5 36.5 L29 29" stroke="#FE0404" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- Text -->
+          <text x="56" y="30" font-family="'Segoe UI', system-ui, sans-serif" font-size="22" font-weight="800" fill="#1a1a1a" letter-spacing="-0.5">WMC</text>
+          <text x="56" y="50" font-family="'Segoe UI', system-ui, sans-serif" font-size="13" font-weight="600" fill="#FE0404" letter-spacing="0.5">Anforderungsportal</text>
+        </svg>
+      </div>
+      <div class="logo-name">A1 — Clipboard Shield (Light)</div>
+      <div class="logo-desc">Clipboard with embedded shield & checkmark. Signals trust, compliance, and requirement management. Best for headers, light backgrounds.</div>
+      <span class="tag">Recommended</span>
+    </div>
+
+    <!-- A2: Dark -->
+    <div class="card" onclick="this.classList.toggle('selected')">
+      <div class="logo-preview dark">
+        <svg width="320" height="64" viewBox="0 0 320 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="4" y="8" width="40" height="48" rx="6" fill="#FE0404"/>
+          <rect x="14" y="2" width="20" height="10" rx="4" fill="#CC0000"/>
+          <rect x="16" y="4" width="16" height="6" rx="3" fill="#FE0404"/>
+          <path d="M24 22 L15 26 L15 34 Q15 42 24 46 Q33 42 33 34 L33 26 Z" fill="white" fill-opacity="0.95"/>
+          <path d="M19 33 L22.5 36.5 L29 29" stroke="#FE0404" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="56" y="30" font-family="'Segoe UI', system-ui, sans-serif" font-size="22" font-weight="800" fill="#f5f5f5" letter-spacing="-0.5">WMC</text>
+          <text x="56" y="50" font-family="'Segoe UI', system-ui, sans-serif" font-size="13" font-weight="600" fill="#FE0404" letter-spacing="0.5">Anforderungsportal</text>
+        </svg>
+      </div>
+      <div class="logo-name">A2 — Clipboard Shield (Dark)</div>
+      <div class="logo-desc">Same as A1 but for dark mode / dark backgrounds.</div>
+    </div>
+
+  </div>
+</div>
+
+<hr class="divider">
+
+<div class="section">
+  <h2 class="section-title">Option B — Document Flow (Modern Tech)</h2>
+  <p class="section-desc">Layered document icon with a flow arrow — represents requirement flow & AI processing. Modern SaaS look.</p>
+  <div class="grid">
+
+    <!-- B1 -->
+    <div class="card" onclick="this.classList.toggle('selected')">
+      <div class="logo-preview">
+        <svg width="320" height="64" viewBox="0 0 320 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Back document (shadow layer) -->
+          <rect x="10" y="6" width="32" height="44" rx="4" fill="#FE0404" fill-opacity="0.15"/>
+          <!-- Front document -->
+          <rect x="4" y="12" width="32" height="44" rx="5" fill="#FE0404"/>
+          <!-- Document lines -->
+          <line x1="10" y1="23" x2="30" y2="23" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="10" y1="30" x2="26" y2="30" stroke="white" stroke-width="2" stroke-linecap="round" stroke-opacity="0.7"/>
+          <line x1="10" y1="37" x2="22" y2="37" stroke="white" stroke-width="2" stroke-linecap="round" stroke-opacity="0.5"/>
+          <!-- AI sparkle / flow arrow -->
+          <path d="M36 32 L46 32" stroke="#FE0404" stroke-width="2" stroke-linecap="round"/>
+          <path d="M43 28 L47 32 L43 36" stroke="#FE0404" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- Sparkle dots -->
+          <circle cx="42" cy="24" r="1.5" fill="#FE0404" fill-opacity="0.5"/>
+          <circle cx="46" cy="20" r="1" fill="#FE0404" fill-opacity="0.3"/>
+          <!-- Text -->
+          <text x="56" y="30" font-family="'Segoe UI', system-ui, sans-serif" font-size="22" font-weight="800" fill="#1a1a1a" letter-spacing="-0.5">WMC</text>
+          <text x="56" y="50" font-family="'Segoe UI', system-ui, sans-serif" font-size="13" font-weight="600" fill="#FE0404" letter-spacing="0.5">Anforderungsportal</text>
+        </svg>
+      </div>
+      <div class="logo-name">B1 — Document Flow (Light)</div>
+      <div class="logo-desc">Layered documents with an AI-flow arrow. Signals processing, AI intelligence, and document management. Tech-forward look.</div>
+    </div>
+
+    <!-- B2: Dark -->
+    <div class="card" onclick="this.classList.toggle('selected')">
+      <div class="logo-preview dark">
+        <svg width="320" height="64" viewBox="0 0 320 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="6" width="32" height="44" rx="4" fill="#FE0404" fill-opacity="0.25"/>
+          <rect x="4" y="12" width="32" height="44" rx="5" fill="#FE0404"/>
+          <line x1="10" y1="23" x2="30" y2="23" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="10" y1="30" x2="26" y2="30" stroke="white" stroke-width="2" stroke-linecap="round" stroke-opacity="0.7"/>
+          <line x1="10" y1="37" x2="22" y2="37" stroke="white" stroke-width="2" stroke-linecap="round" stroke-opacity="0.5"/>
+          <path d="M36 32 L46 32" stroke="#FF5555" stroke-width="2" stroke-linecap="round"/>
+          <path d="M43 28 L47 32 L43 36" stroke="#FF5555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="42" cy="24" r="1.5" fill="#FF5555" fill-opacity="0.5"/>
+          <circle cx="46" cy="20" r="1" fill="#FF5555" fill-opacity="0.3"/>
+          <text x="56" y="30" font-family="'Segoe UI', system-ui, sans-serif" font-size="22" font-weight="800" fill="#f5f5f5" letter-spacing="-0.5">WMC</text>
+          <text x="56" y="50" font-family="'Segoe UI', system-ui, sans-serif" font-size="13" font-weight="600" fill="#FF5555" letter-spacing="0.5">Anforderungsportal</text>
+        </svg>
+      </div>
+      <div class="logo-name">B2 — Document Flow (Dark)</div>
+      <div class="logo-desc">Same concept for dark backgrounds and dark mode.</div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<div class="section">
+  <h2 class="section-title">Option C — Hexagon Tech Badge (Enterprise)</h2>
+  <p class="section-desc">Hexagon with inner check — signals precision engineering, German quality. Enterprise look.</p>
+  <div class="grid">
+
+    <div class="card" onclick="this.classList.toggle('selected')">
+      <div class="logo-preview">
+        <svg width="320" height="64" viewBox="0 0 320 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Hexagon -->
+          <path d="M24 4 L42 14 L42 34 L24 44 L6 34 L6 14 Z" fill="#FE0404"/>
+          <!-- Inner hexagon -->
+          <path d="M24 10 L36 17 L36 31 L24 38 L12 31 L12 17 Z" fill="white" fill-opacity="0.15"/>
+          <!-- Checkmark -->
+          <path d="M16 24 L21 29 L32 18" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- Text -->
+          <text x="54" y="23" font-family="'Segoe UI', system-ui, sans-serif" font-size="24" font-weight="800" fill="#1a1a1a" letter-spacing="-0.5">WMC</text>
+          <text x="54" y="42" font-family="'Segoe UI', system-ui, sans-serif" font-size="12" font-weight="600" fill="#FE0404" letter-spacing="1">ANFORDERUNGSPORTAL</text>
+        </svg>
+      </div>
+      <div class="logo-name">C1 — Hexagon Badge (Light)</div>
+      <div class="logo-desc">Hexagonal precision badge. The uppercase subtitle gives authority. Best for enterprise/B2B positioning.</div>
+    </div>
+
+    <div class="card" onclick="this.classList.toggle('selected')">
+      <div class="logo-preview dark">
+        <svg width="320" height="64" viewBox="0 0 320 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M24 4 L42 14 L42 34 L24 44 L6 34 L6 14 Z" fill="#FE0404"/>
+          <path d="M24 10 L36 17 L36 31 L24 38 L12 31 L12 17 Z" fill="white" fill-opacity="0.15"/>
+          <path d="M16 24 L21 29 L32 18" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="54" y="23" font-family="'Segoe UI', system-ui, sans-serif" font-size="24" font-weight="800" fill="#f5f5f5" letter-spacing="-0.5">WMC</text>
+          <text x="54" y="42" font-family="'Segoe UI', system-ui, sans-serif" font-size="12" font-weight="600" fill="#FE0404" letter-spacing="1">ANFORDERUNGSPORTAL</text>
+        </svg>
+      </div>
+      <div class="logo-name">C2 — Hexagon Badge (Dark)</div>
+      <div class="logo-desc">Enterprise badge on dark backgrounds.</div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<div class="section">
+  <h2 class="section-title">Option D — Rounded Square Mark (Minimal Modern)</h2>
+  <p class="section-desc">Clean rounded square icon with an abstract "W" monogram and clipboard abstraction. Startup/modern SaaS style.</p>
+  <div class="grid">
+
+    <div class="card" onclick="this.classList.toggle('selected')">
+      <div class="logo-preview">
+        <svg width="320" height="64" viewBox="0 0 320 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Rounded square -->
+          <rect x="2" y="6" width="48" height="48" rx="12" fill="url(#gradD)"/>
+          <defs><linearGradient id="gradD" x1="2" y1="6" x2="50" y2="54" gradientUnits="userSpaceOnUse"><stop stop-color="#FE0404"/><stop offset="1" stop-color="#B30000"/></linearGradient></defs>
+          <!-- Abstract W/clipboard -->
+          <path d="M14 18 L20 40 L26 26 L32 40 L38 18" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- Small check dot -->
+          <circle cx="42" cy="14" r="5" fill="white"/>
+          <path d="M39.5 14 L41 15.5 L44.5 12" stroke="#FE0404" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- Text -->
+          <text x="60" y="30" font-family="'Segoe UI', system-ui, sans-serif" font-size="22" font-weight="800" fill="#1a1a1a" letter-spacing="-0.5">WMC</text>
+          <text x="60" y="49" font-family="'Segoe UI', system-ui, sans-serif" font-size="13" font-weight="600" fill="#FE0404" letter-spacing="0.5">Anforderungsportal</text>
+        </svg>
+      </div>
+      <div class="logo-name">D1 — Modern Square Mark (Light)</div>
+      <div class="logo-desc">Gradient rounded square with abstract W and a small check badge. Clean, startup-like, app-icon ready.</div>
+      <span class="tag">App Icon Ready</span>
+    </div>
+
+    <div class="card" onclick="this.classList.toggle('selected')">
+      <div class="logo-preview dark">
+        <svg width="320" height="64" viewBox="0 0 320 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="6" width="48" height="48" rx="12" fill="url(#gradD2)"/>
+          <defs><linearGradient id="gradD2" x1="2" y1="6" x2="50" y2="54" gradientUnits="userSpaceOnUse"><stop stop-color="#FE0404"/><stop offset="1" stop-color="#B30000"/></linearGradient></defs>
+          <path d="M14 18 L20 40 L26 26 L32 40 L38 18" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="42" cy="14" r="5" fill="white"/>
+          <path d="M39.5 14 L41 15.5 L44.5 12" stroke="#FE0404" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="60" y="30" font-family="'Segoe UI', system-ui, sans-serif" font-size="22" font-weight="800" fill="#f5f5f5" letter-spacing="-0.5">WMC</text>
+          <text x="60" y="49" font-family="'Segoe UI', system-ui, sans-serif" font-size="13" font-weight="600" fill="#FE0404" letter-spacing="0.5">Anforderungsportal</text>
+        </svg>
+      </div>
+      <div class="logo-name">D2 — Modern Square Mark (Dark)</div>
+      <div class="logo-desc">Same on dark backgrounds.</div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ============================== -->
+<!-- SECTION 2: ICON-ONLY MARKS     -->
+<!-- ============================== -->
+<div class="section">
+  <h2 class="section-title">Icon-Only Marks (Favicon / Sidebar / Mobile)</h2>
+  <p class="section-desc">These are the standalone icon marks that work in favicons, mobile app icons, sidebar collapsed states.</p>
+  <div class="grid">
+
+    <div class="card" onclick="this.classList.toggle('selected')">
+      <div class="logo-preview" style="gap: 2rem;">
+        <!-- A mark -->
+        <div style="text-align: center;">
+          <svg width="56" height="56" viewBox="0 0 56 56" fill="none"><rect x="4" y="8" width="40" height="44" rx="6" fill="#FE0404"/><rect x="14" y="2" width="20" height="10" rx="4" fill="#CC0000"/><rect x="16" y="4" width="16" height="6" rx="3" fill="#FE0404"/><path d="M28 22 L19 26 L19 34 Q19 42 28 46 Q37 42 37 34 L37 26 Z" fill="white" fill-opacity="0.95"/><path d="M23 33 L26.5 36.5 L33 29" stroke="#FE0404" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div style="font-size: 11px; color: #888; margin-top: 6px;">A Mark</div>
+        </div>
+        <!-- B mark -->
+        <div style="text-align: center;">
+          <svg width="48" height="56" viewBox="0 0 48 56" fill="none"><rect x="10" y="4" width="32" height="42" rx="4" fill="#FE0404" fill-opacity="0.15"/><rect x="4" y="10" width="32" height="42" rx="5" fill="#FE0404"/><line x1="10" y1="21" x2="30" y2="21" stroke="white" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="28" x2="26" y2="28" stroke="white" stroke-width="2" stroke-linecap="round" stroke-opacity="0.7"/><line x1="10" y1="35" x2="22" y2="35" stroke="white" stroke-width="2" stroke-linecap="round" stroke-opacity="0.5"/><path d="M36 30 L44 30" stroke="#FE0404" stroke-width="2" stroke-linecap="round"/><path d="M41 26 L45 30 L41 34" stroke="#FE0404" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div style="font-size: 11px; color: #888; margin-top: 6px;">B Mark</div>
+        </div>
+        <!-- C mark -->
+        <div style="text-align: center;">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><path d="M24 2 L44 13 L44 35 L24 46 L4 35 L4 13 Z" fill="#FE0404"/><path d="M24 9 L38 17 L38 33 L24 41 L10 33 L10 17 Z" fill="white" fill-opacity="0.15"/><path d="M16 24 L21 29 L32 18" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div style="font-size: 11px; color: #888; margin-top: 6px;">C Mark</div>
+        </div>
+        <!-- D mark -->
+        <div style="text-align: center;">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="12" fill="url(#gradDM)"/><defs><linearGradient id="gradDM" x1="0" y1="0" x2="48" y2="48"><stop stop-color="#FE0404"/><stop offset="1" stop-color="#B30000"/></linearGradient></defs><path d="M12 14 L18 36 L24 22 L30 36 L36 14" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="40" cy="10" r="5" fill="white"/><path d="M37.5 10 L39 11.5 L42.5 8" stroke="#FE0404" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div style="font-size: 11px; color: #888; margin-top: 6px;">D Mark</div>
+        </div>
+      </div>
+      <div class="logo-name">All Icon Marks Comparison</div>
+      <div class="logo-desc">Side-by-side comparison of all icon marks in their standalone form — for favicon, sidebar collapsed, and mobile app icon.</div>
+    </div>
+
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ============================== -->
+<!-- SECTION 3: MADE IN GERMANY     -->
+<!-- ============================== -->
+<div class="section">
+  <h2 class="section-title">🇩🇪 "Made in Germany" Badge — Bundesadler (Federal Eagle)</h2>
+  <p class="section-desc">The correct official "Made in Germany" symbol uses the Bundesadler (Federal Eagle) — the heraldic eagle of Germany — NOT a country map. Below are badge options with the eagle.</p>
+  <div class="grid">
+
+    <!-- Eagle Badge 1: Classic -->
+    <div class="card" onclick="this.classList.toggle('selected')">
+      <div class="logo-preview">
+        <svg width="200" height="48" viewBox="0 0 200 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Badge background -->
+          <rect width="200" height="48" rx="24" fill="white" stroke="#D4D4D4" stroke-width="1"/>
+          <!-- German flag stripe -->
+          <rect x="1" y="1" width="200" height="3" rx="1" fill="#000"/>
+          <rect x="1" y="1" width="67" height="3" fill="#000"/>
+          <rect x="67" y="1" width="67" height="3" fill="#DD0000"/>
+          <rect x="134" y="1" width="66" height="3" fill="#FFCC00"/>
+          <!-- Bundesadler (simplified federal eagle) -->
+          <g transform="translate(16, 10) scale(0.6)">
+            <!-- Eagle body -->
+            <path d="M24 8 C20 8 16 12 16 16 C16 20 18 22 20 24 L16 28 C14 30 14 34 18 36 L20 34 L22 36 L24 32 L26 36 L28 34 L30 36 C34 34 34 30 32 28 L28 24 C30 22 32 20 32 16 C32 12 28 8 24 8Z" fill="#1a1a1a"/>
+            <!-- Eagle head -->
+            <circle cx="24" cy="10" r="4" fill="#1a1a1a"/>
+            <!-- Beak -->
+            <path d="M27 9 L30 10 L27 11" fill="#FFCC00"/>
+            <!-- Wings spread -->
+            <path d="M16 16 L4 12 L6 18 L14 20" fill="#1a1a1a"/>
+            <path d="M32 16 L44 12 L42 18 L34 20" fill="#1a1a1a"/>
+            <!-- Talons -->
+            <path d="M18 36 L16 42 L20 40" stroke="#FFCC00" stroke-width="1.5" fill="none"/>
+            <path d="M30 36 L32 42 L28 40" stroke="#FFCC00" stroke-width="1.5" fill="none"/>
+          </g>
+          <!-- Text -->
+          <text x="58" y="24" font-family="'Segoe UI', system-ui, sans-serif" font-size="10" font-weight="700" fill="#1a1a1a" letter-spacing="0.5">MADE IN</text>
+          <text x="58" y="38" font-family="'Segoe UI', system-ui, sans-serif" font-size="14" font-weight="800" fill="#1a1a1a" letter-spacing="1">GERMANY</text>
+          <!-- Stars -->
+          <g fill="#FFCC00" transform="translate(140, 28)">
+            <polygon points="5,0 6.5,3.5 10,3.5 7,5.8 8.2,9.5 5,7 1.8,9.5 3,5.8 0,3.5 3.5,3.5"/>
+            <polygon points="20,0 21.5,3.5 25,3.5 22,5.8 23.2,9.5 20,7 16.8,9.5 18,5.8 15,3.5 18.5,3.5"/>
+            <polygon points="35,0 36.5,3.5 40,3.5 37,5.8 38.2,9.5 35,7 31.8,9.5 33,5.8 30,3.5 33.5,3.5"/>
+          </g>
+        </svg>
+      </div>
+      <div class="logo-name">MiG-1 — Classic Bundesadler Badge</div>
+      <div class="logo-desc">Full eagle silhouette with "MADE IN GERMANY" text and golden EU-inspired stars. Flag stripe at top. Premium & authoritative.</div>
+      <span class="tag">Recommended</span>
+    </div>
+
+    <!-- Eagle Badge 2: Compact Pill -->
+    <div class="card" onclick="this.classList.toggle('selected')">
+      <div class="logo-preview">
+        <svg width="180" height="36" viewBox="0 0 180 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Pill badge -->
+          <rect width="180" height="36" rx="18" fill="#1a1a1a"/>
+          <!-- Small eagle silhouette -->
+          <g transform="translate(10, 5) scale(0.5)">
+            <path d="M24 4 C20 4 16 8 16 12 C16 16 18 18 20 20 L17 23 C15 25 16 28 19 29 L21 27 L24 28 L27 27 L29 29 C32 28 33 25 31 23 L28 20 C30 18 32 16 32 12 C32 8 28 4 24 4Z" fill="white"/>
+            <circle cx="24" cy="6" r="3" fill="white"/>
+            <path d="M27 5 L30 6 L27 7" fill="#FFCC00"/>
+            <path d="M16 12 L6 8 L8 14 L14 16" fill="white"/>
+            <path d="M32 12 L42 8 L40 14 L34 16" fill="white"/>
+          </g>
+          <!-- Flag colors bar -->
+          <rect x="36" y="14" width="4" height="8" rx="1" fill="#000"/>
+          <rect x="40" y="14" width="4" height="8" rx="0" fill="#DD0000"/>
+          <rect x="44" y="14" width="4" height="8" rx="1" fill="#FFCC00"/>
+          <!-- Text -->
+          <text x="54" y="16" font-family="'Segoe UI', system-ui, sans-serif" font-size="8" font-weight="600" fill="white" letter-spacing="1">MADE IN</text>
+          <text x="54" y="28" font-family="'Segoe UI', system-ui, sans-serif" font-size="12" font-weight="800" fill="white" letter-spacing="1.5">GERMANY</text>
+          <!-- Stars -->
+          <g fill="#FFCC00" transform="translate(140, 12)">
+            <polygon points="4,0 5,2.5 8,2.5 5.5,4.5 6.5,7 4,5.5 1.5,7 2.5,4.5 0,2.5 3,2.5"/>
+            <polygon points="16,0 17,2.5 20,2.5 17.5,4.5 18.5,7 16,5.5 13.5,7 14.5,4.5 12,2.5 15,2.5"/>
+            <polygon points="28,0 29,2.5 32,2.5 29.5,4.5 30.5,7 28,5.5 25.5,7 26.5,4.5 24,2.5 27,2.5"/>
+          </g>
+        </svg>
+      </div>
+      <div class="logo-name">MiG-2 — Compact Dark Pill</div>
+      <div class="logo-desc">Dark compact pill badge with eagle, German flag stripe, and stars. Works well in footers and small spaces.</div>
+    </div>
+
+    <!-- Eagle Badge 3: Outline / Light -->
+    <div class="card" onclick="this.classList.toggle('selected')">
+      <div class="logo-preview">
+        <svg width="180" height="36" viewBox="0 0 180 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Outlined pill -->
+          <rect x="0.5" y="0.5" width="179" height="35" rx="17.5" fill="white" stroke="#e5e5e5" stroke-width="1"/>
+          <!-- Eagle simple -->
+          <g transform="translate(8, 5) scale(0.5)">
+            <path d="M24 4 C20 4 16 8 16 12 C16 16 18 18 20 20 L17 23 C15 25 16 28 19 29 L21 27 L24 28 L27 27 L29 29 C32 28 33 25 31 23 L28 20 C30 18 32 16 32 12 C32 8 28 4 24 4Z" fill="#555"/>
+            <circle cx="24" cy="6" r="3" fill="#555"/>
+            <path d="M27 5 L30 6 L27 7" fill="#DD0000"/>
+            <path d="M16 12 L6 8 L8 14 L14 16" fill="#555"/>
+            <path d="M32 12 L42 8 L40 14 L34 16" fill="#555"/>
+          </g>
+          <!-- Flag -->
+          <rect x="34" y="14" width="4" height="8" rx="1" fill="#000"/>
+          <rect x="38" y="14" width="4" height="8" fill="#DD0000"/>
+          <rect x="42" y="14" width="4" height="8" rx="1" fill="#FFCC00"/>
+          <!-- Text -->
+          <text x="52" y="16" font-family="'Segoe UI', system-ui, sans-serif" font-size="8" font-weight="600" fill="#888" letter-spacing="0.8">MADE IN</text>
+          <text x="52" y="28" font-family="'Segoe UI', system-ui, sans-serif" font-size="12" font-weight="700" fill="#333" letter-spacing="1">GERMANY</text>
+        </svg>
+      </div>
+      <div class="logo-name">MiG-3 — Light Outlined Badge</div>
+      <div class="logo-desc">Subtle outlined badge for lighter layouts. Eagle in neutral gray with flag accent. Elegant and minimal.</div>
+    </div>
+
+  </div>
+</div>
+
+<hr class="divider">
+
+<div class="section">
+  <div class="note-box">
+    <h3>📋 How to choose:</h3>
+    <p>
+      <strong>Click on any card</strong> to mark it as selected, then tell me the letter/number codes you prefer.
+      For example: <em>"I like A1 for the main logo and MiG-2 for the Made in Germany badge."</em>
+      <br><br>
+      <strong>Psychology behind the options:</strong><br>
+      • <strong>A (Clipboard Shield)</strong> — Trust + compliance; best for B2B enterprise where clients need assurance their data is safe (GDPR).<br>
+      • <strong>B (Document Flow)</strong> — Innovation + AI-forward; best if you want to emphasize the AI/smart technology angle.<br>
+      • <strong>C (Hexagon)</strong> — Precision engineering; best for German engineering brand identity and enterprise authority.<br>
+      • <strong>D (Rounded Square)</strong> — Modern SaaS; best if you want a friendly, approachable startup vibe with an app-icon that works everywhere.<br>
+      <br>
+      <strong>Made in Germany:</strong> The Bundesadler (federal eagle) is the correct official symbol. The current map silhouette is NOT the standard "Made in Germany" marking. MiG-1 is the most authoritative; MiG-2 is best for compact spaces; MiG-3 is most subtle.
+    </p>
+  </div>
+</div>
+
+</body>
+</html>

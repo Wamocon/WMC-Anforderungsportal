@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anforderungsportal — Logo Selection v2</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #f5f5f7; color: #1a1a1a; }
+    .header { background: linear-gradient(135deg, #FE0404 0%, #990000 100%); color: white; padding: 3.5rem 2rem; text-align: center; }
+    .header h1 { font-size: 2.8rem; font-weight: 800; margin-bottom: 0.5rem; text-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+    .header p { font-size: 1.15rem; opacity: 0.9; max-width: 600px; margin: 0 auto; }
+    .section { max-width: 1200px; margin: 0 auto; padding: 3rem 1.5rem; }
+    .section-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .section-desc { color: #666; margin-bottom: 2rem; font-size: 1rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 1.5rem; }
+    .card { background: white; border-radius: 20px; padding: 2rem; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 2px solid transparent; transition: all 0.3s; cursor: pointer; position: relative; }
+    .card:hover { border-color: #FE0404; box-shadow: 0 12px 40px rgba(254,4,4,0.15); transform: translateY(-3px); }
+    .card.selected { border-color: #FE0404; background: #FFF5F5; }
+    .card.selected::after { content: '✓ Selected'; position: absolute; top: 14px; right: 14px; background: #FE0404; color: white; padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .logo-preview { display: flex; align-items: center; justify-content: center; min-height: 120px; margin-bottom: 1.5rem; padding: 1.5rem; }
+    .logo-preview.dark { background: #1a1a1a; border-radius: 16px; }
+    .logo-name { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.35rem; }
+    .logo-desc { font-size: 0.88rem; color: #888; line-height: 1.55; }
+    .tag { display: inline-block; background: #FE0404; color: white; padding: 3px 12px; border-radius: 14px; font-size: 11px; font-weight: 700; margin-top: 0.8rem; }
+    .tag.green { background: #16a34a; }
+    .divider { border: none; border-top: 1px solid #e5e5e5; margin: 3rem 0; }
+    .note-box { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 14px; padding: 1.75rem; margin-top: 2.5rem; }
+    .note-box h3 { color: #92400E; font-size: 1.05rem; margin-bottom: 0.5rem; }
+    .note-box p { color: #78350F; font-size: 0.92rem; line-height: 1.7; }
+    .compare-row { display: flex; flex-wrap: wrap; gap: 2rem; align-items: center; justify-content: center; padding: 2rem; }
+    .compare-item { text-align: center; }
+    .compare-label { font-size: 11px; color: #888; margin-top: 8px; font-weight: 600; }
+    @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Anforderungsportal — Logo Selection v2</h1>
+  <p>Professional 3D logos — "Anforderungsportal" / "Requirement Manager" branding. No WMC. Click to select your favourite!</p>
+</div>
+
+<!-- ========================================== -->
+<!-- SECTION 1: 3D DOCUMENT LOGOS               -->
+<!-- ========================================== -->
+<div class="section">
+  <h2 class="section-title">Option A — 3D Document Stack</h2>
+  <p class="section-desc">Stacked documents with 3D depth and shadow. Signals organized requirement management with a modern tech feel.</p>
+  <div class="grid">
+
+    <!-- A1 Light -->
+    <div class="card" onclick="this.classList.toggle('selected')">
+      <div class="logo-preview">
+        <svg width="380" height="72" viewBox="0 0 380 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="a1bg" x1="6" y1="12" x2="54" y2="64" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FE0404"/>
+              <stop offset="1" stop-color="#A00000"/>
+            </linearGradient>
+            <filter id="a1shadow" x="-4" y="-2" width="70" height="80" filterUnits="userSpaceOnUse">
+              <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#FE0404" flood-opacity="0.25"/>
+            </filter>
+            <filter id="a1inner" x="-2" y="-2" width="66" height="76" filterUnits="userSpaceOnUse">
+              <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity="0.15"/>
+            </filter>
+            <linearGradient id="a1shine" x1="10" y1="10" x2="50" y2="60" gradientUnits="userSpaceOnUse">
+              <stop stop-color="white" stop-opacity="0.35"/>
+              <stop offset="0.5" stop-color="white" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <!-- Back document (3D depth layer) -->
+          <rect x="18" y="6" width="36" height="46" rx="5" fill="#FFB3B3" filter="url(#a1inner)"/>
+          <!-- Mid document -->
+          <rect x="12" y="12" width="36" height="46" rx="5" fill="#FF6666" filter="url(#a1inner)"/>
+          <!-- Front document (main) -->
+          <g filter="url(#a1shadow)">
+            <rect x="6" y="18" width="36" height="46" rx="6" fill="url(#a1bg)"/>
+            <!-- Shine overlay for 3D -->
+            <rect x="6" y="18" width="36" height="46" rx="6" fill="url(#a1shine)"/>
+          </g>
+          <!-- Document lines -->
+          <line x1="13" y1="30" x2="35" y2="30" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="13" y1="37" x2="31" y2="37" stroke="white" stroke-width="2" stroke-linecap="round" stroke-opacity="0.7"/>
+          <line x1="13" y1="44" x2="27" y2="44" stroke="white" stroke-width="2" stroke-linecap="round" stroke-opacity="0.5"/>
+          <!-- Checkmark circle -->
+          <circle cx="36" cy="52" r="8" fill="white" stroke="#FE0404" stroke-width="1.5"/>
+          <path d="M31.5 52 L34 54.5 L40 48.5" stroke="#FE0404" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- Text -->
+          <text x="62" y="36" font-family="'Segoe UI', system-ui, sans-serif" font-size="24" font-weight="800" fill="#1a1a1a" letter-spacing="-0.5">Anforderungsportal</text>
+          <text x="62" y="55" font-family="'Segoe UI', system-ui, sans-serif" font-size="13" font-weight="600" fill="#FE0404" letter-spacing="0.5">Requirement Manager</text>
+        </svg>
+      </div>
+      <div class="logo-name">A1 — 3D Document Stack (Light)</div>
+      <div class="logo-desc">Three stacked documents with depth & shadow, checkmark badge. Communicates organized, layered requirement management. The progressive reveal (3 layers) suggests process depth.</div>
+      <span class="tag">Recommended</span>
+    </div>
+
+    <!-- A2 Dark -->
+    <div class="card" onclick="this.classList.toggle('selected')">
+      <div class="logo-preview dark">
+        <svg width="380" height="72" viewBox="0 0 380 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="a2bg" x1="6" y1="12" x2="54" y2="64" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FE0404"/>
+              <stop offset="1" stop-color="#A00000"/>
+            </linearGradient>
+            <filter id="a2shadow" x="-4" y="-2" width="70" height="80" filterUnits="userSpaceOnUse">
+              <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#FE0404" flood-opacity="0.35"/>
+            </filter>
+            <linearGradient id="a2shine" x1="10" y1="10" x2="50" y2="60" gradientUnits="userSpaceOnUse">
+              <stop stop-color="white" stop-opacity="0.3"/>
+              <stop offset="0.5" stop-color="white" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <rect x="18" y="6" width="36" height="46" rx="5" fill="#FF6666" fill-opacity="0.2"/>
+          <rect x="12" y="12" width="36" height="46" rx="5" fill="#FF6666" fill-opacity="0.35"/>
+          <g filter="url(#a2shadow)">
+            <rect x="6" y="18" width="36" height="46" rx="6" fill="url(#a2bg)"/>
+            <rect x="6" y="18" width="36" height="46" rx="6" fill="url(#a2shine)"/>
+          </g>
+          <line x1="13" y1="30" x2="35" y2="30" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="13" y1="37" x2="31" y2="37" stroke="white" stroke-width="2" stroke-linecap="round" stroke-opacity="0.7"/>
+          <line x1="13" y1="44" x2="27" y2="44" stroke="white" stroke-width="2" stroke-linecap="round" stroke-opacity="0.5"/>
+          <circle cx="36" cy="52" r="8" fill="white" stroke="#FE0404" stroke-width="1.5"/>
+          <path d="M31.5 52 L34 54.5 L40 48.5" stroke="#FE0404" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="62" y="36" font-family="'Segoe UI', system-ui, sans-serif" font-size="24" font-weight="800" fill="#f0f0f0" letter-spacing="-0.5">Anforderungsportal</text>
+          <text x="62" y="55" font-family="'Segoe UI', system-ui, sans-serif" font-size="13" font-weight="600" fill="#FF6666" letter-spacing="0.5">Requirement Manager</text>
+        </svg>
+      </div>
+      <div class="logo-name">A2 — 3D Document Stack (Dark)</div>
+      <div class="logo-desc">Same concept with a glowing red shadow on dark background. Premium dark-mode presence.</div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ========================================== -->
+<!-- OPTION B: 3D CLIPBOARD SHIELD              -->
+<!-- ========================================== -->
+<div class="section">
+  <h2 class="section-title">Option B — 3D Clipboard Shield</h2>
+  <p class="section-desc">A clipboard with an embedded shield — trust, security, GDPR compliance. 3D gradient with inner glow.</p>
+  <div class="grid">
+
+    <div class="card" onclick="this.classList.toggle('selected')">
+      <div class="logo-preview">
+        <svg width="380" height="76" viewBox="0 0 380 76" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="b1main" x1="4" y1="8" x2="50" y2="68" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FF2020"/>
+              <stop offset="1" stop-color="#8B0000"/>
+            </linearGradient>
+            <filter id="b1drop" x="-6" y="-4" width="72" height="88" filterUnits="userSpaceOnUse">
+              <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#FE0404" flood-opacity="0.3"/>
+            </filter>
+            <linearGradient id="b1glass" x1="8" y1="8" x2="44" y2="60" gradientUnits="userSpaceOnUse">
+              <stop stop-color="white" stop-opacity="0.4"/>
+              <stop offset="0.4" stop-color="white" stop-opacity="0.05"/>
+              <stop offset="1" stop-color="white" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="b1shield" x1="18" y1="28" x2="38" y2="62" gradientUnits="userSpaceOnUse">
+              <stop stop-color="white" stop-opacity="0.95"/>
+              <stop offset="1" stop-color="#f0f0f0" stop-opacity="0.9"/>
+            </linearGradient>
+          </defs>
+          <!-- Main clipboard body -->
+          <g filter="url(#b1drop)">
+            <rect x="6" y="10" width="44" height="56" rx="8" fill="url(#b1main)"/>
+            <!-- Glass shine -->
+            <rect x="6" y="10" width="44" height="56" rx="8" fill="url(#b1glass)"/>
+          </g>
+          <!-- Clipboard clip (3D) -->
+          <rect x="17" y="3" width="22" height="14" rx="5" fill="#CC0000"/>
+          <rect x="19" y="5" width="18" height="10" rx="4" fill="url(#b1main)"/>
+          <rect x="19" y="5" width="18" height="5" rx="4" fill="white" fill-opacity="0.15"/>
+          <!-- Shield inside -->
+          <path d="M28 28 L17 33 L17 44 Q17 54 28 60 Q39 54 39 44 L39 33 Z" fill="url(#b1shield)"/>
+          <!-- Shadow on shield -->
+          <path d="M28 28 L17 33 L17 44 Q17 54 28 60 Q39 54 39 44 L39 33 Z" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
+          <!-- Checkmark -->
+          <path d="M22 44 L26 48 L34 39" stroke="#FE0404" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- Text -->
+          <text x="64" y="38" font-family="'Segoe UI', system-ui, sans-serif" font-size="24" font-weight="800" fill="#1a1a1a" letter-spacing="-0.5">Anforderungsportal</text>
+          <text x="64" y="57" font-family="'Segoe UI', system-ui, sans-serif" font-size="13" font-weight="600" fill="#FE0404" letter-spacing="0.5">Requirement Manager</text>
+        </svg>
+      </div>
+      <div class="logo-name">B1 — 3D Clipboard Shield (Light)</div>
+      <div class="logo-desc">Red gradient clipboard with glossy 3D finish, embedded white shield + checkmark. Signals trust, security, and professional compliance. Best for B2B/enterprise.</div>
+    </div>
+
+    <div class="card" onclick="this.classList.toggle('selected')">
+      <div class="logo-preview dark">
+        <svg width="380" height="76" viewBox="0 0 380 76" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="b2main" x1="4" y1="8" x2="50" y2="68" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FF2020"/>
+              <stop offset="1" stop-color="#8B0000"/>
+            </linearGradient>
+            <filter id="b2drop" x="-6" y="-4" width="72" height="88" filterUnits="userSpaceOnUse">
+              <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#FE0404" flood-opacity="0.45"/>
+            </filter>
+            <linearGradient id="b2glass" x1="8" y1="8" x2="44" y2="60" gradientUnits="userSpaceOnUse">
+              <stop stop-color="white" stop-opacity="0.35"/>
+              <stop offset="0.4" stop-color="white" stop-opacity="0.05"/>
+              <stop offset="1" stop-color="white" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <g filter="url(#b2drop)">
+            <rect x="6" y="10" width="44" height="56" rx="8" fill="url(#b2main)"/>
+            <rect x="6" y="10" width="44" height="56" rx="8" fill="url(#b2glass)"/>
+          </g>
+          <rect x="17" y="3" width="22" height="14" rx="5" fill="#CC0000"/>
+          <rect x="19" y="5" width="18" height="10" rx="4" fill="url(#b2main)"/>
+          <rect x="19" y="5" width="18" height="5" rx="4" fill="white" fill-opacity="0.15"/>
+          <path d="M28 28 L17 33 L17 44 Q17 54 28 60 Q39 54 39 44 L39 33 Z" fill="white" fill-opacity="0.95"/>
+          <path d="M22 44 L26 48 L34 39" stroke="#FE0404" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="64" y="38" font-family="'Segoe UI', system-ui, sans-serif" font-size="24" font-weight="800" fill="#f0f0f0" letter-spacing="-0.5">Anforderungsportal</text>
+          <text x="64" y="57" font-family="'Segoe UI', system-ui, sans-serif" font-size="13" font-weight="600" fill="#FF6666" letter-spacing="0.5">Requirement Manager</text>
+        </svg>
+      </div>
+      <div class="logo-name">B2 — 3D Clipboard Shield (Dark)</div>
+      <div class="logo-desc">Glowing 3D clipboard on dark background with strong red shadow aura.</div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ========================================== -->
+<!-- OPTION C: 3D ISOMETRIC CUBE                -->
+<!-- ========================================== -->
+<div class="section">
+  <h2 class="section-title">Option C — 3D Isometric Cube</h2>
+  <p class="section-desc">An isometric 3D cube with document faces — represents structured, multi-dimensional requirement management.</p>
+  <div class="grid">
+
+    <div class="card" onclick="this.classList.toggle('selected')">
+      <div class="logo-preview">
+        <svg width="380" height="76" viewBox="0 0 380 76" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="c1shadow" filterUnits="userSpaceOnUse">
+              <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#FE0404" flood-opacity="0.2"/>
+            </filter>
+          </defs>
+          <!-- Isometric cube -->
+          <g filter="url(#c1shadow)" transform="translate(4,6)">
+            <!-- Top face -->
+            <path d="M24 4 L46 16 L24 28 L2 16 Z" fill="#FF4040"/>
+            <!-- Left face -->
+            <path d="M2 16 L24 28 L24 56 L2 44 Z" fill="#CC0000"/>
+            <!-- Right face -->
+            <path d="M24 28 L46 16 L46 44 L24 56 Z" fill="#FE0404"/>
+            <!-- 3D shine on top -->
+            <path d="M24 4 L46 16 L24 28 L2 16 Z" fill="white" fill-opacity="0.2"/>
+            <!-- Document lines on right face -->
+            <line x1="29" y1="32" x2="41" y2="26" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.6"/>
+            <line x1="29" y1="37" x2="39" y2="32" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.4"/>
+            <line x1="29" y1="42" x2="37" y2="38" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.3"/>
+            <!-- Checkmark on top face -->
+            <path d="M16 14 L20 18 L30 10" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </g>
+          <!-- Text -->
+          <text x="62" y="36" font-family="'Segoe UI', system-ui, sans-serif" font-size="24" font-weight="800" fill="#1a1a1a" letter-spacing="-0.5">Anforderungsportal</text>
+          <text x="62" y="55" font-family="'Segoe UI', system-ui, sans-serif" font-size="13" font-weight="600" fill="#FE0404" letter-spacing="0.5">Requirement Manager</text>
+        </svg>
+      </div>
+      <div class="logo-name">C1 — 3D Isometric Cube (Light)</div>
+      <div class="logo-desc">Isometric cube with 3 red-gradient faces. Document lines on the side, checkmark on top. Signals structured, multi-dimensional thinking. Very modern tech aesthetic.</div>
+      <span class="tag green">Modern Tech</span>
+    </div>
+
+    <div class="card" onclick="this.classList.toggle('selected')">
+      <div class="logo-preview dark">
+        <svg width="380" height="76" viewBox="0 0 380 76" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="c2shadow" filterUnits="userSpaceOnUse">
+              <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#FE0404" flood-opacity="0.4"/>
+            </filter>
+          </defs>
+          <g filter="url(#c2shadow)" transform="translate(4,6)">
+            <path d="M24 4 L46 16 L24 28 L2 16 Z" fill="#FF4040"/>
+            <path d="M2 16 L24 28 L24 56 L2 44 Z" fill="#CC0000"/>
+            <path d="M24 28 L46 16 L46 44 L24 56 Z" fill="#FE0404"/>
+            <path d="M24 4 L46 16 L24 28 L2 16 Z" fill="white" fill-opacity="0.2"/>
+            <line x1="29" y1="32" x2="41" y2="26" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.6"/>
+            <line x1="29" y1="37" x2="39" y2="32" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.4"/>
+            <line x1="29" y1="42" x2="37" y2="38" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.3"/>
+            <path d="M16 14 L20 18 L30 10" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </g>
+          <text x="62" y="36" font-family="'Segoe UI', system-ui, sans-serif" font-size="24" font-weight="800" fill="#f0f0f0" letter-spacing="-0.5">Anforderungsportal</text>
+          <text x="62" y="55" font-family="'Segoe UI', system-ui, sans-serif" font-size="13" font-weight="600" fill="#FF6666" letter-spacing="0.5">Requirement Manager</text>
+        </svg>
+      </div>
+      <div class="logo-name">C2 — 3D Isometric Cube (Dark)</div>
+      <div class="logo-desc">Glowing cube on dark background. Strong premium feel.</div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ========================================== -->
+<!-- OPTION D: 3D FLOATING CIRCLE BADGE         -->
+<!-- ========================================== -->
+<div class="section">
+  <h2 class="section-title">Option D — 3D Floating Circle</h2>
+  <p class="section-desc">Premium sphere-like gradient circle with a checklist icon inside — smooth, modern, app-icon ready.</p>
+  <div class="grid">
+
+    <div class="card" onclick="this.classList.toggle('selected')">
+      <div class="logo-preview">
+        <svg width="380" height="76" viewBox="0 0 380 76" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="d1sphere" cx="0.35" cy="0.3" r="0.65" fx="0.35" fy="0.3">
+              <stop stop-color="#FF5050"/>
+              <stop offset="0.5" stop-color="#FE0404"/>
+              <stop offset="1" stop-color="#800000"/>
+            </radialGradient>
+            <filter id="d1shadow" filterUnits="userSpaceOnUse">
+              <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#FE0404" flood-opacity="0.3"/>
+            </filter>
+          </defs>
+          <g filter="url(#d1shadow)">
+            <circle cx="30" cy="38" r="26" fill="url(#d1sphere)"/>
+            <!-- Glass highlight -->
+            <ellipse cx="22" cy="26" rx="12" ry="8" fill="white" fill-opacity="0.18"/>
+          </g>
+          <!-- Checklist icon inside -->
+          <rect x="19" y="26" width="22" height="26" rx="3" stroke="white" stroke-width="1.8" fill="none"/>
+          <!-- Check items -->
+          <rect x="23" y="31" width="3" height="3" rx="0.5" stroke="white" stroke-width="1" fill="white" fill-opacity="0.4"/>
+          <line x1="28" y1="33" x2="37" y2="33" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.9"/>
+          <rect x="23" y="37" width="3" height="3" rx="0.5" stroke="white" stroke-width="1" fill="white" fill-opacity="0.4"/>
+          <line x1="28" y1="39" x2="35" y2="39" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.7"/>
+          <rect x="23" y="43" width="3" height="3" rx="0.5" stroke="white" stroke-width="1" fill="white" fill-opacity="0.4"/>
+          <line x1="28" y1="45" x2="33" y2="45" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.5"/>
+          <!-- Text -->
+          <text x="66" y="36" font-family="'Segoe UI', system-ui, sans-serif" font-size="24" font-weight="800" fill="#1a1a1a" letter-spacing="-0.5">Anforderungsportal</text>
+          <text x="66" y="55" font-family="'Segoe UI', system-ui, sans-serif" font-size="13" font-weight="600" fill="#FE0404" letter-spacing="0.5">Requirement Manager</text>
+        </svg>
+      </div>
+      <div class="logo-name">D1 — 3D Floating Circle (Light)</div>
+      <div class="logo-desc">Sphere-gradient circle with radial 3D lighting. Checklist icon inside. Very Apple-esque, premium app feel. Works perfectly as app icon.</div>
+      <span class="tag green">App Icon Ready</span>
+    </div>
+
+    <div class="card" onclick="this.classList.toggle('selected')">
+      <div class="logo-preview dark">
+        <svg width="380" height="76" viewBox="0 0 380 76" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="d2sphere" cx="0.35" cy="0.3" r="0.65" fx="0.35" fy="0.3">
+              <stop stop-color="#FF5050"/>
+              <stop offset="0.5" stop-color="#FE0404"/>
+              <stop offset="1" stop-color="#800000"/>
+            </radialGradient>
+            <filter id="d2shadow" filterUnits="userSpaceOnUse">
+              <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#FE0404" flood-opacity="0.5"/>
+            </filter>
+          </defs>
+          <g filter="url(#d2shadow)">
+            <circle cx="30" cy="38" r="26" fill="url(#d2sphere)"/>
+            <ellipse cx="22" cy="26" rx="12" ry="8" fill="white" fill-opacity="0.15"/>
+          </g>
+          <rect x="19" y="26" width="22" height="26" rx="3" stroke="white" stroke-width="1.8" fill="none"/>
+          <rect x="23" y="31" width="3" height="3" rx="0.5" stroke="white" stroke-width="1" fill="white" fill-opacity="0.4"/>
+          <line x1="28" y1="33" x2="37" y2="33" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.9"/>
+          <rect x="23" y="37" width="3" height="3" rx="0.5" stroke="white" stroke-width="1" fill="white" fill-opacity="0.4"/>
+          <line x1="28" y1="39" x2="35" y2="39" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.7"/>
+          <rect x="23" y="43" width="3" height="3" rx="0.5" stroke="white" stroke-width="1" fill="white" fill-opacity="0.4"/>
+          <line x1="28" y1="45" x2="33" y2="45" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.5"/>
+          <text x="66" y="36" font-family="'Segoe UI', system-ui, sans-serif" font-size="24" font-weight="800" fill="#f0f0f0" letter-spacing="-0.5">Anforderungsportal</text>
+          <text x="66" y="55" font-family="'Segoe UI', system-ui, sans-serif" font-size="13" font-weight="600" fill="#FF6666" letter-spacing="0.5">Requirement Manager</text>
+        </svg>
+      </div>
+      <div class="logo-name">D2 — 3D Floating Circle (Dark)</div>
+      <div class="logo-desc">Glowing red 3D sphere on dark mode. Premium depth with strong ambient glow.</div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ========================================== -->
+<!-- OPTION E: 3D ROUNDED SQUARE LAYERED        -->
+<!-- ========================================== -->
+<div class="section">
+  <h2 class="section-title">Option E — 3D Layered Rounded Square</h2>
+  <p class="section-desc">Two overlapping rounded squares with 3D depth — represents dual-aspect (requirement + management). Modern SaaS.</p>
+  <div class="grid">
+
+    <div class="card" onclick="this.classList.toggle('selected')">
+      <div class="logo-preview">
+        <svg width="380" height="76" viewBox="0 0 380 76" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="e1front" x1="4" y1="18" x2="46" y2="66" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FE0404"/>
+              <stop offset="1" stop-color="#8B0000"/>
+            </linearGradient>
+            <filter id="e1drop" filterUnits="userSpaceOnUse">
+              <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#FE0404" flood-opacity="0.25"/>
+            </filter>
+            <linearGradient id="e1glass" x1="6" y1="18" x2="44" y2="40" gradientUnits="userSpaceOnUse">
+              <stop stop-color="white" stop-opacity="0.35"/>
+              <stop offset="0.5" stop-color="white" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <!-- Back square (offset) -->
+          <rect x="14" y="4" width="42" height="42" rx="10" fill="#FE0404" fill-opacity="0.12" stroke="#FE0404" stroke-opacity="0.15" stroke-width="1"/>
+          <!-- Front square -->
+          <g filter="url(#e1drop)">
+            <rect x="4" y="18" width="42" height="42" rx="12" fill="url(#e1front)"/>
+            <rect x="4" y="18" width="42" height="42" rx="12" fill="url(#e1glass)"/>
+          </g>
+          <!-- Clipboard with AI sparkle -->
+          <rect x="15" y="26" width="20" height="26" rx="3" stroke="white" stroke-width="1.5" fill="none"/>
+          <!-- Clip -->
+          <rect x="20" y="23" width="10" height="6" rx="2" fill="white" fill-opacity="0.5"/>
+          <!-- Lines -->
+          <line x1="19" y1="36" x2="31" y2="36" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="19" y1="41" x2="28" y2="41" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.7"/>
+          <line x1="19" y1="46" x2="25" y2="46" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.4"/>
+          <!-- AI sparkles -->
+          <g fill="white" fill-opacity="0.7">
+            <path d="M40 24 L41 26 L43 27 L41 28 L40 30 L39 28 L37 27 L39 26 Z"/>
+            <path d="M46 12 L46.8 14 L48.5 14.8 L46.8 15.5 L46 17.5 L45.2 15.5 L43.5 14.8 L45.2 14 Z" transform="scale(0.7) translate(14, 6)"/>
+          </g>
+          <!-- Text -->
+          <text x="62" y="38" font-family="'Segoe UI', system-ui, sans-serif" font-size="24" font-weight="800" fill="#1a1a1a" letter-spacing="-0.5">Anforderungsportal</text>
+          <text x="62" y="57" font-family="'Segoe UI', system-ui, sans-serif" font-size="13" font-weight="600" fill="#FE0404" letter-spacing="0.5">Requirement Manager</text>
+        </svg>
+      </div>
+      <div class="logo-name">E1 — 3D Layered Square (Light)</div>
+      <div class="logo-desc">Two overlapping rounded squares with clipboard and AI sparkles. Depth, dimension, and innovation. Best blend of trust and innovation.</div>
+    </div>
+
+    <div class="card" onclick="this.classList.toggle('selected')">
+      <div class="logo-preview dark">
+        <svg width="380" height="76" viewBox="0 0 380 76" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="e2front" x1="4" y1="18" x2="46" y2="66" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FE0404"/>
+              <stop offset="1" stop-color="#8B0000"/>
+            </linearGradient>
+            <filter id="e2drop" filterUnits="userSpaceOnUse">
+              <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#FE0404" flood-opacity="0.45"/>
+            </filter>
+            <linearGradient id="e2glass" x1="6" y1="18" x2="44" y2="40" gradientUnits="userSpaceOnUse">
+              <stop stop-color="white" stop-opacity="0.3"/>
+              <stop offset="0.5" stop-color="white" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <rect x="14" y="4" width="42" height="42" rx="10" fill="#FE0404" fill-opacity="0.15" stroke="#FE0404" stroke-opacity="0.2" stroke-width="1"/>
+          <g filter="url(#e2drop)">
+            <rect x="4" y="18" width="42" height="42" rx="12" fill="url(#e2front)"/>
+            <rect x="4" y="18" width="42" height="42" rx="12" fill="url(#e2glass)"/>
+          </g>
+          <rect x="15" y="26" width="20" height="26" rx="3" stroke="white" stroke-width="1.5" fill="none"/>
+          <rect x="20" y="23" width="10" height="6" rx="2" fill="white" fill-opacity="0.5"/>
+          <line x1="19" y1="36" x2="31" y2="36" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="19" y1="41" x2="28" y2="41" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.7"/>
+          <line x1="19" y1="46" x2="25" y2="46" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.4"/>
+          <g fill="white" fill-opacity="0.6">
+            <path d="M40 24 L41 26 L43 27 L41 28 L40 30 L39 28 L37 27 L39 26 Z"/>
+          </g>
+          <text x="62" y="38" font-family="'Segoe UI', system-ui, sans-serif" font-size="24" font-weight="800" fill="#f0f0f0" letter-spacing="-0.5">Anforderungsportal</text>
+          <text x="62" y="57" font-family="'Segoe UI', system-ui, sans-serif" font-size="13" font-weight="600" fill="#FF6666" letter-spacing="0.5">Requirement Manager</text>
+        </svg>
+      </div>
+      <div class="logo-name">E2 — 3D Layered Square (Dark)</div>
+      <div class="logo-desc">Same on dark background with glowing depth effect.</div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ========================================== -->
+<!-- OPTION F: 3D HEXAGON PRECISION             -->
+<!-- ========================================== -->
+<div class="section">
+  <h2 class="section-title">Option F — 3D Hexagonal Precision</h2>
+  <p class="section-desc">3D hexagon with depth faces — signals German precision engineering. Premium enterprise badge.</p>
+  <div class="grid">
+
+    <div class="card" onclick="this.classList.toggle('selected')">
+      <div class="logo-preview">
+        <svg width="380" height="76" viewBox="0 0 380 76" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="f1shadow" filterUnits="userSpaceOnUse">
+              <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#FE0404" flood-opacity="0.2"/>
+            </filter>
+          </defs>
+          <g filter="url(#f1shadow)" transform="translate(2,4)">
+            <!-- Hex body -->
+            <path d="M26 2 L48 14 L48 40 L26 52 L4 40 L4 14 Z" fill="#FE0404"/>
+            <!-- Inner hex (lighter for 3D) -->
+            <path d="M26 8 L42 17 L42 37 L26 46 L10 37 L10 17 Z" fill="white" fill-opacity="0.1"/>
+            <!-- Bottom bevel (3D effect) -->
+            <path d="M4 40 L26 52 L48 40 L48 44 L26 56 L4 44 Z" fill="#8B0000"/>
+            <!-- Highlight on top edge -->
+            <path d="M26 2 L48 14 L26 8 L4 14 Z" fill="white" fill-opacity="0.2"/>
+          </g>
+          <!-- Document + check inside hex -->
+          <rect x="17" y="17" width="18" height="24" rx="2.5" stroke="white" stroke-width="1.5" fill="none"/>
+          <path d="M21 28 L24 31 L31 24" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- Text -->
+          <text x="62" y="36" font-family="'Segoe UI', system-ui, sans-serif" font-size="24" font-weight="800" fill="#1a1a1a" letter-spacing="-0.5">Anforderungsportal</text>
+          <text x="62" y="55" font-family="'Segoe UI', system-ui, sans-serif" font-size="13" font-weight="600" fill="#FE0404" letter-spacing="0.5">Requirement Manager</text>
+        </svg>
+      </div>
+      <div class="logo-name">F1 — 3D Hexagon (Light)</div>
+      <div class="logo-desc">3D hexagon with bottom bevel creating real depth. Document + checkmark inside. Maximum engineering authority. German precision feel.</div>
+    </div>
+
+    <div class="card" onclick="this.classList.toggle('selected')">
+      <div class="logo-preview dark">
+        <svg width="380" height="76" viewBox="0 0 380 76" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="f2shadow" filterUnits="userSpaceOnUse">
+              <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#FE0404" flood-opacity="0.4"/>
+            </filter>
+          </defs>
+          <g filter="url(#f2shadow)" transform="translate(2,4)">
+            <path d="M26 2 L48 14 L48 40 L26 52 L4 40 L4 14 Z" fill="#FE0404"/>
+            <path d="M26 8 L42 17 L42 37 L26 46 L10 37 L10 17 Z" fill="white" fill-opacity="0.1"/>
+            <path d="M4 40 L26 52 L48 40 L48 44 L26 56 L4 44 Z" fill="#8B0000"/>
+            <path d="M26 2 L48 14 L26 8 L4 14 Z" fill="white" fill-opacity="0.2"/>
+          </g>
+          <rect x="17" y="17" width="18" height="24" rx="2.5" stroke="white" stroke-width="1.5" fill="none"/>
+          <path d="M21 28 L24 31 L31 24" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="62" y="36" font-family="'Segoe UI', system-ui, sans-serif" font-size="24" font-weight="800" fill="#f0f0f0" letter-spacing="-0.5">Anforderungsportal</text>
+          <text x="62" y="55" font-family="'Segoe UI', system-ui, sans-serif" font-size="13" font-weight="600" fill="#FF6666" letter-spacing="0.5">Requirement Manager</text>
+        </svg>
+      </div>
+      <div class="logo-name">F2 — 3D Hexagon (Dark)</div>
+      <div class="logo-desc">Glowing 3D hexagon for dark mode.</div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ========================================== -->
+<!-- ICON MARKS COMPARISON                      -->
+<!-- ========================================== -->
+<div class="section">
+  <h2 class="section-title">Icon Marks Comparison (Favicon / App Icon)</h2>
+  <p class="section-desc">Standalone icon marks for favicons, mobile icons, and sidebar collapsed state.</p>
+  <div class="card" onclick="this.classList.toggle('selected')">
+    <div class="compare-row">
+      <div class="compare-item">
+        <svg width="56" height="70" viewBox="0 0 56 72" fill="none"><defs><linearGradient id="im1" x1="6" y1="12" x2="54" y2="64"><stop stop-color="#FE0404"/><stop offset="1" stop-color="#A00000"/></linearGradient><filter id="ims1"><feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#FE0404" flood-opacity="0.25"/></filter></defs><rect x="18" y="6" width="30" height="40" rx="4" fill="#FFB3B3"/><rect x="12" y="12" width="30" height="40" rx="4" fill="#FF6666"/><g filter="url(#ims1)"><rect x="6" y="18" width="30" height="40" rx="5" fill="url(#im1)"/></g><line x1="12" y1="28" x2="30" y2="28" stroke="white" stroke-width="1.5" stroke-linecap="round"/><line x1="12" y1="34" x2="26" y2="34" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.7"/><line x1="12" y1="40" x2="22" y2="40" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.4"/><circle cx="30" cy="48" r="7" fill="white"/><path d="M26 48 L28.5 50.5 L34 45" stroke="#FE0404" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="compare-label">A — Stack</div>
+      </div>
+      <div class="compare-item">
+        <svg width="50" height="70" viewBox="0 0 50 70" fill="none"><defs><linearGradient id="im2" x1="4" y1="8" x2="46" y2="64"><stop stop-color="#FF2020"/><stop offset="1" stop-color="#8B0000"/></linearGradient><filter id="ims2"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#FE0404" flood-opacity="0.3"/></filter><linearGradient id="im2g" x1="6" y1="8" x2="40" y2="40"><stop stop-color="white" stop-opacity="0.4"/><stop offset="0.5" stop-color="white" stop-opacity="0"/></linearGradient></defs><g filter="url(#ims2)"><rect x="4" y="10" width="40" height="52" rx="7" fill="url(#im2)"/><rect x="4" y="10" width="40" height="52" rx="7" fill="url(#im2g)"/></g><rect x="14" y="3" width="20" height="12" rx="4" fill="#CC0000"/><rect x="16" y="5" width="16" height="8" rx="3" fill="url(#im2)"/><path d="M24 26 L14 30 L14 40 Q14 48 24 53 Q34 48 34 40 L34 30 Z" fill="white" fill-opacity="0.95"/><path d="M19 38 L22 41 L29 34" stroke="#FE0404" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="compare-label">B — Shield</div>
+      </div>
+      <div class="compare-item">
+        <svg width="54" height="66" viewBox="0 0 54 66" fill="none"><defs><filter id="ims3"><feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#FE0404" flood-opacity="0.2"/></filter></defs><g filter="url(#ims3)" transform="translate(3,3)"><path d="M24 2 L46 14 L46 38 L24 50 L2 38 L2 14 Z" fill="#FE0404"/><path d="M2 38 L24 50 L46 38 L46 42 L24 54 L2 42 Z" fill="#8B0000"/><path d="M24 2 L46 14 L24 8 L2 14 Z" fill="white" fill-opacity="0.2"/><line x1="28" y1="20" x2="40" y2="14" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.5"/><path d="M16 24 L21 29 L32 18" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g></svg>
+        <div class="compare-label">C — Cube</div>
+      </div>
+      <div class="compare-item">
+        <svg width="56" height="56" viewBox="0 0 56 56" fill="none"><defs><radialGradient id="im4" cx="0.35" cy="0.3" r="0.65"><stop stop-color="#FF5050"/><stop offset="0.5" stop-color="#FE0404"/><stop offset="1" stop-color="#800000"/></radialGradient><filter id="ims4"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#FE0404" flood-opacity="0.3"/></filter></defs><g filter="url(#ims4)"><circle cx="28" cy="28" r="24" fill="url(#im4)"/><ellipse cx="20" cy="18" rx="10" ry="7" fill="white" fill-opacity="0.15"/></g><rect x="18" y="18" width="20" height="22" rx="2.5" stroke="white" stroke-width="1.5" fill="none"/><rect x="21" y="22" width="2.5" height="2.5" rx="0.5" fill="white" fill-opacity="0.5"/><line x1="25" y1="24" x2="34" y2="24" stroke="white" stroke-width="1.3" stroke-linecap="round"/><rect x="21" y="27" width="2.5" height="2.5" rx="0.5" fill="white" fill-opacity="0.5"/><line x1="25" y1="29" x2="32" y2="29" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-opacity="0.7"/><rect x="21" y="32" width="2.5" height="2.5" rx="0.5" fill="white" fill-opacity="0.5"/><line x1="25" y1="34" x2="30" y2="34" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-opacity="0.5"/></svg>
+        <div class="compare-label">D — Circle</div>
+      </div>
+      <div class="compare-item">
+        <svg width="52" height="66" viewBox="0 0 52 66" fill="none"><defs><linearGradient id="im5" x1="2" y1="18" x2="44" y2="62"><stop stop-color="#FE0404"/><stop offset="1" stop-color="#8B0000"/></linearGradient><filter id="ims5"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#FE0404" flood-opacity="0.25"/></filter><linearGradient id="im5g" x1="4" y1="18" x2="40" y2="38"><stop stop-color="white" stop-opacity="0.35"/><stop offset="0.5" stop-color="white" stop-opacity="0"/></linearGradient></defs><rect x="12" y="2" width="38" height="38" rx="9" fill="#FE0404" fill-opacity="0.12"/><g filter="url(#ims5)"><rect x="2" y="16" width="38" height="38" rx="10" fill="url(#im5)"/><rect x="2" y="16" width="38" height="38" rx="10" fill="url(#im5g)"/></g><rect x="12" y="24" width="18" height="22" rx="2.5" stroke="white" stroke-width="1.3" fill="none"/><rect x="17" y="21" width="8" height="5" rx="1.5" fill="white" fill-opacity="0.4"/><line x1="16" y1="32" x2="26" y2="32" stroke="white" stroke-width="1.3" stroke-linecap="round"/><line x1="16" y1="37" x2="23" y2="37" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-opacity="0.6"/></svg>
+        <div class="compare-label">E — Square</div>
+      </div>
+      <div class="compare-item">
+        <svg width="54" height="64" viewBox="0 0 54 64" fill="none"><defs><filter id="ims6"><feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#FE0404" flood-opacity="0.2"/></filter></defs><g filter="url(#ims6)" transform="translate(2,2)"><path d="M24 2 L46 14 L46 38 L24 50 L2 38 L2 14 Z" fill="#FE0404"/><path d="M24 8 L40 17 L40 35 L24 44 L8 35 L8 17 Z" fill="white" fill-opacity="0.1"/><path d="M2 38 L24 50 L46 38 L46 42 L24 54 L2 42 Z" fill="#8B0000"/><path d="M24 2 L46 14 L24 8 L2 14 Z" fill="white" fill-opacity="0.2"/></g><rect x="15" y="16" width="16" height="22" rx="2" stroke="white" stroke-width="1.3" fill="none"/><path d="M19 26 L22 29 L29 22" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="compare-label">F — Hexagon</div>
+      </div>
+    </div>
+    <div class="logo-name">All Icon Marks — Side by Side</div>
+    <div class="logo-desc">All six 3D icon marks at favicon/app-icon scale. Each works as a standalone brand mark.</div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ========================================== -->
+<!-- MADE IN GERMANY — 3D BUNDESADLER           -->
+<!-- ========================================== -->
+<div class="section">
+  <h2 class="section-title">🇩🇪 Made in Germany — 3D Bundesadler</h2>
+  <p class="section-desc">The recommended eagle badge, now bigger and with 3D depth effects. The Bundesadler (Federal Eagle) is the official symbol of Germany.</p>
+  <div class="grid">
+
+    <!-- MiG-1: Large 3D Badge -->
+    <div class="card" onclick="this.classList.toggle('selected')">
+      <div class="logo-preview" style="min-height: 140px;">
+        <svg width="340" height="80" viewBox="0 0 340 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="mig1bg" x1="0" y1="0" x2="0" y2="80" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FFFFFF"/>
+              <stop offset="1" stop-color="#F5F5F5"/>
+            </linearGradient>
+            <filter id="mig1drop" filterUnits="userSpaceOnUse">
+              <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000" flood-opacity="0.1"/>
+            </filter>
+            <linearGradient id="mig1shine" x1="0" y1="0" x2="340" y2="0" gradientUnits="userSpaceOnUse">
+              <stop stop-color="white" stop-opacity="0"/>
+              <stop offset="0.3" stop-color="white" stop-opacity="0.5"/>
+              <stop offset="0.7" stop-color="white" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <!-- Badge body with 3D shadow -->
+          <g filter="url(#mig1drop)">
+            <rect x="2" y="2" width="336" height="76" rx="38" fill="url(#mig1bg)" stroke="#D4D4D4" stroke-width="1.5"/>
+            <!-- Glass shine overlay -->
+            <rect x="2" y="2" width="336" height="38" rx="38" fill="url(#mig1shine)"/>
+          </g>
+          <!-- German flag stripe at top (3D ribbon) -->
+          <rect x="10" y="3" width="106" height="4" rx="2" fill="#000"/>
+          <rect x="116" y="3" width="106" height="4" fill="#DD0000"/>
+          <rect x="222" y="3" width="108" height="4" rx="2" fill="#FFCC00"/>
+          <!-- 3D Bundesadler (Federal Eagle) — larger -->
+          <g transform="translate(22, 14) scale(0.95)">
+            <!-- Eagle body -->
+            <path d="M28 10 C22 10 17 15 17 20 C17 26 20 28 22 31
+                     L18 36 C15 39 16 44 20 46
+                     L22 43 L25 46 L28 40 L31 46 L34 43 L36 46
+                     C40 44 41 39 38 36 L34 31
+                     C36 28 39 26 39 20 C39 15 34 10 28 10Z"
+                  fill="#1a1a1a"/>
+            <!-- Eagle head -->
+            <ellipse cx="28" cy="11" rx="5" ry="4.5" fill="#1a1a1a"/>
+            <!-- Eye -->
+            <circle cx="30" cy="10" r="1" fill="white"/>
+            <!-- Beak -->
+            <path d="M33 10.5 L37 12 L33 13" fill="#FFCC00"/>
+            <!-- Wings spread wide -->
+            <path d="M17 20 L4 14 L3 16 L6 20 L15 24" fill="#1a1a1a"/>
+            <path d="M39 20 L52 14 L53 16 L50 20 L41 24" fill="#1a1a1a"/>
+            <!-- Wing feather details -->
+            <line x1="5" y1="16" x2="10" y2="18" stroke="#333" stroke-width="0.5"/>
+            <line x1="7" y1="18" x2="12" y2="20" stroke="#333" stroke-width="0.5"/>
+            <line x1="51" y1="16" x2="46" y2="18" stroke="#333" stroke-width="0.5"/>
+            <line x1="49" y1="18" x2="44" y2="20" stroke="#333" stroke-width="0.5"/>
+            <!-- Talons -->
+            <path d="M20 46 L17 54 L21 51 L20 54 L23 51" stroke="#FFCC00" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+            <path d="M36 46 L39 54 L35 51 L36 54 L33 51" stroke="#FFCC00" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+            <!-- Red shield on chest -->
+            <path d="M28 22 L23 25 L23 32 Q23 37 28 39 Q33 37 33 32 L33 25 Z" fill="#DD0000" stroke="#8B0000" stroke-width="0.5"/>
+          </g>
+          <!-- Text block -->
+          <text x="90" y="32" font-family="'Segoe UI', system-ui, sans-serif" font-size="13" font-weight="700" fill="#555" letter-spacing="1.5">MADE IN</text>
+          <text x="90" y="54" font-family="'Segoe UI', system-ui, sans-serif" font-size="22" font-weight="800" fill="#1a1a1a" letter-spacing="2">GERMANY</text>
+          <!-- Quality stars -->
+          <g fill="#FFCC00" transform="translate(230, 18)">
+            <polygon points="8,0 10,5 15.5,5.5 11.5,9 12.5,14.5 8,11.5 3.5,14.5 4.5,9 0.5,5.5 6,5"/>
+            <polygon points="28,0 30,5 35.5,5.5 31.5,9 32.5,14.5 28,11.5 23.5,14.5 24.5,9 20.5,5.5 26,5"/>
+            <polygon points="48,0 50,5 55.5,5.5 51.5,9 52.5,14.5 48,11.5 43.5,14.5 44.5,9 40.5,5.5 46,5"/>
+          </g>
+          <!-- EU stars circle hint -->
+          <g fill="#FFCC00" transform="translate(230, 40)">
+            <polygon points="8,0 9.5,4 14,4 10.5,6.5 11.5,10.5 8,8 4.5,10.5 5.5,6.5 2,4 6.5,4"/>
+            <polygon points="28,0 29.5,4 34,4 30.5,6.5 31.5,10.5 28,8 24.5,10.5 25.5,6.5 22,4 26.5,4"/>
+            <polygon points="48,0 49.5,4 54,4 50.5,6.5 51.5,10.5 48,8 44.5,10.5 45.5,6.5 42,4 46.5,4"/>
+            <polygon points="68,0 69.5,4 74,4 70.5,6.5 71.5,10.5 68,8 64.5,10.5 65.5,6.5 62,4 66.5,4"/>
+          </g>
+        </svg>
+      </div>
+      <div class="logo-name">MiG-1 — Large 3D Bundesadler Badge</div>
+      <div class="logo-desc">Full-size 3D eagle badge with glass shine, shadow depth, flag ribbon, red chest shield, detailed talons & feathers, 7 golden stars. Maximum authority and German quality trust.</div>
+      <span class="tag">Recommended</span>
+    </div>
+
+    <!-- MiG-2: Dark variant -->
+    <div class="card" onclick="this.classList.toggle('selected')">
+      <div class="logo-preview dark" style="min-height: 140px;">
+        <svg width="340" height="80" viewBox="0 0 340 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="mig2drop" filterUnits="userSpaceOnUse">
+              <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#FFCC00" flood-opacity="0.15"/>
+            </filter>
+          </defs>
+          <g filter="url(#mig2drop)">
+            <rect x="2" y="2" width="336" height="76" rx="38" fill="#2a2a2a" stroke="#444" stroke-width="1"/>
+          </g>
+          <rect x="10" y="3" width="106" height="4" rx="2" fill="#333"/>
+          <rect x="116" y="3" width="106" height="4" fill="#DD0000"/>
+          <rect x="222" y="3" width="108" height="4" rx="2" fill="#FFCC00"/>
+          <g transform="translate(22, 14) scale(0.95)">
+            <path d="M28 10 C22 10 17 15 17 20 C17 26 20 28 22 31 L18 36 C15 39 16 44 20 46 L22 43 L25 46 L28 40 L31 46 L34 43 L36 46 C40 44 41 39 38 36 L34 31 C36 28 39 26 39 20 C39 15 34 10 28 10Z" fill="#ccc"/>
+            <ellipse cx="28" cy="11" rx="5" ry="4.5" fill="#ccc"/>
+            <circle cx="30" cy="10" r="1" fill="#1a1a1a"/>
+            <path d="M33 10.5 L37 12 L33 13" fill="#FFCC00"/>
+            <path d="M17 20 L4 14 L3 16 L6 20 L15 24" fill="#ccc"/>
+            <path d="M39 20 L52 14 L53 16 L50 20 L41 24" fill="#ccc"/>
+            <path d="M20 46 L17 54 L21 51 L20 54 L23 51" stroke="#FFCC00" stroke-width="1.2" fill="none"/>
+            <path d="M36 46 L39 54 L35 51 L36 54 L33 51" stroke="#FFCC00" stroke-width="1.2" fill="none"/>
+            <path d="M28 22 L23 25 L23 32 Q23 37 28 39 Q33 37 33 32 L33 25 Z" fill="#DD0000"/>
+          </g>
+          <text x="90" y="32" font-family="'Segoe UI', system-ui, sans-serif" font-size="13" font-weight="700" fill="#999" letter-spacing="1.5">MADE IN</text>
+          <text x="90" y="54" font-family="'Segoe UI', system-ui, sans-serif" font-size="22" font-weight="800" fill="#f0f0f0" letter-spacing="2">GERMANY</text>
+          <g fill="#FFCC00" transform="translate(230, 18)">
+            <polygon points="8,0 10,5 15.5,5.5 11.5,9 12.5,14.5 8,11.5 3.5,14.5 4.5,9 0.5,5.5 6,5"/>
+            <polygon points="28,0 30,5 35.5,5.5 31.5,9 32.5,14.5 28,11.5 23.5,14.5 24.5,9 20.5,5.5 26,5"/>
+            <polygon points="48,0 50,5 55.5,5.5 51.5,9 52.5,14.5 48,11.5 43.5,14.5 44.5,9 40.5,5.5 46,5"/>
+          </g>
+          <g fill="#FFCC00" transform="translate(230, 40)">
+            <polygon points="8,0 9.5,4 14,4 10.5,6.5 11.5,10.5 8,8 4.5,10.5 5.5,6.5 2,4 6.5,4"/>
+            <polygon points="28,0 29.5,4 34,4 30.5,6.5 31.5,10.5 28,8 24.5,10.5 25.5,6.5 22,4 26.5,4"/>
+            <polygon points="48,0 49.5,4 54,4 50.5,6.5 51.5,10.5 48,8 44.5,10.5 45.5,6.5 42,4 46.5,4"/>
+            <polygon points="68,0 69.5,4 74,4 70.5,6.5 71.5,10.5 68,8 64.5,10.5 65.5,6.5 62,4 66.5,4"/>
+          </g>
+        </svg>
+      </div>
+      <div class="logo-name">MiG-2 — Dark Mode 3D Bundesadler</div>
+      <div class="logo-desc">Same badge in dark mode with silver eagle and golden stars. Subtle golden glow shadow.</div>
+    </div>
+
+  </div>
+</div>
+
+<hr class="divider">
+
+<div class="section">
+  <div class="note-box">
+    <h3>📋 How to choose — tell me the codes!</h3>
+    <p>
+      <strong>Click on cards</strong> to mark them, then tell me like: <em>"I want A1 for the logo and MiG-1 for Made in Germany"</em>
+      <br><br>
+      <strong>Marketing psychology behind each:</strong><br>
+      • <strong>A (Document Stack)</strong> — Layered depth = process maturity. "We handle complexity in layers." Subconscious trust through organization.<br>
+      • <strong>B (Clipboard Shield)</strong> — Security + compliance first. Best for GDPR-heavy B2B. The shield triggers protection instincts (Maslow's safety needs).<br>
+      • <strong>C (Isometric Cube)</strong> — Dimensional thinking. "We see all angles." Appeals to analytical minds. The 3D cube = thoroughness.<br>
+      • <strong>D (Floating Circle)</strong> — Approachable, modern, premium. Apple-like aesthetics trigger "premium quality" bias (halo effect).<br>
+      • <strong>E (Layered Square)</strong> — Innovation + trust blend. The AI sparkles signal modernization. Best for "we're cutting edge but reliable."<br>
+      • <strong>F (Hexagon)</strong> — German engineering precision. Hexagons are nature's most efficient shape (bee psychology). Maximum authority.
+      <br><br>
+      <strong>Branding note:</strong> All logos now say <strong>"Anforderungsportal"</strong> with subtitle <strong>"Requirement Manager"</strong> — no WMC, no W.
+    </p>
+  </div>
+</div>
+
+</body>
+</html>
