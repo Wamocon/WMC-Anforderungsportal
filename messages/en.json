@@ -422,12 +422,21 @@
   },
   "client": {
     "myProjects": "My Projects",
+    "account": "Account Settings",
     "welcome": "Welcome, {name}",
     "myProjectsDescription": "Here are the projects where your input is needed.",
     "noProjects": "No projects yet",
     "noProjectsDescription": "You haven't been invited to any projects yet. When a project manager invites you, it will appear here.",
     "notStarted": "Not Started",
     "submitted": "Submitted"
+  },
+  "settings": {
+    "changePassword": "Change Password",
+    "changePasswordDesc": "Update your account password. You'll need to enter your current password for verification.",
+    "currentPassword": "Current Password",
+    "currentPasswordWrong": "Current password is incorrect. Please try again.",
+    "passwordChanged": "Password changed successfully!",
+    "manageAccount": "Manage your account settings"
   },
   "landing": {
     "heroTitle1": "Collect Requirements.",

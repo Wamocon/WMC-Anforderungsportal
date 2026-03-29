@@ -427,7 +427,9 @@
     "noProjects": "Sin proyectos",
     "noProjectsDescription": "No has sido invitado a ningun proyecto.",
     "notStarted": "No iniciado",
-    "submitted": "Enviado"
+    "submitted": "Enviado",
+    "settings": "Settings",
+    "account": "Account Settings"
   },
   "landing": {
     "heroTitle1": "Recopila Requisitos",
@@ -471,5 +473,13 @@
     "stepsTitle1": "Tres pasos para",
     "stepsTitle2": "mejores requisitos",
     "stepsDesc": "Desde la creación del proyecto hasta el análisis, lo hacemos sin esfuerzo."
+  },
+  "settings": {
+    "changePassword": "Change Password",
+    "changePasswordDesc": "Update your account password. You'll need to enter your current password for verification.",
+    "currentPassword": "Current Password",
+    "currentPasswordWrong": "Current password is incorrect. Please try again.",
+    "passwordChanged": "Password changed successfully!",
+    "manageAccount": "Manage your account settings"
   }
 }

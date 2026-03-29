@@ -427,7 +427,9 @@
     "noProjects": "Zadne projekty",
     "noProjectsDescription": "Dosud jste nebyli pozvani.",
     "notStarted": "Nezahajeno",
-    "submitted": "Odeslano"
+    "submitted": "Odeslano",
+    "settings": "Settings",
+    "account": "Account Settings"
   },
   "landing": {
     "heroTitle1": "Sbírejte požadavky",
@@ -471,5 +473,13 @@
     "stepsTitle1": "Tři kroky k",
     "stepsTitle2": "lepším požadavkům",
     "stepsDesc": "Od vytvoření projektu po analýzu, vše usnadňujeme."
+  },
+  "settings": {
+    "changePassword": "Change Password",
+    "changePasswordDesc": "Update your account password. You'll need to enter your current password for verification.",
+    "currentPassword": "Current Password",
+    "currentPasswordWrong": "Current password is incorrect. Please try again.",
+    "passwordChanged": "Password changed successfully!",
+    "manageAccount": "Manage your account settings"
   }
 }

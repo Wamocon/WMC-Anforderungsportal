@@ -5,7 +5,7 @@ const path = require('path');
 const en = JSON.parse(fs.readFileSync('messages/en.json', 'utf8'));
 
 // Keys that need to exist in every locale (with EN fallback)
-const requiredSections = ['landing', 'admin', 'form', 'auth', 'project'];
+const requiredSections = ['landing', 'admin', 'form', 'auth', 'project', 'client', 'settings', 'errors', 'common', 'template', 'invitation', 'response'];
 
 const locales = fs.readdirSync('messages')
   .filter(f => f.endsWith('.json') && f !== 'en.json' && f !== 'de.json')

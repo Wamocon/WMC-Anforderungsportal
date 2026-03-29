@@ -427,7 +427,9 @@
     "noProjects": "Пока нет проектов",
     "noProjectsDescription": "Вас ещё не пригласили.",
     "notStarted": "Не начато",
-    "submitted": "Отправлено"
+    "submitted": "Отправлено",
+    "settings": "Settings",
+    "account": "Account Settings"
   },
   "landing": {
     "heroTitle1": "Собирайте требования",
@@ -471,5 +473,13 @@
     "stepsTitle1": "Три шага к",
     "stepsTitle2": "лучшим требованиям",
     "stepsDesc": "От создания проекта до анализа, мы делаем это без усилий."
+  },
+  "settings": {
+    "changePassword": "Change Password",
+    "changePasswordDesc": "Update your account password. You'll need to enter your current password for verification.",
+    "currentPassword": "Current Password",
+    "currentPasswordWrong": "Current password is incorrect. Please try again.",
+    "passwordChanged": "Password changed successfully!",
+    "manageAccount": "Manage your account settings"
   }
 }

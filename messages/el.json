@@ -427,7 +427,9 @@
     "noProjects": "Δεν υπαρχουν εργα",
     "noProjectsDescription": "Δεν εχετε προσκληθει.",
     "notStarted": "Δεν ξεκινησε",
-    "submitted": "Υποβληθηκε"
+    "submitted": "Υποβληθηκε",
+    "settings": "Settings",
+    "account": "Account Settings"
   },
   "landing": {
     "heroTitle1": "Συλλέξτε Απαιτήσεις",
@@ -471,5 +473,13 @@
     "stepsTitle1": "Τρία βήματα για",
     "stepsTitle2": "καλύτερες απαιτήσεις",
     "stepsDesc": "Από τη δημιουργία έργου έως την ανάλυση, το κάνουμε αβίαστο."
+  },
+  "settings": {
+    "changePassword": "Change Password",
+    "changePasswordDesc": "Update your account password. You'll need to enter your current password for verification.",
+    "currentPassword": "Current Password",
+    "currentPasswordWrong": "Current password is incorrect. Please try again.",
+    "passwordChanged": "Password changed successfully!",
+    "manageAccount": "Manage your account settings"
   }
 }

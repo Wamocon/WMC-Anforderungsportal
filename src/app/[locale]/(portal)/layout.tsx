@@ -13,6 +13,7 @@ import { WmcLogo } from '@/components/wmc-logo';
 import {
   LayoutDashboard,
   FolderKanban,
+  Settings,
   Menu,
   LogOut,
   Loader2,
@@ -23,6 +24,7 @@ const ADMIN_ROLES = ['super_admin', 'admin', 'manager'];
 
 const clientNavItems = [
   { key: 'myProjects', href: '/my-projects', icon: FolderKanban },
+  { key: 'account', href: '/account', icon: Settings },
 ] as const;
 
 export default function ClientPortalLayout({

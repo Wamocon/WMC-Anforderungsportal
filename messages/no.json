@@ -427,7 +427,9 @@
     "noProjects": "Ingen prosjekter",
     "noProjectsDescription": "Du har ikke blitt invitert.",
     "notStarted": "Ikke startet",
-    "submitted": "Innsendt"
+    "submitted": "Innsendt",
+    "settings": "Settings",
+    "account": "Account Settings"
   },
   "landing": {
     "heroTitle1": "Samle krav",
@@ -471,5 +473,13 @@
     "stepsTitle1": "Tre trinn til",
     "stepsTitle2": "bedre krav",
     "stepsDesc": "Fra prosjektopprettelse til analyse, vi gjør det uanstrengt."
+  },
+  "settings": {
+    "changePassword": "Change Password",
+    "changePasswordDesc": "Update your account password. You'll need to enter your current password for verification.",
+    "currentPassword": "Current Password",
+    "currentPasswordWrong": "Current password is incorrect. Please try again.",
+    "passwordChanged": "Password changed successfully!",
+    "manageAccount": "Manage your account settings"
   }
 }

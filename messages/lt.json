@@ -427,7 +427,9 @@
     "noProjects": "Nera projektu",
     "noProjectsDescription": "Dar nebuvote pakviestas.",
     "notStarted": "Nepradeta",
-    "submitted": "Pateikta"
+    "submitted": "Pateikta",
+    "settings": "Settings",
+    "account": "Account Settings"
   },
   "landing": {
     "heroTitle1": "Rinkite reikalavimus",
@@ -471,5 +473,13 @@
     "stepsTitle1": "Trys žingsniai link",
     "stepsTitle2": "geresnių reikalavimų",
     "stepsDesc": "Nuo projekto sukūrimo iki analizės – mes tai padarome be pastangų."
+  },
+  "settings": {
+    "changePassword": "Change Password",
+    "changePasswordDesc": "Update your account password. You'll need to enter your current password for verification.",
+    "currentPassword": "Current Password",
+    "currentPasswordWrong": "Current password is incorrect. Please try again.",
+    "passwordChanged": "Password changed successfully!",
+    "manageAccount": "Manage your account settings"
   }
 }

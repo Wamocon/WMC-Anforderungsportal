@@ -6,7 +6,7 @@ import { routing } from '@/i18n/routing';
 const intlMiddleware = createMiddleware(routing);
 
 // Admin routes that require authentication
-const PROTECTED_PATHS = ['/dashboard', '/projects', '/templates', '/responses', '/settings', '/my-projects'];
+const PROTECTED_PATHS = ['/dashboard', '/projects', '/templates', '/responses', '/settings', '/my-projects', '/account'];
 
 function isProtectedPath(pathname: string): boolean {
   // Strip locale prefix (e.g. /en/dashboard -> /dashboard)

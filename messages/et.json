@@ -427,7 +427,9 @@
     "noProjects": "Projekte pole",
     "noProjectsDescription": "Teid pole kutsutud.",
     "notStarted": "Pole alustatud",
-    "submitted": "Esitatud"
+    "submitted": "Esitatud",
+    "settings": "Settings",
+    "account": "Account Settings"
   },
   "landing": {
     "heroTitle1": "Koguge nõudeid",
@@ -471,5 +473,13 @@
     "stepsTitle1": "Kolm sammu",
     "stepsTitle2": "paremate nõueteni",
     "stepsDesc": "Projekti loomisest analüüsini teeme selle vaevatuks."
+  },
+  "settings": {
+    "changePassword": "Change Password",
+    "changePasswordDesc": "Update your account password. You'll need to enter your current password for verification.",
+    "currentPassword": "Current Password",
+    "currentPasswordWrong": "Current password is incorrect. Please try again.",
+    "passwordChanged": "Password changed successfully!",
+    "manageAccount": "Manage your account settings"
   }
 }

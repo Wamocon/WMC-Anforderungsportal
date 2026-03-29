@@ -427,7 +427,9 @@
     "noProjects": "Se ni projektov",
     "noProjectsDescription": "Se niste bili povabljeni.",
     "notStarted": "Ni zaceto",
-    "submitted": "Oddano"
+    "submitted": "Oddano",
+    "settings": "Settings",
+    "account": "Account Settings"
   },
   "landing": {
     "heroTitle1": "Zbirajte zahteve",
@@ -471,5 +473,13 @@
     "stepsTitle1": "Trije koraki do",
     "stepsTitle2": "boljših zahtev",
     "stepsDesc": "Od ustvarjanja projekta do analize, mi to naredimo brez napora."
+  },
+  "settings": {
+    "changePassword": "Change Password",
+    "changePasswordDesc": "Update your account password. You'll need to enter your current password for verification.",
+    "currentPassword": "Current Password",
+    "currentPasswordWrong": "Current password is incorrect. Please try again.",
+    "passwordChanged": "Password changed successfully!",
+    "manageAccount": "Manage your account settings"
   }
 }

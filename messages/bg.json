@@ -427,7 +427,9 @@
     "noProjects": "Няма проекти",
     "noProjectsDescription": "Все още не сте поканени.",
     "notStarted": "Не е започнато",
-    "submitted": "Изпратено"
+    "submitted": "Изпратено",
+    "settings": "Settings",
+    "account": "Account Settings"
   },
   "landing": {
     "heroTitle1": "Събирайте изисквания",
@@ -471,5 +473,13 @@
     "stepsTitle1": "Три стъпки към",
     "stepsTitle2": "по-добри изисквания",
     "stepsDesc": "От създаването на проекта до анализа, ние го правим без усилие."
+  },
+  "settings": {
+    "changePassword": "Change Password",
+    "changePasswordDesc": "Update your account password. You'll need to enter your current password for verification.",
+    "currentPassword": "Current Password",
+    "currentPasswordWrong": "Current password is incorrect. Please try again.",
+    "passwordChanged": "Password changed successfully!",
+    "manageAccount": "Manage your account settings"
   }
 }

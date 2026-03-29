@@ -427,7 +427,9 @@
     "noProjects": "Niciun proiect",
     "noProjectsDescription": "Nu ati fost invitat.",
     "notStarted": "Neinceput",
-    "submitted": "Trimis"
+    "submitted": "Trimis",
+    "settings": "Settings",
+    "account": "Account Settings"
   },
   "landing": {
     "heroTitle1": "Colectează Cerințe",
@@ -471,5 +473,13 @@
     "stepsTitle1": "Trei pași către",
     "stepsTitle2": "cerințe mai bune",
     "stepsDesc": "De la crearea proiectului la analiză, facem totul fără efort."
+  },
+  "settings": {
+    "changePassword": "Change Password",
+    "changePasswordDesc": "Update your account password. You'll need to enter your current password for verification.",
+    "currentPassword": "Current Password",
+    "currentPasswordWrong": "Current password is incorrect. Please try again.",
+    "passwordChanged": "Password changed successfully!",
+    "manageAccount": "Manage your account settings"
   }
 }

@@ -422,12 +422,21 @@
   },
   "client": {
     "myProjects": "Meine Projekte",
+    "account": "Kontoeinstellungen",
     "welcome": "Willkommen, {name}",
     "myProjectsDescription": "Hier sind die Projekte, bei denen Ihre Eingabe benötigt wird.",
     "noProjects": "Noch keine Projekte",
     "noProjectsDescription": "Sie wurden noch zu keinem Projekt eingeladen. Wenn ein Projektmanager Sie einlädt, erscheint es hier.",
     "notStarted": "Nicht gestartet",
     "submitted": "Eingereicht"
+  },
+  "settings": {
+    "changePassword": "Passwort ändern",
+    "changePasswordDesc": "Aktualisieren Sie Ihr Kontopasswort. Zur Überprüfung müssen Sie Ihr aktuelles Passwort eingeben.",
+    "currentPassword": "Aktuelles Passwort",
+    "currentPasswordWrong": "Aktuelles Passwort ist falsch. Bitte versuchen Sie es erneut.",
+    "passwordChanged": "Passwort erfolgreich geändert!",
+    "manageAccount": "Verwalten Sie Ihre Kontoeinstellungen"
   },
   "landing": {
     "heroTitle1": "Anforderungen erfassen.",

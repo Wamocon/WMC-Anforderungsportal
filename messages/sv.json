@@ -427,7 +427,9 @@
     "noProjects": "Inga projekt",
     "noProjectsDescription": "Du har inte bjudits in.",
     "notStarted": "Ej pabörjad",
-    "submitted": "Inskickad"
+    "submitted": "Inskickad",
+    "settings": "Settings",
+    "account": "Account Settings"
   },
   "landing": {
     "heroTitle1": "Samla Krav",
@@ -471,5 +473,13 @@
     "stepsTitle1": "Tre steg till",
     "stepsTitle2": "bättre krav",
     "stepsDesc": "Från projektskapande till analys, vi gör det enkelt."
+  },
+  "settings": {
+    "changePassword": "Change Password",
+    "changePasswordDesc": "Update your account password. You'll need to enter your current password for verification.",
+    "currentPassword": "Current Password",
+    "currentPasswordWrong": "Current password is incorrect. Please try again.",
+    "passwordChanged": "Password changed successfully!",
+    "manageAccount": "Manage your account settings"
   }
 }

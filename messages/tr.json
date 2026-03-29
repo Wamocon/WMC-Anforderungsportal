@@ -427,7 +427,9 @@
     "noProjects": "Henuz proje yok",
     "noProjectsDescription": "Henuz hicbir projeye davet edilmediniz.",
     "notStarted": "Baslanmadi",
-    "submitted": "Gonderildi"
+    "submitted": "Gonderildi",
+    "settings": "Settings",
+    "account": "Account Settings"
   },
   "landing": {
     "heroTitle1": "Gereksinimleri Toplayın",
@@ -471,5 +473,13 @@
     "stepsTitle1": "Üç adımda",
     "stepsTitle2": "daha iyi gereksinimler",
     "stepsDesc": "Proje oluşturmadan analize kadar her şeyi zahmetsiz hale getiriyoruz."
+  },
+  "settings": {
+    "changePassword": "Change Password",
+    "changePasswordDesc": "Update your account password. You'll need to enter your current password for verification.",
+    "currentPassword": "Current Password",
+    "currentPasswordWrong": "Current password is incorrect. Please try again.",
+    "passwordChanged": "Password changed successfully!",
+    "manageAccount": "Manage your account settings"
   }
 }

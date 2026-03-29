@@ -427,7 +427,9 @@
     "noProjects": "Nog geen projecten",
     "noProjectsDescription": "U bent nog niet uitgenodigd.",
     "notStarted": "Niet gestart",
-    "submitted": "Ingediend"
+    "submitted": "Ingediend",
+    "settings": "Settings",
+    "account": "Account Settings"
   },
   "landing": {
     "heroTitle1": "Verzamel Vereisten",
@@ -471,5 +473,13 @@
     "stepsTitle1": "Drie stappen naar",
     "stepsTitle2": "betere vereisten",
     "stepsDesc": "Van projectcreatie tot analyse, wij maken het moeiteloos."
+  },
+  "settings": {
+    "changePassword": "Change Password",
+    "changePasswordDesc": "Update your account password. You'll need to enter your current password for verification.",
+    "currentPassword": "Current Password",
+    "currentPasswordWrong": "Current password is incorrect. Please try again.",
+    "passwordChanged": "Password changed successfully!",
+    "manageAccount": "Manage your account settings"
   }
 }

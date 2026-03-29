@@ -427,7 +427,9 @@
     "noProjects": "Nincsenek projektek",
     "noProjectsDescription": "Meg nem hivtak meg.",
     "notStarted": "Nem kezdodott",
-    "submitted": "Bekuldve"
+    "submitted": "Bekuldve",
+    "settings": "Settings",
+    "account": "Account Settings"
   },
   "landing": {
     "heroTitle1": "Követelmények gyűjtése",
@@ -471,5 +473,13 @@
     "stepsTitle1": "Három lépés a",
     "stepsTitle2": "jobb követelményekhez",
     "stepsDesc": "A projekt létrehozásától az elemzésig mindent könnyedén kezelünk."
+  },
+  "settings": {
+    "changePassword": "Change Password",
+    "changePasswordDesc": "Update your account password. You'll need to enter your current password for verification.",
+    "currentPassword": "Current Password",
+    "currentPasswordWrong": "Current password is incorrect. Please try again.",
+    "passwordChanged": "Password changed successfully!",
+    "manageAccount": "Manage your account settings"
   }
 }

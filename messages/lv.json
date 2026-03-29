@@ -427,7 +427,9 @@
     "noProjects": "Nav projektu",
     "noProjectsDescription": "Jus neesat uzaicināts.",
     "notStarted": "Nav sakts",
-    "submitted": "Iesniegts"
+    "submitted": "Iesniegts",
+    "settings": "Settings",
+    "account": "Account Settings"
   },
   "landing": {
     "heroTitle1": "Vākt prasības",
@@ -471,5 +473,13 @@
     "stepsTitle1": "Trīs soļi uz",
     "stepsTitle2": "labākām prasībām",
     "stepsDesc": "No projekta izveides līdz analīzei, mēs to padarām bez piepūles."
+  },
+  "settings": {
+    "changePassword": "Change Password",
+    "changePasswordDesc": "Update your account password. You'll need to enter your current password for verification.",
+    "currentPassword": "Current Password",
+    "currentPasswordWrong": "Current password is incorrect. Please try again.",
+    "passwordChanged": "Password changed successfully!",
+    "manageAccount": "Manage your account settings"
   }
 }

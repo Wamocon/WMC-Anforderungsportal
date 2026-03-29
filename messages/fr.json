@@ -427,7 +427,9 @@
     "noProjects": "Pas encore de projets",
     "noProjectsDescription": "Vous n avez pas encore ete invite.",
     "notStarted": "Non commence",
-    "submitted": "Soumis"
+    "submitted": "Soumis",
+    "settings": "Settings",
+    "account": "Account Settings"
   },
   "landing": {
     "heroTitle1": "Recueillir les exigences",
@@ -471,5 +473,13 @@
     "stepsTitle1": "Trois étapes pour",
     "stepsTitle2": "de meilleures exigences",
     "stepsDesc": "De la création du projet à l'analyse, nous rendons la tâche facile."
+  },
+  "settings": {
+    "changePassword": "Change Password",
+    "changePasswordDesc": "Update your account password. You'll need to enter your current password for verification.",
+    "currentPassword": "Current Password",
+    "currentPasswordWrong": "Current password is incorrect. Please try again.",
+    "passwordChanged": "Password changed successfully!",
+    "manageAccount": "Manage your account settings"
   }
 }

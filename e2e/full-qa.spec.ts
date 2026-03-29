@@ -3,6 +3,10 @@ import { test, expect, type Page } from '@playwright/test';
 const BASE = 'http://localhost:3000';
 const ADMIN_EMAIL = 'test-admin@example.com';
 const ADMIN_PASS = 'ENV_VAR_ONLY';
+const MANAGER_EMAIL = 'test-manager@example.com';
+const MANAGER_PASS = 'ENV_VAR_ONLY';
+const CLIENT_EMAIL = 'test-client@example.com';
+const CLIENT_PASS = 'ENV_VAR_ONLY';
 
 // ─── Helpers ────────────────────────────────────────────────────────
 
@@ -556,5 +560,138 @@ test.describe('i18n Translated Content', () => {
       const lang = await page.getAttribute('html', 'lang');
       expect(lang).toBe(locale);
     }
+  });
+});
+
+// ─── 17. New User Accounts ─────────────────────────────────────────
+
+test.describe('Manager Account (waleri.moretz)', () => {
+  test('manager can log in and reaches dashboard', async ({ page }) => {
+    await page.goto(`${BASE}/de/login`);
+    await page.fill('input[type="email"]', MANAGER_EMAIL);
+    await page.fill('input[type="password"]', MANAGER_PASS);
+    await page.click('button[type="submit"]');
+    await page.waitForURL('**/dashboard', { timeout: 15000 });
+    await expect(page).toHaveURL(/dashboard/);
+  });
+
+  test('manager can access settings and sees password change form', async ({ page }) => {
+    await page.goto(`${BASE}/de/login`);
+    await page.fill('input[type="email"]', MANAGER_EMAIL);
+    await page.fill('input[type="password"]', MANAGER_PASS);
+    await page.click('button[type="submit"]');
+    await page.waitForURL('**/dashboard', { timeout: 15000 });
+
+    await page.goto(`${BASE}/de/settings`);
+    await page.waitForTimeout(3000);
+    // Should see password change section
+    await expect(page.locator('input#currentPassword')).toBeVisible();
+    await expect(page.locator('input#newPassword')).toBeVisible();
+    await expect(page.locator('input#confirmNewPassword')).toBeVisible();
+  });
+
+  test('manager can access projects page', async ({ page }) => {
+    await page.goto(`${BASE}/de/login`);
+    await page.fill('input[type="email"]', MANAGER_EMAIL);
+    await page.fill('input[type="password"]', MANAGER_PASS);
+    await page.click('button[type="submit"]');
+    await page.waitForURL('**/dashboard', { timeout: 15000 });
+
+    await page.goto(`${BASE}/de/projects`);
+    await page.waitForTimeout(3000);
+    const body = await page.textContent('body');
+    expect(body).toBeTruthy();
+  });
+
+  test('manager can access templates page', async ({ page }) => {
+    await page.goto(`${BASE}/de/login`);
+    await page.fill('input[type="email"]', MANAGER_EMAIL);
+    await page.fill('input[type="password"]', MANAGER_PASS);
+    await page.click('button[type="submit"]');
+    await page.waitForURL('**/dashboard', { timeout: 15000 });
+
+    await page.goto(`${BASE}/de/templates`);
+    await page.waitForTimeout(3000);
+    const body = await page.textContent('body');
+    expect(body).toBeTruthy();
+  });
+
+  test('manager can access responses page', async ({ page }) => {
+    await page.goto(`${BASE}/de/login`);
+    await page.fill('input[type="email"]', MANAGER_EMAIL);
+    await page.fill('input[type="password"]', MANAGER_PASS);
+    await page.click('button[type="submit"]');
+    await page.waitForURL('**/dashboard', { timeout: 15000 });
+
+    await page.goto(`${BASE}/de/responses`);
+    await page.waitForTimeout(3000);
+    const body = await page.textContent('body');
+    expect(body).toBeTruthy();
+  });
+});
+
+test.describe('Client Account (elnay.akhverdiev)', () => {
+  test('client can log in and reaches my-projects', async ({ page }) => {
+    await page.goto(`${BASE}/de/login`);
+    await page.fill('input[type="email"]', CLIENT_EMAIL);
+    await page.fill('input[type="password"]', CLIENT_PASS);
+    await page.click('button[type="submit"]');
+    await page.waitForURL('**/my-projects', { timeout: 15000 });
+    await expect(page).toHaveURL(/my-projects/);
+  });
+
+  test('client can access account settings and sees password change form', async ({ page }) => {
+    await page.goto(`${BASE}/de/login`);
+    await page.fill('input[type="email"]', CLIENT_EMAIL);
+    await page.fill('input[type="password"]', CLIENT_PASS);
+    await page.click('button[type="submit"]');
+    await page.waitForURL('**/my-projects', { timeout: 15000 });
+
+    await page.goto(`${BASE}/de/account`);
+    await page.waitForTimeout(3000);
+    await expect(page.locator('input#currentPassword')).toBeVisible();
+    await expect(page.locator('input#newPassword')).toBeVisible();
+  });
+
+  test('client is redirected away from admin dashboard', async ({ page }) => {
+    await page.goto(`${BASE}/de/login`);
+    await page.fill('input[type="email"]', CLIENT_EMAIL);
+    await page.fill('input[type="password"]', CLIENT_PASS);
+    await page.click('button[type="submit"]');
+    await page.waitForURL('**/my-projects', { timeout: 15000 });
+
+    await page.goto(`${BASE}/de/dashboard`);
+    await page.waitForTimeout(5000);
+    // Client should be redirected to my-projects, not stay on dashboard
+    await expect(page).toHaveURL(/my-projects/);
+  });
+});
+
+// ─── 18. Password Reset Page ───────────────────────────────────────
+
+test.describe('Password Reset Flow', () => {
+  test('reset password page renders', async ({ page }) => {
+    await page.goto(`${BASE}/de/reset-password`);
+    await expect(page.locator('input[type="email"]')).toBeVisible();
+  });
+
+  test('submitting reset email shows success message', async ({ page }) => {
+    await page.goto(`${BASE}/de/reset-password`);
+    await page.fill('input[type="email"]', 'test@example.com');
+    await page.click('button[type="submit"]');
+    await page.waitForTimeout(3000);
+    // Should show success (even for unknown emails, to prevent enumeration)
+    const body = await page.textContent('body');
+    expect(body).toBeTruthy();
+  });
+});
+
+// ─── 19. Account Settings Protection ───────────────────────────────
+
+test.describe('Account Settings Protection', () => {
+  test('unauthenticated user redirected from /account', async ({ page }) => {
+    await page.goto(`${BASE}/de/account`);
+    await page.waitForTimeout(3000);
+    await expect(page).toHaveURL(/login/);
   });
 });

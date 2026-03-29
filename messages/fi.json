@@ -427,7 +427,9 @@
     "noProjects": "Ei projekteja",
     "noProjectsDescription": "Sinua ei ole kutsuttu.",
     "notStarted": "Ei aloitettu",
-    "submitted": "Lahetetty"
+    "submitted": "Lahetetty",
+    "settings": "Settings",
+    "account": "Account Settings"
   },
   "landing": {
     "heroTitle1": "Kerää vaatimukset",
@@ -471,5 +473,13 @@
     "stepsTitle1": "Kolme askelta kohti",
     "stepsTitle2": "parempia vaatimuksia",
     "stepsDesc": "Projektin luomisesta analyysiin teemme siitä vaivatonta."
+  },
+  "settings": {
+    "changePassword": "Change Password",
+    "changePasswordDesc": "Update your account password. You'll need to enter your current password for verification.",
+    "currentPassword": "Current Password",
+    "currentPasswordWrong": "Current password is incorrect. Please try again.",
+    "passwordChanged": "Password changed successfully!",
+    "manageAccount": "Manage your account settings"
   }
 }
