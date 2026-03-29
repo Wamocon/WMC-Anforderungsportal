@@ -7,8 +7,16 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Link } from '@/i18n/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Dialog,
   DialogContent,
@@ -28,6 +36,7 @@ import {
   Eye,
   Send,
   AlertCircle,
+  Pencil,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useParams } from 'next/navigation';
@@ -40,6 +49,7 @@ type ProjectData = {
   description: string | null;
   status: string;
   deadline_days: number;
+  welcome_text: Record<string, string> | null;
 };
 
 type ResponseData = {
@@ -71,6 +81,9 @@ export default function ProjectDetailPage() {
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [sending, setSending] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editForm, setEditForm] = useState({ name: '', description: '', status: 'draft' as 'draft' | 'active' | 'archived', deadline_days: 5 });
+  const [savingEdit, setSavingEdit] = useState(false);
 
   const loadData = useCallback(async () => {
     const supabase = createClient();
@@ -87,6 +100,41 @@ export default function ProjectDetailPage() {
   }, [projectId]);
 
   useEffect(() => { loadData(); }, [loadData]);
+
+  function openEditDialog() {
+    if (!project) return;
+    setEditForm({
+      name: project.name,
+      description: project.description || '',
+      status: project.status as 'draft' | 'active' | 'archived',
+      deadline_days: project.deadline_days,
+    });
+    setEditDialogOpen(true);
+  }
+
+  async function saveProjectEdit() {
+    if (!editForm.name.trim()) return;
+    setSavingEdit(true);
+    try {
+      const supabase = createClient();
+      await supabase.auth.refreshSession();
+      const { error } = await supabase
+        .from('projects')
+        .update({
+          name: editForm.name.trim(),
+          description: editForm.description.trim() || null,
+          status: editForm.status,
+          deadline_days: editForm.deadline_days,
+        })
+        .eq('id', projectId);
+      if (error) { toast.error(error.message); return; }
+      toast.success(t('project.projectUpdated'));
+      setEditDialogOpen(false);
+      loadData();
+    } finally {
+      setSavingEdit(false);
+    }
+  }
 
   async function sendInvitation() {
     if (!inviteEmail.trim() || !project) return;
@@ -139,10 +187,13 @@ export default function ProjectDetailPage() {
     <div className="space-y-6">
       <div className="flex items-start gap-4">
         <Link href="/projects"><Button variant="ghost" size="icon" className="mt-1"><ArrowLeft className="h-4 w-4" /></Button></Link>
-        <div>
+        <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold tracking-tight">{project.name}</h1>
             <Badge className={statusColor[project.status] || ''}>{project.status}</Badge>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={openEditDialog}>
+              <Pencil className="h-4 w-4" />
+            </Button>
           </div>
           <p className="text-muted-foreground mt-1">{project.description || t('admin.noDescription')}</p>
         </div>
@@ -257,6 +308,70 @@ export default function ProjectDetailPage() {
             <Button onClick={sendInvitation} disabled={!inviteEmail.trim() || sending} className="bg-[#FE0404] hover:bg-[#E00303] text-white gap-2">
               {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
               {t('admin.createCopyLink')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Project Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('project.editProject')}</DialogTitle>
+            <DialogDescription>{t('admin.manageProjects')}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label>{t('project.projectName')} *</Label>
+              <Input
+                value={editForm.name}
+                onChange={(e) => setEditForm((prev) => ({ ...prev, name: e.target.value }))}
+                placeholder={t('project.placeholderName')}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>{t('project.projectDescription')}</Label>
+              <Textarea
+                value={editForm.description}
+                onChange={(e) => setEditForm((prev) => ({ ...prev, description: e.target.value }))}
+                placeholder={t('project.descPlaceholder')}
+                rows={3}
+              />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label>{t('project.projectStatus')}</Label>
+                <Select
+                  value={editForm.status}
+                  onValueChange={(v) => setEditForm((prev) => ({ ...prev, status: (v ?? prev.status) as 'draft' | 'active' | 'archived' }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="draft">{t('common.draft')}</SelectItem>
+                    <SelectItem value="active">{t('common.active')}</SelectItem>
+                    <SelectItem value="archived">{t('common.archived')}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>{t('project.deadlineDays')}</Label>
+                <Input
+                  type="number"
+                  min={1}
+                  max={90}
+                  value={editForm.deadline_days}
+                  onChange={(e) => setEditForm((prev) => ({ ...prev, deadline_days: Number(e.target.value) || 1 }))}
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>{t('common.cancel')}</Button>
+            <Button onClick={saveProjectEdit} disabled={!editForm.name.trim() || savingEdit} className="bg-[#FE0404] hover:bg-[#E00303] text-white gap-2">
+              {savingEdit ? <Loader2 className="h-4 w-4 animate-spin" /> : <Pencil className="h-4 w-4" />}
+              {t('common.save')}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -40,6 +40,23 @@ import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import { useParams } from 'next/navigation';
 import type { QuestionType } from '@/lib/supabase/types';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 type SectionRow = {
   id: string;
@@ -75,6 +92,47 @@ const QUESTION_TYPES = [
   { value: 'file', labelKey: 'fileUpload' },
   { value: 'rating', labelKey: 'ratingField' },
 ];
+
+function SortableQuestion({
+  q,
+  getLabel,
+  onDelete,
+}: {
+  q: QuestionRow;
+  getLabel: (obj: Record<string, string> | string | null) => string;
+  onDelete: (id: string) => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: q.id });
+  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
+
+  return (
+    <div ref={setNodeRef} style={style} className="flex items-center gap-3 px-3 sm:px-4 py-3 hover:bg-muted/20 group">
+      <button type="button" className="cursor-grab active:cursor-grabbing shrink-0 hidden sm:block touch-none" {...attributes} {...listeners}>
+        <GripVertical className="h-4 w-4 text-muted-foreground/50" />
+      </button>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium break-words">{getLabel(q.label)}</p>
+        <div className="flex flex-wrap items-center gap-2 mt-0.5">
+          <Badge variant="outline" className="text-xs">{q.type}</Badge>
+          {q.is_required && (
+            <Badge variant="outline" className="text-xs text-[#FE0404] border-[#FE0404]/30">Required</Badge>
+          )}
+          {q.options && Array.isArray(q.options) && q.options.length > 0 && (
+            <span className="text-xs text-muted-foreground">{q.options.length} options</span>
+          )}
+        </div>
+      </div>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-7 w-7 sm:opacity-0 sm:group-hover:opacity-100 text-muted-foreground hover:text-destructive shrink-0"
+        onClick={() => onDelete(q.id)}
+      >
+        <Trash2 className="h-3.5 w-3.5" />
+      </Button>
+    </div>
+  );
+}
 
 export default function TemplateDetailPage() {
   const t = useTranslations();
@@ -233,6 +291,40 @@ export default function TemplateDetailPage() {
     loadTemplate();
   }
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  async function handleQuestionDragEnd(sectionId: string, event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const sectionQuestions = questions
+      .filter((q) => q.section_id === sectionId)
+      .sort((a, b) => a.order_index - b.order_index);
+
+    const oldIndex = sectionQuestions.findIndex((q) => q.id === active.id);
+    const newIndex = sectionQuestions.findIndex((q) => q.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const reordered = arrayMove(sectionQuestions, oldIndex, newIndex);
+
+    // Optimistic UI update
+    setQuestions((prev) => {
+      const otherQuestions = prev.filter((q) => q.section_id !== sectionId);
+      return [...otherQuestions, ...reordered.map((q, i) => ({ ...q, order_index: i }))];
+    });
+
+    // Persist to DB
+    const supabase = createClient();
+    await Promise.all(
+      reordered.map((q, i) =>
+        supabase.from('template_questions').update({ order_index: i }).eq('id', q.id)
+      )
+    );
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
@@ -334,36 +426,27 @@ export default function TemplateDetailPage() {
             <CardContent className="p-0">
               {sQuestions.length === 0 ? (
                 <div className="p-6 text-center text-muted-foreground text-sm">
-                  No questions yet. Click "Add Question" to start.
+                  No questions yet. Click &quot;Add Question&quot; to start.
                 </div>
               ) : (
-                <div className="divide-y">
-                  {sQuestions.map((q) => (
-                    <div key={q.id} className="flex items-center gap-3 px-3 sm:px-4 py-3 hover:bg-muted/20 group">
-                      <GripVertical className="h-4 w-4 text-muted-foreground/50 cursor-grab shrink-0 hidden sm:block" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium break-words">{getLabel(q.label)}</p>
-                        <div className="flex flex-wrap items-center gap-2 mt-0.5">
-                          <Badge variant="outline" className="text-xs">{q.type}</Badge>
-                          {q.is_required && (
-                            <Badge variant="outline" className="text-xs text-[#FE0404] border-[#FE0404]/30">Required</Badge>
-                          )}
-                          {q.options && Array.isArray(q.options) && q.options.length > 0 && (
-                            <span className="text-xs text-muted-foreground">{q.options.length} options</span>
-                          )}
-                        </div>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 sm:opacity-0 sm:group-hover:opacity-100 text-muted-foreground hover:text-destructive shrink-0"
-                        onClick={() => deleteQuestion(q.id)}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={(event) => handleQuestionDragEnd(sec.id, event)}
+                >
+                  <SortableContext items={sQuestions.map((q) => q.id)} strategy={verticalListSortingStrategy}>
+                    <div className="divide-y">
+                      {sQuestions.map((q) => (
+                        <SortableQuestion
+                          key={q.id}
+                          q={q}
+                          getLabel={getLabel}
+                          onDelete={deleteQuestion}
+                        />
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </SortableContext>
+                </DndContext>
               )}
             </CardContent>
           </Card>
