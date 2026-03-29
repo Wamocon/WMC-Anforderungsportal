@@ -44,23 +44,40 @@ export default function MyProjectsPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      setUserName(user.user_metadata?.full_name || user.email?.split('@')[0] || '');
+      // Display name: prefer full_name, then format email prefix nicely
+      const fullName = user.user_metadata?.full_name;
+      if (fullName) {
+        setUserName(fullName);
+      } else {
+        const prefix = user.email?.split('@')[0] || '';
+        setUserName(
+          prefix
+            .replace(/[._-]/g, ' ')
+            .replace(/\b\w/g, (c) => c.toUpperCase())
+        );
+      }
 
-      // Get projects where this user has a response or a magic link
-      const { data: responses } = await supabase
-        .from('responses')
-        .select('id, project_id, status, progress_percent')
-        .eq('respondent_id', user.id);
-
-      const { data: magicLinks } = await supabase
-        .from('magic_links')
-        .select('project_id')
-        .eq('email', user.email!);
+      // Get projects where this user has a response, a magic link, or a membership
+      const [{ data: responses }, { data: magicLinks }, { data: memberships }] = await Promise.all([
+        supabase
+          .from('responses')
+          .select('id, project_id, status, progress_percent')
+          .or(`respondent_id.eq.${user.id},respondent_email.eq.${user.email}`),
+        supabase
+          .from('magic_links')
+          .select('project_id')
+          .eq('email', user.email!),
+        supabase
+          .from('project_members')
+          .select('project_id')
+          .eq('user_id', user.id),
+      ]);
 
       // Collect unique project IDs
       const projectIds = new Set<string>();
       responses?.forEach(r => projectIds.add(r.project_id));
       magicLinks?.forEach(ml => projectIds.add(ml.project_id));
+      memberships?.forEach(m => projectIds.add(m.project_id));
 
       if (projectIds.size === 0) {
         setLoading(false);
