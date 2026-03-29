@@ -1,12 +1,22 @@
 import { test, expect, type Page } from '@playwright/test';
 
-const BASE = 'http://localhost:3000';
-const ADMIN_EMAIL = 'test-admin@example.com';
-const ADMIN_PASS = 'ENV_VAR_ONLY';
-const MANAGER_EMAIL = 'test-manager@example.com';
-const MANAGER_PASS = 'ENV_VAR_ONLY';
-const CLIENT_EMAIL = 'test-client@example.com';
-const CLIENT_PASS = 'ENV_VAR_ONLY';
+// ─── All credentials loaded from environment variables ──────────────
+// Set these in .env.test.local (gitignored) or CI secrets.
+// See .env.example for the required variable names.
+
+function requireEnv(name: string): string {
+  const val = process.env[name];
+  if (!val) throw new Error(`Missing required env variable: ${name}. See .env.example`);
+  return val;
+}
+
+const BASE = process.env.E2E_BASE_URL || 'http://localhost:3000';
+const ADMIN_EMAIL = requireEnv('E2E_ADMIN_EMAIL');
+const ADMIN_PASS = requireEnv('E2E_ADMIN_PASS');
+const MANAGER_EMAIL = requireEnv('E2E_MANAGER_EMAIL');
+const MANAGER_PASS = requireEnv('E2E_MANAGER_PASS');
+const CLIENT_EMAIL = requireEnv('E2E_CLIENT_EMAIL');
+const CLIENT_PASS = requireEnv('E2E_CLIENT_PASS');
 
 // ─── Helpers ────────────────────────────────────────────────────────
 
