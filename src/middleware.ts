@@ -53,7 +53,7 @@ export default async function middleware(request: NextRequest) {
   });
 
   // Security headers
-  intlResponse.headers.set('X-Frame-Options', 'DENY');
+  intlResponse.headers.set('X-Frame-Options', 'SAMEORIGIN');
   intlResponse.headers.set('X-Content-Type-Options', 'nosniff');
   intlResponse.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   intlResponse.headers.set('Permissions-Policy', 'camera=(), geolocation=(), microphone=(self)');
@@ -66,7 +66,7 @@ export default async function middleware(request: NextRequest) {
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https://*.supabase.co",
       "connect-src 'self' https://*.supabase.co https://generativelanguage.googleapis.com wss://*.supabase.co",
-      "frame-ancestors 'none'",
+      "frame-ancestors 'self'",
     ].join('; ')
   );
 
