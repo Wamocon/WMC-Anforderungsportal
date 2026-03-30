@@ -24,10 +24,6 @@ function getLocaleFromPath(pathname: string): string {
 export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname === '/landing' || pathname === '/landing/') {
-    return NextResponse.next();
-  }
-
   // Skip middleware for static files and API routes
   if (
     pathname.startsWith('/_next') ||
@@ -79,7 +75,7 @@ export default async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Match all pathnames except static files
-    '/((?!_next|api|.*\\..*).*)',
+    // Match all pathnames except static files, api routes, and the public landing page
+    '/((?!_next|api|landing|.*\\..*).*)',
   ],
 };
