@@ -25,19 +25,27 @@ export async function POST(req: Request) {
     const { allowed } = rateLimit(ip);
     if (!allowed) return Response.json({ questions: [] });
 
-    const { answers, existingQuestions, locale } = await req.json();
+    const body = await req.json();
+    const rawAnswers = body.answers;
+    const rawExisting = body.existingQuestions;
+    const locale = body.locale;
     const language = getLanguageName(locale);
 
-    if (!answers || Object.keys(answers).length < 2) {
+    if (!rawAnswers || typeof rawAnswers !== 'object' || Object.keys(rawAnswers).length < 2) {
       return Response.json({ questions: [] });
     }
 
-    const answeredSummary = Object.entries(answers)
+    // Sanitize: cap key and value lengths
+    const answeredSummary = Object.entries(rawAnswers)
       .filter(([, v]) => v && String(v).trim().length > 0)
-      .map(([, v]) => `- ${v}`)
+      .slice(0, 20)
+      .map(([, v]) => `- ${String(v).slice(0, 500)}`)
       .join('\n');
 
-    const existingLabels = (existingQuestions || []).join(', ');
+    const existingLabels = (Array.isArray(rawExisting) ? rawExisting : [])
+      .slice(0, 30)
+      .map((l: unknown) => String(l).slice(0, 200))
+      .join(', ');
 
     const { text } = await generateText({
       model: google('gemini-2.5-flash'),
@@ -47,13 +55,19 @@ export async function POST(req: Request) {
       temperature: 0.6,
     });
 
-    // Parse JSON from response
-    const jsonMatch = text.match(/\[[\s\S]*\]/);
+    // Robust JSON extraction — strips markdown code fences if present
+    const jsonMatch = text.replace(/```(?:json)?/gi, '').match(/\[[\s\S]*\]/);
     if (!jsonMatch) {
       return Response.json({ questions: [] });
     }
 
-    const questions = JSON.parse(jsonMatch[0]);
+    let questions: unknown[];
+    try {
+      questions = JSON.parse(jsonMatch[0]);
+    } catch {
+      return Response.json({ questions: [] });
+    }
+
     return Response.json({ questions: Array.isArray(questions) ? questions.slice(0, 2) : [] });
   } catch {
     return Response.json({ questions: [] });

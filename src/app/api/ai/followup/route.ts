@@ -30,17 +30,20 @@ export async function POST(req: Request) {
     const { allowed } = rateLimit(ip);
     if (!allowed) return Response.json({ followUp: null });
 
-    const { questionLabel, userAnswer, locale } = await req.json();
+    const body = await req.json();
+    const rawLabel = String(body.questionLabel ?? '').slice(0, 300);
+    const rawAnswer = String(body.userAnswer ?? '').slice(0, 2000);
+    const locale = body.locale;
     const language = getLanguageName(locale);
 
-    if (!questionLabel || !userAnswer || userAnswer.trim().length < 5) {
+    if (!rawLabel || !rawAnswer || rawAnswer.trim().length < 5) {
       return Response.json({ followUp: null });
     }
 
     const { text } = await generateText({
       model: google('gemini-2.5-flash'),
       system: SYSTEM_PROMPT,
-      prompt: `Language: ${language}\nQuestion asked: "${questionLabel}"\nClient's answer: "${userAnswer}"\n\nShould we ask a follow-up? If yes, provide the follow-up question in ${language}. If no, respond with NO_FOLLOWUP.`,
+      prompt: `Language: ${language}\nQuestion asked: "${rawLabel}"\nClient's answer: "${rawAnswer}"\n\nShould we ask a follow-up? If yes, provide the follow-up question in ${language}. If no, respond with NO_FOLLOWUP.`,
       maxOutputTokens: 150,
       temperature: 0.5,
     });

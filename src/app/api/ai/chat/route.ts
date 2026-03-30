@@ -1,5 +1,5 @@
 import { google } from '@ai-sdk/google';
-import { streamText } from 'ai';
+import { streamText, type ModelMessage } from 'ai';
 import { rateLimit, getRateLimitHeaders } from '@/lib/rate-limit';
 import { getLanguageName } from '@/lib/lang-map';
 
@@ -29,6 +29,9 @@ GUIDELINES:
 
 Remember: You are collecting requirements FOR the client's project. Be helpful, patient, and thorough.`;
 
+const MAX_MESSAGES = 40;
+const MAX_MESSAGE_LENGTH = 4000;
+
 export async function POST(req: Request) {
   try {
     const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
@@ -40,12 +43,32 @@ export async function POST(req: Request) {
       });
     }
 
-    const { messages, locale } = await req.json();
+    const body = await req.json();
+    const { locale } = body;
+    const rawMessages = body.messages;
+
+    if (!Array.isArray(rawMessages) || rawMessages.length === 0) {
+      return new Response('Invalid request', { status: 400 });
+    }
+
+    // Sanitize: enforce max messages + max length per message
+    const messages = rawMessages
+      .slice(-MAX_MESSAGES)
+      .map((m: { role: string; content: string }) => ({
+        role: m.role === 'assistant' ? 'assistant' : 'user',
+        content: String(m.content ?? '').slice(0, MAX_MESSAGE_LENGTH),
+      }))
+      .filter((m) => m.content.trim().length > 0) as ModelMessage[];
+
+    if (messages.length === 0) {
+      return new Response('Invalid request', { status: 400 });
+    }
+
     const language = getLanguageName(locale);
 
     const result = streamText({
       model: google('gemini-2.5-flash'),
-      system: `${SYSTEM_PROMPT}\n\nIMPORTANT: Always respond in ${language}.`,
+      system: `${SYSTEM_PROMPT}\n\nIMPORTANT: Always respond in ${language}. Current date: ${new Date().toISOString().split('T')[0]}.`,
       messages,
       maxOutputTokens: 800,
       temperature: 0.7,

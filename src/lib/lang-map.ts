@@ -27,5 +27,5 @@ export const LANG_MAP: Record<string, string> = {
 };
 
 export function getLanguageName(locale: string): string {
-  return LANG_MAP[locale] || 'German (Deutsch)';
+  return LANG_MAP[locale] || 'English';
 }

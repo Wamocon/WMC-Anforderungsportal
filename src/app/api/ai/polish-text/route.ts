@@ -25,21 +25,23 @@ export async function POST(req: Request) {
     const { allowed } = rateLimit(ip);
     if (!allowed) return Response.json({ polished: null });
 
-    const { text, locale } = await req.json();
+    const body = await req.json();
+    const rawText = String(body.text ?? '').slice(0, 3000);
+    const locale = body.locale;
 
-    if (!text || text.trim().length < 3) {
-      return Response.json({ polished: text });
+    if (!rawText || rawText.trim().length < 3) {
+      return Response.json({ polished: rawText });
     }
 
     const { text: polished } = await generateText({
       model: google('gemini-2.5-flash'),
       system: SYSTEM_PROMPT,
-      prompt: `Locale hint: ${getLanguageName(locale)}\n\nPolish this text without summarizing it:\n${text}`,
+      prompt: `Locale hint: ${getLanguageName(locale)}\n\nPolish this text without summarizing it:\n${rawText}`,
       maxOutputTokens: 500,
       temperature: 0.2,
     });
 
-    return Response.json({ polished: polished.trim() });
+    return Response.json({ polished: polished.trim() || rawText });
   } catch {
     return Response.json({ polished: null });
   }

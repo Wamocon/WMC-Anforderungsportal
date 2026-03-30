@@ -4,7 +4,8 @@ import { rateLimit, getRateLimitHeaders } from '@/lib/rate-limit';
 import { getLanguageName } from '@/lib/lang-map';
 import { createClient } from '@/lib/supabase/server';
 
-export const runtime = 'edge';
+// NOTE: NOT edge runtime — uses createClient() which requires Node.js cookies API
+export const dynamic = 'force-dynamic';
 
 const SYSTEM_PROMPT = `You are a senior requirements analyst at WAMOCON (WMC), a professional IT development company. Your task is to analyze client requirement responses and produce a structured executive summary for the development team.
 
