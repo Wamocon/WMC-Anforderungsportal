@@ -304,6 +304,17 @@ export default function ResponseDetailPage() {
       }
 
       setAiSummary(data.summary);
+
+      // Persist summary to DB from the client (browser Supabase, no edge/cookie conflict)
+      try {
+        const supabase = createClient();
+        await supabase
+          .from('responses')
+          .update({ summary_markdown: data.summary })
+          .eq('id', responseId);
+      } catch {
+        // Non-fatal — summary is already displayed; DB save can be retried on regenerate
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to generate AI summary';
       toast.error(message);

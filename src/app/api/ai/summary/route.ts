@@ -2,10 +2,10 @@ import { google } from '@ai-sdk/google';
 import { generateText } from 'ai';
 import { rateLimit, getRateLimitHeaders } from '@/lib/rate-limit';
 import { getLanguageName } from '@/lib/lang-map';
-import { createClient } from '@/lib/supabase/server';
 
-// NOTE: NOT edge runtime — uses createClient() which requires Node.js cookies API
-export const dynamic = 'force-dynamic';
+// Edge runtime: fast, 30-second timeout, compatible with AI calls.
+// DB persistence is handled client-side after the summary is returned.
+export const runtime = 'edge';
 
 const SYSTEM_PROMPT = `You are a senior requirements analyst at WAMOCON (WMC), a professional IT development company. Your task is to analyze client requirement responses and produce a structured executive summary for the development team.
 
@@ -113,25 +113,12 @@ ${JSON.stringify(responseData, null, 2)}`;
       return Response.json({ error: 'AI returned empty response. Please try again.' }, { status: 502 });
     }
 
-    // Save to DB server-side when responseId is provided (admin view)
-    if (responseId && typeof responseId === 'string') {
-      try {
-        const supabase = await createClient();
-        await supabase
-          .from('responses')
-          .update({ summary_markdown: text.trim() })
-          .eq('id', responseId);
-      } catch {
-        // DB save failure is non-fatal — summary is still returned to client
-      }
-    }
-
     return Response.json({ summary: text.trim() });
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
+    const message = err instanceof Error ? err.message : 'Unknown error';
     console.error('[summary route]', message);
     return Response.json(
-      { error: message },
+      { error: 'AI summary service temporarily unavailable. Please try again.' },
       { status: 500 }
     );
   }
