@@ -532,14 +532,14 @@
       <h2 class="reveal text-3xl md:text-5xl font-bold leading-[1.1] tracking-tight mb-5" style="color:#f0f0f2;" data-i18n data-de="Von der Einladung zur fertigen Anforderung" data-en="From invitation to finished requirements">Von der Einladung zur fertigen Anforderung</h2>
       <p class="reveal text-lg max-w-[680px] mx-auto leading-relaxed mb-4" style="color:#9999a1;" data-i18n data-de="Der gesamte Prozess ist KI-gestuetzt und durchgaengig gefuehrt." data-en="The entire process is AI-powered and guided end-to-end.">Der gesamte Prozess ist KI-gestuetzt und durchgaengig gefuehrt.</p>
 
-      <div class="rm">
-        <div class="rm__line">
-          <svg viewBox="0 0 120 900" preserveAspectRatio="none">
+      <div class="rm" id="roadmapTimeline">
+        <div id="rmLine" class="rm__line">
+          <svg id="rmSvg" viewBox="0 0 120 900" preserveAspectRatio="none">
             <defs><linearGradient id="rmGradient" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#FE0404" stop-opacity="0.8"/><stop offset="100%" stop-color="#ff6b6b" stop-opacity="0.3"/></linearGradient></defs>
-            <path class="rm__line-bg" d="M60 0 C60 150 60 150 60 180 C60 210 60 210 60 360 C60 510 60 510 60 540 C60 570 60 570 60 720 C60 870 60 870 60 900"/>
-            <path class="rm__line-progress" d="M60 0 C60 150 60 150 60 180 C60 210 60 210 60 360 C60 510 60 510 60 540 C60 570 60 570 60 720 C60 870 60 870 60 900"/>
+            <path id="rmPathBg" class="rm__line-bg" d="M60 0 C60 150 60 150 60 180 C60 210 60 210 60 360 C60 510 60 510 60 540 C60 570 60 570 60 720 C60 870 60 870 60 900"/>
+            <path id="rmPathFill" class="rm__line-progress" d="M60 0 C60 150 60 150 60 180 C60 210 60 210 60 360 C60 510 60 510 60 540 C60 570 60 570 60 720 C60 870 60 870 60 900"/>
           </svg>
-          <div class="rm__line-glow"></div>
+          <div id="rmGlow" class="rm__line-glow"></div>
         </div>
 
         <!-- Step 1: Create project (Left) -->
@@ -614,7 +614,7 @@
 
         <!-- End marker -->
         <div class="rm__end">
-          <div class="rm__end-marker">
+          <div id="rmEndDot" class="rm__end-marker">
             <div class="rm__end-ring">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
