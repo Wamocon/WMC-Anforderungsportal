@@ -272,7 +272,6 @@ export default function ResponseDetailPage() {
     if (!response) return;
     setSummaryLoading(true);
     try {
-      const supabase = createClient();
       const answerMap = new Map(answers.map((a) => [a.question_id, a]));
       const summaryData = sections.map((sec) => {
         const sQuestions = questions.filter((q) => q.section_id === sec.id);
@@ -294,31 +293,20 @@ export default function ResponseDetailPage() {
           projectName,
           respondentName: response?.respondent_name || response?.respondent_email,
           locale,
+          responseId,
         }),
       });
 
-      if (!res.ok) throw new Error('Failed');
+      const data = await res.json();
 
-      const reader = res.body?.getReader();
-      if (!reader) throw new Error('No body');
-
-      const decoder = new TextDecoder();
-      let content = '';
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        content += decoder.decode(value, { stream: true });
-        setAiSummary(content);
+      if (!res.ok || !data.summary) {
+        throw new Error(data.error || 'Failed to generate summary');
       }
 
-      if (content.trim()) {
-        await supabase
-          .from('responses')
-          .update({ summary_markdown: content.trim() })
-          .eq('id', responseId);
-      }
-    } catch {
-      toast.error(t('admin.failedSummary'));
+      setAiSummary(data.summary);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to generate AI summary';
+      toast.error(message);
     } finally {
       setSummaryLoading(false);
     }

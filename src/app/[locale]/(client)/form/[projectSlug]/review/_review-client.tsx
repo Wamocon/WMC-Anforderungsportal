@@ -96,24 +96,17 @@ export function ReviewClient({
           projectName,
           respondentName,
           locale,
+          // No responseId here — summary is saved on form submit, not immediately
         }),
       });
 
-      if (!res.ok) throw new Error('Failed to generate summary');
+      const data = await res.json();
 
-      // Stream the response
-      const reader = res.body?.getReader();
-      if (!reader) throw new Error('No reader');
-
-      const decoder = new TextDecoder();
-      let content = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        content += decoder.decode(value, { stream: true });
-        setSummary(content);
+      if (!res.ok || !data.summary) {
+        throw new Error(data.error || 'Failed to generate summary');
       }
+
+      setSummary(data.summary);
 
       // Scroll to summary
       setTimeout(() => summaryRef.current?.scrollIntoView({ behavior: 'smooth' }), 200);

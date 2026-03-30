@@ -1,7 +1,8 @@
 import { google } from '@ai-sdk/google';
-import { streamText } from 'ai';
+import { generateText } from 'ai';
 import { rateLimit, getRateLimitHeaders } from '@/lib/rate-limit';
 import { getLanguageName } from '@/lib/lang-map';
+import { createClient } from '@/lib/supabase/server';
 
 export const runtime = 'edge';
 
@@ -14,6 +15,12 @@ CRITICAL FORMATTING RULES:
 - Use ✅ for confirmed/clear items, ⚠️ for vague/incomplete items, and ❌ for missing critical items.
 - Keep each bullet point on ONE line — no multi-line bullets.
 - Do NOT write an introduction paragraph. Start directly with the first section header.
+
+IMPORTANT LANGUAGE HANDLING:
+- The client answers may be in ANY language (Russian, German, Turkish, etc.) because the form was filled in the client's preferred language.
+- You MUST translate and interpret client answers into the target output language.
+- Write the ENTIRE summary including section headers and labels in the output language specified by the "locale" parameter.
+- Example: if a client answered "Да" (Russian for Yes), write "Yes" in the summary if the output language is English.
 
 OUTPUT FORMAT — Use these exact sections:
 
@@ -62,37 +69,38 @@ RULES:
 1. Be concise. Use single-line bullets. No filler text.
 2. If a field has no data, mark it with ❌ and "Not provided".
 3. Flag vague answers explicitly (e.g., client wrote "test" — mark as ⚠️ vague).
-4. You MUST write the ENTIRE summary in the language specified by the "locale" parameter. If locale is "de", write in German. If "tr", write in Turkish. If "ru", write in Russian. If "en", write in English. Section headers, labels, descriptions — everything must be in that language. Only keep the emoji markers (✅⚠️❌🔴🟡🟢) as-is.
-5. Do NOT invent requirements — only summarize what the client actually provided.
-6. Use professional language suitable for a development team handoff.`;
+4. Write the ENTIRE summary in the language specified by the locale parameter. Section headers, labels, and descriptions must all be in that language.
+5. Translate client answers from their original language into the output language.
+6. Do NOT invent requirements — only summarize what the client actually provided.
+7. Use professional language suitable for a development team handoff.`;
 
 export async function POST(req: Request) {
   try {
     const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
     const { allowed, remaining } = rateLimit(ip);
     if (!allowed) {
-      return new Response('Too many requests. Please wait a moment.', {
+      return Response.json({ error: 'Too many requests. Please wait a moment.' }, {
         status: 429,
         headers: getRateLimitHeaders(remaining),
       });
     }
 
-    const { responseData, projectName, respondentName, locale } = await req.json();
+    const { responseData, projectName, respondentName, locale, responseId } = await req.json();
 
-    if (!responseData || !Array.isArray(responseData)) {
-      return new Response('Missing response data', { status: 400 });
+    if (!responseData || !Array.isArray(responseData) || responseData.length === 0) {
+      return Response.json({ error: 'Missing or empty response data' }, { status: 400 });
     }
 
     const language = getLanguageName(locale);
 
-    const prompt = `IMPORTANT: Write the entire summary in ${language}.
+    const prompt = `IMPORTANT: Write the entire summary in ${language}. Translate any client answers that are in other languages into ${language}.
 
 Analyze the following client requirement responses for project "${projectName || 'Unknown'}"${respondentName ? ` (submitted by ${respondentName})` : ''} and generate a structured executive summary.
 
 Response Data:
 ${JSON.stringify(responseData, null, 2)}`;
 
-    const result = streamText({
+    const { text } = await generateText({
       model: google('gemini-2.5-flash'),
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: prompt }],
@@ -100,8 +108,30 @@ ${JSON.stringify(responseData, null, 2)}`;
       temperature: 0.3,
     });
 
-    return result.toTextStreamResponse();
-  } catch {
-    return new Response('AI summary service temporarily unavailable. Please try again.', { status: 500 });
+    if (!text || !text.trim()) {
+      return Response.json({ error: 'AI returned empty response. Please try again.' }, { status: 502 });
+    }
+
+    // Save to DB server-side when responseId is provided (admin view)
+    if (responseId && typeof responseId === 'string') {
+      try {
+        const supabase = await createClient();
+        await supabase
+          .from('responses')
+          .update({ summary_markdown: text.trim() })
+          .eq('id', responseId);
+      } catch {
+        // DB save failure is non-fatal — summary is still returned to client
+      }
+    }
+
+    return Response.json({ summary: text.trim() });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    console.error('[summary route]', message);
+    return Response.json(
+      { error: 'AI summary service temporarily unavailable. Please try again.' },
+      { status: 500 }
+    );
   }
 }
