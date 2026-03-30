@@ -115,10 +115,10 @@ ${JSON.stringify(responseData, null, 2)}`;
 
     return Response.json({ summary: text.trim() });
   } catch (err) {
-    const message = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
+    const message = err instanceof Error ? err.message : 'Unknown error';
     console.error('[summary route]', message);
     return Response.json(
-      { error: `Summary error: ${message}` },
+      { error: 'AI summary service temporarily unavailable. Please try again.' },
       { status: 500 }
     );
   }
