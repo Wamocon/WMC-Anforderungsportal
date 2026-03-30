@@ -5,7 +5,6 @@ import { useTranslations, useLocale } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { Link } from '@/i18n/navigation';
 import {
@@ -38,6 +37,7 @@ type ResponseDetail = {
   respondent_email: string;
   status: string;
   progress_percent: number;
+  summary_markdown: string | null;
   submitted_at: string | null;
   created_at: string;
   updated_at: string;
@@ -101,6 +101,7 @@ export default function ResponseDetailPage() {
     }
 
     setResponse(resp as ResponseDetail);
+    setAiSummary((resp as ResponseDetail).summary_markdown ?? null);
 
     const [
       { data: projData },
@@ -138,14 +139,50 @@ export default function ResponseDetailPage() {
     return obj[locale] || obj['en'] || obj['de'] || Object.values(obj)[0] || '';
   }
 
-  function formatValue(val: unknown): string {
+  type ResolvedOption = {
+    value: string;
+    label: string;
+  };
+
+  function resolveQuestionOptions(options: unknown): ResolvedOption[] {
+    if (!Array.isArray(options)) return [];
+    return options.map((option, index) => {
+      if (typeof option === 'string') return { value: option, label: option };
+      if (option && typeof option === 'object') {
+        const candidate = option as Record<string, unknown>;
+        const labelSource = candidate.label;
+        const label =
+          typeof labelSource === 'string'
+            ? labelSource
+            : labelSource && typeof labelSource === 'object'
+              ? getLabel(labelSource as Record<string, string>)
+              : String(candidate.value ?? '');
+        const rawValue = candidate.value;
+        return {
+          value: typeof rawValue === 'string' && rawValue.trim() ? rawValue : label || `option-${index}`,
+          label,
+        };
+      }
+      const value = String(option ?? '');
+      return { value, label: value };
+    });
+  }
+
+  function formatValue(val: unknown, options?: unknown): string {
     if (val === null || val === undefined) return '—';
+    const resolvedOptions = resolveQuestionOptions(options);
+    const optionMap = new Map(resolvedOptions.map((option) => [option.value, option.label]));
+
     if (typeof val === 'string') {
       // Check if it's a JSON file attachment array
       if (val.startsWith('[{') && val.includes('"path"')) return '';
-      return val || '—';
+      return optionMap.get(val) || val || '—';
     }
-    if (Array.isArray(val)) return val.join(', ') || '—';
+    if (Array.isArray(val)) {
+      return val
+        .map((item) => optionMap.get(String(item ?? '')) || String(item ?? ''))
+        .join(', ') || '—';
+    }
     if (typeof val === 'object') {
       const v = val as Record<string, unknown>;
       return v.text as string || JSON.stringify(val);
@@ -232,8 +269,10 @@ export default function ResponseDetailPage() {
   }
 
   async function generateAiSummary() {
+    if (!response) return;
     setSummaryLoading(true);
     try {
+      const supabase = createClient();
       const answerMap = new Map(answers.map((a) => [a.question_id, a]));
       const summaryData = sections.map((sec) => {
         const sQuestions = questions.filter((q) => q.section_id === sec.id);
@@ -241,7 +280,7 @@ export default function ResponseDetailPage() {
           section: getLabel(sec.title),
           items: sQuestions.map((q) => ({
             question: getLabel(q.label),
-            answer: formatValue(answerMap.get(q.id)?.value),
+            answer: formatValue(answerMap.get(q.id)?.value, q.options),
             voiceTranscript: answerMap.get(q.id)?.voice_transcript || null,
           })),
         };
@@ -270,6 +309,13 @@ export default function ResponseDetailPage() {
         if (done) break;
         content += decoder.decode(value, { stream: true });
         setAiSummary(content);
+      }
+
+      if (content.trim()) {
+        await supabase
+          .from('responses')
+          .update({ summary_markdown: content.trim() })
+          .eq('id', responseId);
       }
     } catch {
       toast.error(t('admin.failedSummary'));
@@ -374,7 +420,7 @@ export default function ResponseDetailPage() {
             section: getLabel(sec.title),
             questions: questions.filter(q => q.section_id === sec.id).map(q => {
               const a = answerMap.get(q.id);
-              return { question: getLabel(q.label), answer: a ? formatValue(a.value) : 'No answer' };
+              return { question: getLabel(q.label), answer: a ? formatValue(a.value, q.options) : 'No answer' };
             }),
           }));
           const text = data.map(s => `## ${s.section}\n${s.questions.map(q => `**${q.question}**\n${q.answer}`).join('\n\n')}`).join('\n\n---\n\n');
@@ -506,7 +552,7 @@ export default function ResponseDetailPage() {
                           </div>
                         ) : (
                           (() => {
-                            const answerText = answer ? formatValue(answer.value) : null;
+                            const answerText = answer ? formatValue(answer.value, q.options) : null;
                             const detectedFile = answerText ? detectFilenameInText(answerText) : null;
                             
                             if (detectedFile) {
@@ -591,7 +637,7 @@ export default function ResponseDetailPage() {
             </div>
           ) : (
             <p className="text-muted-foreground text-sm">
-              Click "Generate Summary" to get an AI-powered executive summary of this response for your development team.
+              Click Generate Summary to get an AI-powered executive summary of this response for your development team.
             </p>
           )}
         </CardContent>

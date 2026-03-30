@@ -5,9 +5,11 @@
  * Usage: node scripts/translate-all-locales.js
  */
 
-const fs = require('fs');
-const path = require('path');
-require('dotenv').config({ path: '.env.local' });
+import fs from 'node:fs';
+import path from 'node:path';
+import dotenv from 'dotenv';
+
+dotenv.config({ path: '.env.local' });
 
 const API_KEY = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 if (!API_KEY) {
@@ -75,7 +77,7 @@ ${JSON.stringify(texts, null, 2)}`;
   
   try {
     return JSON.parse(text);
-  } catch (e) {
+  } catch {
     console.error(`  Failed to parse response for ${targetLang}:`, text.slice(0, 200));
     return null;
   }
@@ -131,8 +133,9 @@ async function translateLocale(locale) {
       } else {
         console.log(`    ✗ ${section}: translation failed, keeping EN fallback`);
       }
-    } catch (err) {
-      console.error(`    ✗ ${section}: ${err.message}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`    ✗ ${section}: ${message}`);
     }
     
     // Rate limit: 500ms between API calls

@@ -51,10 +51,11 @@ declare let SpeechRecognition: {
   prototype: SpeechRecognition;
 };
 
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Mic, Square, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { polishTextClient } from '@/lib/polish-text-client';
 import { toast } from 'sonner';
 
 interface VoiceRecorderProps {
@@ -85,18 +86,63 @@ export function VoiceRecorder({ onTranscript, onAudioBlob, compact, locale }: Vo
     };
   }, []);
 
-  const startRecording = useCallback(async () => {
-    // Check for Web Speech API support
-    const SpeechRecognitionAPI =
-      window.SpeechRecognition || (window as unknown as { webkitSpeechRecognition: typeof window.SpeechRecognition }).webkitSpeechRecognition;
+  function getSpeechRecognitionApi() {
+    if (typeof window === 'undefined') return null;
+    return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+  }
 
-    if (!SpeechRecognitionAPI) {
+  function resolveSpeechLocale() {
+    const normalized = (locale || document.documentElement.lang || 'de').toLowerCase();
+    const localeMap: Record<string, string> = {
+      bg: 'bg-BG',
+      cs: 'cs-CZ',
+      da: 'da-DK',
+      de: 'de-DE',
+      el: 'el-GR',
+      en: 'en-US',
+      es: 'es-ES',
+      et: 'et-EE',
+      fi: 'fi-FI',
+      fr: 'fr-FR',
+      hr: 'hr-HR',
+      hu: 'hu-HU',
+      it: 'it-IT',
+      lt: 'lt-LT',
+      lv: 'lv-LV',
+      nl: 'nl-NL',
+      no: 'no-NO',
+      pl: 'pl-PL',
+      pt: 'pt-PT',
+      ro: 'ro-RO',
+      ru: 'ru-RU',
+      sk: 'sk-SK',
+      sl: 'sl-SI',
+      sv: 'sv-SE',
+      tr: 'tr-TR',
+    };
+    return localeMap[normalized] || locale || document.documentElement.lang || 'de-DE';
+  }
+
+  async function startRecording() {
+    const SpeechRecognitionAPI = getSpeechRecognitionApi();
+    const canCaptureAudio =
+      typeof navigator !== 'undefined' &&
+      !!navigator.mediaDevices?.getUserMedia &&
+      typeof MediaRecorder !== 'undefined';
+
+    if (!SpeechRecognitionAPI && !canCaptureAudio) {
+      toast.error(t('voiceNotSupported'));
+      return;
+    }
+
+    if (!SpeechRecognitionAPI && !onAudioBlob) {
       toast.error(t('voiceNotSupported'));
       return;
     }
 
     // Start MediaRecorder for audio blob capture
-    try {
+    if (canCaptureAudio) {
+      try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
 
@@ -118,7 +164,14 @@ export function VoiceRecorder({ onTranscript, onAudioBlob, compact, locale }: Vo
       }
       updateLevel();
 
-      const mediaRecorder = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4' });
+      const preferredMimeType = MediaRecorder.isTypeSupported('audio/webm')
+        ? 'audio/webm'
+        : MediaRecorder.isTypeSupported('audio/mp4')
+          ? 'audio/mp4'
+          : '';
+      const mediaRecorder = preferredMimeType
+        ? new MediaRecorder(stream, { mimeType: preferredMimeType })
+        : new MediaRecorder(stream);
       audioChunksRef.current = [];
       mediaRecorder.ondataavailable = (e) => {
         if (e.data.size > 0) audioChunksRef.current.push(e.data);
@@ -133,15 +186,24 @@ export function VoiceRecorder({ onTranscript, onAudioBlob, compact, locale }: Vo
       };
       mediaRecorder.start(250); // collect data every 250ms
       mediaRecorderRef.current = mediaRecorder;
-    } catch {
-      // If microphone access denied, still try speech recognition
+      } catch {
+        if (!SpeechRecognitionAPI) {
+          toast.error(t('voiceError'));
+          return;
+        }
+      }
+    }
+
+    if (!SpeechRecognitionAPI) {
+      setIsRecording(true);
+      return;
     }
 
     // Start Speech Recognition for real-time transcription
     const recognition = new SpeechRecognitionAPI();
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.lang = locale || document.documentElement.lang || 'de-DE';
+    recognition.lang = resolveSpeechLocale();
 
     let finalTranscript = '';
 
@@ -175,15 +237,9 @@ export function VoiceRecorder({ onTranscript, onAudioBlob, compact, locale }: Vo
       }
       if (finalTranscript.trim()) {
         setIsTranscribing(true);
-        // AI grammar correction
-        fetch('/api/ai/polish-text', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: finalTranscript.trim(), locale: locale || document.documentElement.lang || 'de' }),
-        })
-          .then(res => res.json())
-          .then(data => {
-            onTranscript(data.polished || finalTranscript.trim());
+        polishTextClient(finalTranscript.trim(), locale || document.documentElement.lang || 'de')
+          .then((polished) => {
+            onTranscript(polished || finalTranscript.trim());
             setIsTranscribing(false);
             setLiveTranscript('');
           })
@@ -200,12 +256,12 @@ export function VoiceRecorder({ onTranscript, onAudioBlob, compact, locale }: Vo
     recognitionRef.current = recognition;
     recognition.start();
     setIsRecording(true);
-  }, [onTranscript, onAudioBlob]);
+  }
 
-  const stopRecording = useCallback(() => {
+  function stopRecording() {
     if (recognitionRef.current) recognitionRef.current.stop();
     if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop();
-  }, []);
+  }
 
   if (isTranscribing) {
     return (

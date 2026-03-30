@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'node:fs';
+import path from 'node:path';
 
 // Read the EN source as reference for key structure
 const en = JSON.parse(fs.readFileSync('messages/en.json', 'utf8'));

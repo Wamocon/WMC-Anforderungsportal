@@ -16,7 +16,6 @@ import {
   Loader2,
   Send,
   Edit3,
-  Save,
   FileText,
   Copy,
   Check,
@@ -47,6 +46,7 @@ type ReviewClientProps = {
   respondentName: string;
   totalQuestions: number;
   answeredCount: number;
+  initialSummary: string;
 };
 
 export function ReviewClient({
@@ -58,11 +58,12 @@ export function ReviewClient({
   respondentName,
   totalQuestions,
   answeredCount,
+  initialSummary,
 }: ReviewClientProps) {
   const t = useTranslations();
   const router = useRouter();
   const params = useParams();
-  const [summary, setSummary] = useState<string>('');
+  const [summary, setSummary] = useState<string>(initialSummary);
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryEditing, setSummaryEditing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -147,6 +148,7 @@ export function ReviewClient({
   }
 
   function copySummary() {
+    if (!summary) return;
     navigator.clipboard.writeText(summary);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);

@@ -26,7 +26,7 @@ export default async function MagicLinkPage({
     .single();
 
   if (!magicLink) {
-    return <MagicLinkError locale={locale} reason="not_found" />;
+    return <MagicLinkError reason="not_found" />;
   }
 
   // Check expiry
@@ -36,11 +36,11 @@ export default async function MagicLinkPage({
       .from('magic_links')
       .update({ status: 'expired' })
       .eq('id', magicLink.id);
-    return <MagicLinkError locale={locale} reason="expired" />;
+    return <MagicLinkError reason="expired" />;
   }
 
   if (magicLink.status === 'expired' || magicLink.status === 'revoked') {
-    return <MagicLinkError locale={locale} reason={magicLink.status} />;
+    return <MagicLinkError reason={magicLink.status} />;
   }
 
   // Mark as opened
@@ -57,18 +57,18 @@ export default async function MagicLinkPage({
     .single();
 
   if (!project) {
-    return <MagicLinkError locale={locale} reason="not_found" />;
+    return <MagicLinkError reason="not_found" />;
   }
 
   // Redirect to the form
   redirect(`/${locale}/form/${project.slug}/fill`);
 }
 
-function MagicLinkError({ locale, reason }: { locale: string; reason: string }) {
-  return <MagicLinkErrorContent locale={locale} reason={reason} />;
+function MagicLinkError({ reason }: { reason: string }) {
+  return <MagicLinkErrorContent reason={reason} />;
 }
 
-async function MagicLinkErrorContent({ locale, reason }: { locale: string; reason: string }) {
+async function MagicLinkErrorContent({ reason }: { reason: string }) {
   const t = await getTranslations('errors');
 
   return (
@@ -83,7 +83,9 @@ async function MagicLinkErrorContent({ locale, reason }: { locale: string; reaso
           <p className="text-muted-foreground mb-6">
             {reason === 'expired'
               ? t('linkExpired')
-              : t('linkRevoked')}
+              : reason === 'revoked'
+                ? t('linkRevoked')
+                : t('linkNotFound')}
           </p>
           <Link href="/login">
             <Button className="bg-[#FE0404] hover:bg-[#E00303] text-white">

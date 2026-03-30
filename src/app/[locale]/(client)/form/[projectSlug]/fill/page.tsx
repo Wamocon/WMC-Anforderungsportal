@@ -1,7 +1,7 @@
 import { setRequestLocale } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
-import { FormFillClient, type Section, type QuestionType } from './_form-fill-client';
+import { FormFillClient, type Section, type QuestionOption, type QuestionType } from './_form-fill-client';
 import type { Json } from '@/lib/supabase/types';
 
 export const dynamic = 'force-dynamic';
@@ -15,18 +15,27 @@ function resolveLabel(json: Json, locale: string): string {
   return String(json ?? '');
 }
 
-function resolveOptions(json: Json | null, locale: string): string[] | undefined {
+function resolveOptions(json: Json | null, locale: string): QuestionOption[] | undefined {
   if (!json || !Array.isArray(json)) return undefined;
-  return json.map((opt) => {
-    if (typeof opt === 'string') return opt;
+  return json.map((opt, index) => {
+    if (typeof opt === 'string') {
+      return { value: opt, label: opt };
+    }
     if (opt && typeof opt === 'object' && 'label' in opt) {
-      const label = (opt as Record<string, Json>).label;
-      return resolveLabel(label as Json, locale);
+      const option = opt as Record<string, Json>;
+      const label = resolveLabel(option.label as Json, locale);
+      const rawValue = option.value;
+      return {
+        value: typeof rawValue === 'string' && rawValue.trim() ? rawValue : label || `option-${index}`,
+        label,
+      };
     }
     if (opt && typeof opt === 'object' && 'value' in opt) {
-      return String((opt as Record<string, Json>).value ?? '');
+      const value = String((opt as Record<string, Json>).value ?? '');
+      return { value, label: value };
     }
-    return String(opt);
+    const value = String(opt);
+    return { value, label: value };
   });
 }
 

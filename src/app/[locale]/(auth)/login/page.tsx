@@ -12,7 +12,7 @@ import { LanguageSwitcher } from '@/components/language-switcher';
 import { WmcLogo } from '@/components/wmc-logo';
 import { toast } from 'sonner';
 import { Loader2, Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
-import { Link, useRouter, usePathname } from '@/i18n/navigation';
+import { Link, useRouter } from '@/i18n/navigation';
 
 export default function LoginPage() {
   return (

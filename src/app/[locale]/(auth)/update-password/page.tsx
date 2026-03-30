@@ -64,7 +64,7 @@ function UpdatePasswordForm() {
     }
 
     return () => subscription.unsubscribe();
-  }, [searchParams]);
+  }, [searchParams, t]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

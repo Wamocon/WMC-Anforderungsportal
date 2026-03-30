@@ -5,13 +5,11 @@ import { useTranslations } from 'next-intl';
 import { usePathname, useRouter } from 'next/navigation';
 import { Link } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { WmcLogo } from '@/components/wmc-logo';
 import {
-  LayoutDashboard,
   FolderKanban,
   Settings,
   Menu,
@@ -27,12 +25,81 @@ const clientNavItems = [
   { key: 'account', href: '/account', icon: Settings },
 ] as const;
 
+type ClientPortalNavContentProps = {
+  isMobile?: boolean;
+  pathname: string;
+  userEmail: string | null;
+  onCloseMobile: () => void;
+  onLogout: () => void;
+};
+
+function ClientPortalNavContent({
+  isMobile = false,
+  pathname,
+  userEmail,
+  onCloseMobile,
+  onLogout,
+}: ClientPortalNavContentProps) {
+  const t = useTranslations();
+
+  return (
+    <div className="flex h-full flex-col">
+      <div className="flex h-16 items-center border-b border-border/50 px-4">
+        <WmcLogo size="sm" showTagline />
+      </div>
+
+      <nav className="flex-1 space-y-1 p-3">
+        {clientNavItems.map((item) => {
+          const isActive = pathname.includes(item.href);
+          return (
+            <Link
+              key={item.key}
+              href={item.href}
+              onClick={() => isMobile && onCloseMobile()}
+              className={cn(
+                'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
+                isActive
+                  ? 'bg-gradient-to-r from-[#FE0404]/10 to-[#FE0404]/5 text-[#FE0404] shadow-sm'
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+              )}
+            >
+              <item.icon className={cn('h-5 w-5 shrink-0', isActive && 'drop-shadow-sm')} />
+              <span>{t(`client.${item.key}`)}</span>
+              {isActive && (
+                <div className="ml-auto h-1.5 w-1.5 rounded-full bg-[#FE0404]" />
+              )}
+            </Link>
+          );
+        })}
+      </nav>
+
+      <div className="border-t border-border/50 p-3 space-y-2">
+        {userEmail && (
+          <div className="px-3 py-1.5">
+            <p className="text-xs text-muted-foreground truncate">{userEmail}</p>
+          </div>
+        )}
+        <LanguageSwitcher />
+        <div className="flex items-center px-3">
+          <ThemeToggle />
+        </div>
+        <button
+          onClick={onLogout}
+          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-200"
+        >
+          <LogOut className="h-5 w-5 shrink-0" />
+          <span>{t('auth.logout')}</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function ClientPortalLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const t = useTranslations();
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -68,60 +135,6 @@ export default function ClientPortalLayout({
     router.push(`/${locale}/login`);
   }
 
-  function NavContent({ isMobile = false }: { isMobile?: boolean }) {
-    return (
-      <div className="flex h-full flex-col">
-        <div className="flex h-16 items-center border-b border-border/50 px-4">
-          <WmcLogo size="sm" showTagline />
-        </div>
-
-        <nav className="flex-1 space-y-1 p-3">
-          {clientNavItems.map((item) => {
-            const isActive = pathname.includes(item.href);
-            return (
-              <Link
-                key={item.key}
-                href={item.href}
-                onClick={() => isMobile && setMobileOpen(false)}
-                className={cn(
-                  'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
-                  isActive
-                    ? 'bg-gradient-to-r from-[#FE0404]/10 to-[#FE0404]/5 text-[#FE0404] shadow-sm'
-                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-                )}
-              >
-                <item.icon className={cn('h-5 w-5 shrink-0', isActive && 'drop-shadow-sm')} />
-                <span>{t(`client.${item.key}`)}</span>
-                {isActive && (
-                  <div className="ml-auto h-1.5 w-1.5 rounded-full bg-[#FE0404]" />
-                )}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="border-t border-border/50 p-3 space-y-2">
-          {userEmail && (
-            <div className="px-3 py-1.5">
-              <p className="text-xs text-muted-foreground truncate">{userEmail}</p>
-            </div>
-          )}
-          <LanguageSwitcher />
-          <div className="flex items-center px-3">
-            <ThemeToggle />
-          </div>
-          <button
-            onClick={handleLogout}
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-200"
-          >
-            <LogOut className="h-5 w-5 shrink-0" />
-            <span>{t('auth.logout')}</span>
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   if (!authChecked) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
@@ -136,12 +149,23 @@ export default function ClientPortalLayout({
   return (
     <div className="flex h-screen overflow-hidden bg-muted/30">
       <aside className="hidden lg:flex flex-col border-r border-border/50 bg-card/80 backdrop-blur-xl w-64">
-        <NavContent />
+        <ClientPortalNavContent
+          pathname={pathname}
+          userEmail={userEmail}
+          onCloseMobile={() => setMobileOpen(false)}
+          onLogout={handleLogout}
+        />
       </aside>
 
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetContent side="left" className="w-72 p-0">
-          <NavContent isMobile />
+          <ClientPortalNavContent
+            isMobile
+            pathname={pathname}
+            userEmail={userEmail}
+            onCloseMobile={() => setMobileOpen(false)}
+            onLogout={handleLogout}
+          />
         </SheetContent>
       </Sheet>
 

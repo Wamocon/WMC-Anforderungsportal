@@ -11,10 +11,18 @@ import { Progress } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { VoiceRecorder } from '@/components/voice/voice-recorder';
 import { WmcLogo } from '@/components/wmc-logo';
-import { Link, useRouter } from '@/i18n/navigation';
+import { Link } from '@/i18n/navigation';
+import { polishTextClient } from '@/lib/polish-text-client';
 import {
   ArrowLeft,
   ArrowRight,
@@ -37,12 +45,17 @@ import {
 
 export type QuestionType = 'text' | 'textarea' | 'radio' | 'multi_select' | 'checkbox' | 'file' | 'date' | 'select' | 'voice' | 'rating';
 
+export type QuestionOption = {
+  value: string;
+  label: string;
+};
+
 export type Question = {
   id: string;
   type: QuestionType;
   label: string;
   required: boolean;
-  options?: string[];
+  options?: QuestionOption[];
 };
 
 export type Section = {
@@ -81,7 +94,6 @@ export function FormFillClient({
   initialAnswers?: Record<string, unknown>;
 }) {
   const t = useTranslations();
-  const router = useRouter();
 
   // Compute initial section: find the first section with unanswered questions
   const computeInitialSection = () => {
@@ -109,6 +121,8 @@ export function FormFillClient({
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const followUpRequestedRef = useRef<Set<string>>(new Set());
   const responseIdRef = useRef<string | null>(initialResponseId ?? null);
+  const lastPolishedAnswerRef = useRef<Record<string, string>>({});
+  const lastPolishedFollowUpRef = useRef<Record<string, string>>({});
 
   // AI Chat assistant state
   const [chatOpen, setChatOpen] = useState(false);
@@ -157,13 +171,16 @@ export function FormFillClient({
       });
       const data = await res.json();
       if (data.questions?.length > 0) {
-        const newQs: Question[] = data.questions.map((q: { label: string; type?: string; options?: string[] }, i: number) => ({
-          id: `dynamic-${sec.id}-${i}-${Date.now()}`,
-          type: (q.type || 'text') as QuestionType,
-          label: q.label,
-          required: false,
-          options: q.options,
-        }));
+        const newQs: Question[] = data.questions.map((q: { label: string; type?: string; options?: string[] }, i: number) => {
+          const options = q.options?.map((option) => ({ value: option, label: option }));
+          return {
+            id: `dynamic-${sec.id}-${i}-${Date.now()}`,
+            type: (q.type || 'text') as QuestionType,
+            label: q.label,
+            required: false,
+            options,
+          };
+        });
         setDynamicQuestions(prev => ({ ...prev, [sec.id]: [...(prev[sec.id] || []), ...newQs] }));
       }
     } catch { /* ignore */ }
@@ -202,6 +219,67 @@ export function FormFillClient({
     debouncedSave();
   }
 
+  function appendTranscript(currentValue: string | null | undefined, text: string) {
+    const normalizedCurrent = (currentValue || '').trim();
+    const normalizedText = text.trim();
+    if (!normalizedText) return normalizedCurrent;
+    if (!normalizedCurrent) return normalizedText;
+    return `${normalizedCurrent} ${normalizedText}`;
+  }
+
+  async function polishAnswer(questionId: string) {
+    const currentValue = answers[questionId];
+    if (typeof currentValue !== 'string') return null;
+
+    const normalizedValue = currentValue.trim();
+    if (normalizedValue.length < 5) return normalizedValue;
+    if (lastPolishedAnswerRef.current[questionId] === normalizedValue) return normalizedValue;
+
+    const polished = await polishTextClient(normalizedValue, locale);
+    lastPolishedAnswerRef.current[questionId] = polished;
+
+    if (polished !== normalizedValue) {
+      setAnswers((prev) => {
+        if (prev[questionId] !== currentValue) return prev;
+        return { ...prev, [questionId]: polished };
+      });
+      debouncedSave();
+    }
+
+    return polished;
+  }
+
+  async function polishFollowUpAnswer(questionId: string) {
+    const currentValue = followUps[questionId]?.answer;
+    if (!currentValue) return currentValue || '';
+
+    const normalizedValue = currentValue.trim();
+    if (normalizedValue.length < 5) return normalizedValue;
+    if (lastPolishedFollowUpRef.current[questionId] === normalizedValue) return normalizedValue;
+
+    const polished = await polishTextClient(normalizedValue, locale);
+    lastPolishedFollowUpRef.current[questionId] = polished;
+
+    if (polished !== normalizedValue) {
+      setFollowUps((prev) => {
+        const existing = prev[questionId];
+        if (!existing || existing.answer !== currentValue) return prev;
+        return {
+          ...prev,
+          [questionId]: { ...existing, answer: polished },
+        };
+      });
+      debouncedSave();
+    }
+
+    return polished;
+  }
+
+  async function handleAnswerBlur(questionId: string, questionLabel: string) {
+    const polished = await polishAnswer(questionId);
+    await requestFollowUp(questionId, questionLabel, polished ?? undefined);
+  }
+
   function toggleMultiSelect(questionId: string, option: string) {
     setAnswers((prev) => {
       const current = (prev[questionId] as string[]) || [];
@@ -214,8 +292,8 @@ export function FormFillClient({
   }
 
   // AI Follow-up: triggered on blur of text/textarea fields
-  async function requestFollowUp(questionId: string, questionLabel: string) {
-    const answer = answers[questionId];
+  async function requestFollowUp(questionId: string, questionLabel: string, answerOverride?: string) {
+    const answer = answerOverride ?? answers[questionId];
     if (!answer || typeof answer !== 'string' || answer.trim().length < 5) return;
     if (followUpRequestedRef.current.has(questionId + ':' + answer)) return;
     followUpRequestedRef.current.add(questionId + ':' + answer);
@@ -399,10 +477,13 @@ export function FormFillClient({
   // AI Chat
   async function sendChatMessage() {
     if (!chatInput.trim() || chatLoading) return;
-    const userMsg: ChatMessage = { role: 'user', content: chatInput.trim() };
-    setChatMessages((prev) => [...prev, userMsg]);
+    const rawChatInput = chatInput.trim();
     setChatInput('');
     setChatLoading(true);
+
+    const polishedChatInput = await polishTextClient(rawChatInput, locale);
+    const userMsg: ChatMessage = { role: 'user', content: polishedChatInput };
+    setChatMessages((prev) => [...prev, userMsg]);
 
     try {
       // Build context from current answers
@@ -426,7 +507,7 @@ export function FormFillClient({
               ? [{ role: 'user' as const, content: `[Context: Client's answers so far]\n${contextSummary}` }]
               : []),
             ...chatMessages.map((m) => ({ role: m.role, content: m.content })),
-            { role: 'user', content: chatInput.trim() },
+            { role: 'user', content: polishedChatInput },
           ],
           locale,
         }),
@@ -602,13 +683,13 @@ export function FormFillClient({
                           <Input
                             value={(answers[question.id] as string) || ''}
                             onChange={(e) => updateAnswer(question.id, e.target.value)}
-                            onBlur={() => requestFollowUp(question.id, question.label)}
+                            onBlur={() => void handleAnswerBlur(question.id, question.label)}
                             placeholder={t('form.yourAnswer')}
                           />
                           <VoiceRecorder
                             locale={locale}
                             onTranscript={(text) =>
-                              updateAnswer(question.id, ((answers[question.id] as string) || '') + ' ' + text)
+                              updateAnswer(question.id, appendTranscript((answers[question.id] as string) || '', text))
                             }
                           />
                         </div>
@@ -619,7 +700,7 @@ export function FormFillClient({
                           <Textarea
                             value={(answers[question.id] as string) || ''}
                             onChange={(e) => updateAnswer(question.id, e.target.value)}
-                            onBlur={() => requestFollowUp(question.id, question.label)}
+                            onBlur={() => void handleAnswerBlur(question.id, question.label)}
                             placeholder={t('form.yourAnswer')}
                             rows={4}
                           />
@@ -627,11 +708,49 @@ export function FormFillClient({
                             <VoiceRecorder
                               locale={locale}
                               onTranscript={(text) =>
-                                updateAnswer(question.id, ((answers[question.id] as string) || '') + ' ' + text)
+                                updateAnswer(question.id, appendTranscript((answers[question.id] as string) || '', text))
                               }
                             />
                           </div>
                         </div>
+                      )}
+
+                      {question.type === 'voice' && (
+                        <div className="space-y-2">
+                          <Textarea
+                            value={(answers[question.id] as string) || ''}
+                            onChange={(e) => updateAnswer(question.id, e.target.value)}
+                            onBlur={() => void handleAnswerBlur(question.id, question.label)}
+                            placeholder={t('form.yourAnswer')}
+                            rows={4}
+                          />
+                          <div className="flex justify-end">
+                            <VoiceRecorder
+                              locale={locale}
+                              onTranscript={(text) =>
+                                updateAnswer(question.id, appendTranscript((answers[question.id] as string) || '', text))
+                              }
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {question.type === 'select' && question.options && (
+                        <Select
+                          value={(answers[question.id] as string) || ''}
+                          onValueChange={(value) => updateAnswer(question.id, value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder={t('form.yourAnswer')} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {question.options.map((option) => (
+                              <SelectItem key={option.value} value={option.value}>
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       )}
 
                       {question.type === 'radio' && question.options && (
@@ -640,35 +759,42 @@ export function FormFillClient({
                           onValueChange={(v) => updateAnswer(question.id, v)}
                           className="space-y-2"
                         >
-                          {question.options.map((option) => (
+                          {question.options.map((option, index) => {
+                            const inputId = `${question.id}-option-${index}`;
+                            const selected = (answers[question.id] as string) === option.value;
+                            return (
                             <div
-                              key={option}
-                              className="flex items-center space-x-3 rounded-lg border p-3 hover:bg-accent/50 transition-colors cursor-pointer"
+                              key={`${option.value}-${index}`}
+                              onClick={() => updateAnswer(question.id, option.value)}
+                              className={`flex items-center space-x-3 rounded-lg border p-3 transition-colors cursor-pointer ${
+                                selected ? 'border-[#FE0404]/30 bg-[#FE0404]/5' : 'hover:bg-accent/50'
+                              }`}
                             >
-                              <RadioGroupItem value={option} id={`${question.id}-${option}`} />
-                              <Label htmlFor={`${question.id}-${option}`} className="cursor-pointer flex-1">
-                                {option}
+                              <RadioGroupItem value={option.value} id={inputId} />
+                              <Label htmlFor={inputId} className="cursor-pointer flex-1">
+                                {option.label}
                               </Label>
                             </div>
-                          ))}
+                            );
+                          })}
                         </RadioGroup>
                       )}
 
                       {(question.type === 'multi_select' || question.type === 'checkbox') &&
                         question.options && (
                           <div className="space-y-2">
-                            {question.options.map((option) => {
-                              const selected = ((answers[question.id] as string[]) || []).includes(option);
+                            {question.options.map((option, index) => {
+                              const selected = ((answers[question.id] as string[]) || []).includes(option.value);
                               return (
                                 <div
-                                  key={option}
-                                  onClick={() => toggleMultiSelect(question.id, option)}
+                                  key={`${option.value}-${index}`}
+                                  onClick={() => toggleMultiSelect(question.id, option.value)}
                                   className={`flex items-center space-x-3 rounded-lg border p-3 cursor-pointer transition-colors ${
                                     selected ? 'border-[#FE0404]/30 bg-[#FE0404]/5' : 'hover:bg-accent/50'
                                   }`}
                                 >
                                   <Checkbox checked={selected} />
-                                  <Label className="cursor-pointer flex-1">{option}</Label>
+                                  <Label className="cursor-pointer flex-1">{option.label}</Label>
                                 </div>
                               );
                             })}
@@ -828,6 +954,7 @@ export function FormFillClient({
                               <Input
                                 value={followUps[question.id].answer}
                                 onChange={(e) => updateFollowUpAnswer(question.id, e.target.value)}
+                                onBlur={() => void polishFollowUpAnswer(question.id)}
                                 placeholder={t('form.yourClarification')}
                                 className="text-sm h-9 border-[#FE0404]/20 focus:border-[#FE0404] focus:ring-[#FE0404]/20"
                               />
@@ -835,7 +962,7 @@ export function FormFillClient({
                                 compact
                                 locale={locale}
                                 onTranscript={(text) =>
-                                  updateFollowUpAnswer(question.id, followUps[question.id].answer + ' ' + text)
+                                  updateFollowUpAnswer(question.id, appendTranscript(followUps[question.id].answer, text))
                                 }
                               />
                             </div>

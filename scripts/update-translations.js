@@ -1,5 +1,4 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'node:fs';
 
 // EN translations to add
 const en = JSON.parse(fs.readFileSync('messages/en.json', 'utf8'));

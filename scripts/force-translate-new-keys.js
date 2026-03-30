@@ -1,5 +1,7 @@
-const fs = require('fs');
-require('dotenv').config({ path: '.env.local' });
+import fs from 'node:fs';
+import dotenv from 'dotenv';
+
+dotenv.config({ path: '.env.local' });
 
 const API_KEY = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 if (!API_KEY) {
@@ -71,8 +73,9 @@ async function main() {
           }
         }
         await sleep(500); // Rate limit
-      } catch (e) {
-        console.error(`  Error translating ${section} for ${locale}: ${e.message}`);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.error(`  Error translating ${section} for ${locale}: ${message}`);
       }
     }
     

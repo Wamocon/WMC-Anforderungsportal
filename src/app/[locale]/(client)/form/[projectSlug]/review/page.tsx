@@ -19,6 +19,49 @@ function resolveLabel(json: Json, locale: string): string {
   return String(json ?? '');
 }
 
+type ResolvedOption = {
+  value: string;
+  label: string;
+};
+
+function resolveOptions(json: Json | null, locale: string): ResolvedOption[] {
+  if (!json || !Array.isArray(json)) return [];
+  return json.map((opt, index) => {
+    if (typeof opt === 'string') return { value: opt, label: opt };
+    if (opt && typeof opt === 'object' && !Array.isArray(opt)) {
+      const option = opt as Record<string, Json>;
+      const label = 'label' in option ? resolveLabel(option.label as Json, locale) : String(option.value ?? '');
+      const rawValue = option.value;
+      return {
+        value: typeof rawValue === 'string' && rawValue.trim() ? rawValue : label || `option-${index}`,
+        label,
+      };
+    }
+    const value = String(opt ?? '');
+    return { value, label: value };
+  });
+}
+
+function formatAnswerValue(value: Json | null, options: ResolvedOption[]): Json | null {
+  if (value === null || value === undefined) return value;
+  if (options.length === 0) return value;
+
+  const optionMap = new Map(options.map((option) => [option.value, option.label]));
+
+  if (Array.isArray(value)) {
+    return value.map((item) => {
+      const key = String(item ?? '');
+      return optionMap.get(key) ?? key;
+    });
+  }
+
+  if (typeof value === 'string') {
+    return optionMap.get(value) ?? value;
+  }
+
+  return value;
+}
+
 export default async function ReviewPage({
   params,
 }: {
@@ -49,7 +92,7 @@ export default async function ReviewPage({
   if (user) {
     const { data } = await supabase
       .from('responses')
-      .select('id, status, progress_percent')
+      .select('id, status, progress_percent, summary_markdown')
       .eq('project_id', project.id)
       .eq('respondent_id', user.id)
       .order('created_at', { ascending: false })
@@ -61,7 +104,7 @@ export default async function ReviewPage({
     if (!response && user.email) {
       const { data: emailMatch } = await supabase
         .from('responses')
-        .select('id, status, progress_percent')
+        .select('id, status, progress_percent, summary_markdown')
         .eq('project_id', project.id)
         .eq('respondent_email', user.email)
         .in('status', ['in_progress', 'draft'])
@@ -93,12 +136,12 @@ export default async function ReviewPage({
   const sectionIds = (sections ?? []).map(s => s.id);
   const { data: questions } = await supabase
     .from('template_questions')
-    .select('id, section_id, label, type, is_required, order_index')
+    .select('id, section_id, label, type, is_required, order_index, options')
     .in('section_id', sectionIds.length > 0 ? sectionIds : ['__none__'])
     .order('order_index', { ascending: true });
 
   // Get answers for this response
-  let answers: Record<string, { value: Json; ai_clarification: string | null }> = {};
+  const answers: Record<string, { value: Json; ai_clarification: string | null }> = {};
   if (response) {
     const { data: answerRows } = await supabase
       .from('response_answers')
@@ -124,14 +167,17 @@ export default async function ReviewPage({
   const reviewSections = (sections ?? []).map((section) => ({
     id: section.id,
     title: resolveLabel(section.title, locale),
-    questions: (questionsBySection[section.id] ?? []).map((q) => ({
-      id: q.id,
-      label: resolveLabel(q.label, locale),
-      type: q.type,
-      is_required: q.is_required,
-      value: answers[q.id]?.value ?? null,
-      ai_clarification: answers[q.id]?.ai_clarification ?? null,
-    })),
+    questions: (questionsBySection[section.id] ?? []).map((q) => {
+      const options = resolveOptions(q.options, locale);
+      return {
+        id: q.id,
+        label: resolveLabel(q.label, locale),
+        type: q.type,
+        is_required: q.is_required,
+        value: formatAnswerValue(answers[q.id]?.value ?? null, options),
+        ai_clarification: answers[q.id]?.ai_clarification ?? null,
+      };
+    }),
   }));
 
   return (
@@ -159,6 +205,7 @@ export default async function ReviewPage({
         respondentName={user?.user_metadata?.full_name || user?.email?.split('@')[0] || ''}
         totalQuestions={totalQuestions}
         answeredCount={answeredCount}
+        initialSummary={response.summary_markdown || ''}
       />
     </div>
   );

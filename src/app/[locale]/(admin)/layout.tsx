@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Link } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { WmcLogo } from '@/components/wmc-logo';
@@ -33,12 +33,101 @@ const navItems = [
   { key: 'settings', href: '/settings', icon: Settings },
 ] as const;
 
+type AdminNavContentProps = {
+  collapsed: boolean;
+  isMobile?: boolean;
+  pathname: string;
+  userEmail: string | null;
+  onCollapseToggle: () => void;
+  onCloseMobile: () => void;
+  onLogout: () => void;
+};
+
+function AdminNavContent({
+  collapsed,
+  isMobile = false,
+  pathname,
+  userEmail,
+  onCollapseToggle,
+  onCloseMobile,
+  onLogout,
+}: AdminNavContentProps) {
+  const t = useTranslations('admin');
+
+  return (
+    <div className="flex h-full flex-col">
+      <div className="flex h-16 items-center border-b border-border/50 px-4">
+        {collapsed && !isMobile ? (
+          <WmcLogo variant="mark" size="sm" />
+        ) : (
+          <WmcLogo size="sm" showTagline />
+        )}
+        {!isMobile && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="ml-auto h-8 w-8"
+            onClick={onCollapseToggle}
+          >
+            <ChevronLeft
+              className={cn('h-4 w-4 transition-transform duration-300', collapsed && 'rotate-180')}
+            />
+          </Button>
+        )}
+      </div>
+
+      <nav className="flex-1 space-y-1 p-3">
+        {navItems.map((item) => {
+          const isActive = pathname.includes(item.href);
+          return (
+            <Link
+              key={item.key}
+              href={item.href}
+              onClick={() => isMobile && onCloseMobile()}
+              className={cn(
+                'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
+                isActive
+                  ? 'bg-gradient-to-r from-[#FE0404]/10 to-[#FE0404]/5 text-[#FE0404] shadow-sm'
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+              )}
+            >
+              <item.icon className={cn('h-5 w-5 shrink-0', isActive && 'drop-shadow-sm')} />
+              {(!collapsed || isMobile) && <span>{t(item.key)}</span>}
+              {isActive && (!collapsed || isMobile) && (
+                <div className="ml-auto h-1.5 w-1.5 rounded-full bg-[#FE0404]" />
+              )}
+            </Link>
+          );
+        })}
+      </nav>
+
+      <div className="border-t border-border/50 p-3 space-y-2">
+        {(!collapsed || isMobile) && userEmail && (
+          <div className="px-3 py-1.5">
+            <p className="text-xs text-muted-foreground truncate">{userEmail}</p>
+          </div>
+        )}
+        {(!collapsed || isMobile) && <LanguageSwitcher />}
+        <div className={cn('flex items-center', collapsed && !isMobile ? 'justify-center' : 'px-3')}>
+          <ThemeToggle />
+        </div>
+        <button
+          onClick={onLogout}
+          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-200"
+        >
+          <LogOut className="h-5 w-5 shrink-0" />
+          {(!collapsed || isMobile) && <span>{t('logout')}</span>}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const t = useTranslations('admin');
   const pathname = usePathname();
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
@@ -76,79 +165,6 @@ export default function AdminLayout({
     router.push(`/${locale}/login`);
   }
 
-  function NavContent({ isMobile = false }: { isMobile?: boolean }) {
-    return (
-      <div className="flex h-full flex-col">
-        {/* Logo */}
-        <div className="flex h-16 items-center border-b border-border/50 px-4">
-          {collapsed && !isMobile ? (
-            <WmcLogo variant="mark" size="sm" />
-          ) : (
-            <WmcLogo size="sm" showTagline />
-          )}
-          {!isMobile && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="ml-auto h-8 w-8"
-              onClick={() => setCollapsed(!collapsed)}
-            >
-              <ChevronLeft
-                className={cn('h-4 w-4 transition-transform duration-300', collapsed && 'rotate-180')}
-              />
-            </Button>
-          )}
-        </div>
-
-        {/* Nav Items */}
-        <nav className="flex-1 space-y-1 p-3">
-          {navItems.map((item) => {
-            const isActive = pathname.includes(item.href);
-            return (
-              <Link
-                key={item.key}
-                href={item.href}
-                onClick={() => isMobile && setMobileOpen(false)}
-                className={cn(
-                  'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
-                  isActive
-                    ? 'bg-gradient-to-r from-[#FE0404]/10 to-[#FE0404]/5 text-[#FE0404] shadow-sm'
-                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-                )}
-              >
-                <item.icon className={cn('h-5 w-5 shrink-0', isActive && 'drop-shadow-sm')} />
-                {(!collapsed || isMobile) && <span>{t(item.key)}</span>}
-                {isActive && (!collapsed || isMobile) && (
-                  <div className="ml-auto h-1.5 w-1.5 rounded-full bg-[#FE0404]" />
-                )}
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* Footer */}
-        <div className="border-t border-border/50 p-3 space-y-2">
-          {(!collapsed || isMobile) && userEmail && (
-            <div className="px-3 py-1.5">
-              <p className="text-xs text-muted-foreground truncate">{userEmail}</p>
-            </div>
-          )}
-          {(!collapsed || isMobile) && <LanguageSwitcher />}
-          <div className={cn('flex items-center', collapsed && !isMobile ? 'justify-center' : 'px-3')}>
-            <ThemeToggle />
-          </div>
-          <button
-            onClick={handleLogout}
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-200"
-          >
-            <LogOut className="h-5 w-5 shrink-0" />
-            {(!collapsed || isMobile) && <span>{t('logout')}</span>}
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   // Show loading spinner while checking auth
   if (!authChecked) {
     return (
@@ -170,13 +186,28 @@ export default function AdminLayout({
           collapsed ? 'w-[72px]' : 'w-64'
         )}
       >
-        <NavContent />
+        <AdminNavContent
+          collapsed={collapsed}
+          pathname={pathname}
+          userEmail={userEmail}
+          onCollapseToggle={() => setCollapsed((prev) => !prev)}
+          onCloseMobile={() => setMobileOpen(false)}
+          onLogout={handleLogout}
+        />
       </aside>
 
       {/* Mobile Sidebar */}
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetContent side="left" className="w-72 p-0">
-          <NavContent isMobile />
+          <AdminNavContent
+            collapsed={collapsed}
+            isMobile
+            pathname={pathname}
+            userEmail={userEmail}
+            onCollapseToggle={() => setCollapsed((prev) => !prev)}
+            onCloseMobile={() => setMobileOpen(false)}
+            onLogout={handleLogout}
+          />
         </SheetContent>
       </Sheet>
 

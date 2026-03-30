@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { VoiceRecorder } from '@/components/voice/voice-recorder';
 import { Link } from '@/i18n/navigation';
+import { polishTextClient } from '@/lib/polish-text-client';
 import {
   ArrowLeft,
   Bot,
@@ -30,7 +31,7 @@ export function InterviewClient({ projectName }: { projectName: string }) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: `Hello! I'm your AI requirements assistant for "${projectName}". I'll help you describe your project needs through a conversation. Let's start — can you tell me in a few sentences what this project is about?`,
+      content: t('form.aiGreeting', { project: projectName }),
       timestamp: new Date(),
     },
   ]);
@@ -46,15 +47,19 @@ export function InterviewClient({ projectName }: { projectName: string }) {
   async function handleSend() {
     if (!input.trim() || isLoading) return;
 
+    const rawInput = input.trim();
+    setInput('');
+    setIsLoading(true);
+
+    const polishedInput = await polishTextClient(rawInput, locale);
+
     const userMessage: Message = {
       role: 'user',
-      content: input.trim(),
+      content: polishedInput,
       timestamp: new Date(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
-    setInput('');
-    setIsLoading(true);
 
     try {
       const response = await fetch('/api/ai/chat', {
@@ -103,7 +108,7 @@ export function InterviewClient({ projectName }: { projectName: string }) {
         ...prev,
         {
           role: 'assistant',
-          content: "I'm sorry, I encountered an error. Please try again.",
+          content: t('form.aiError'),
           timestamp: new Date(),
         },
       ]);
@@ -201,7 +206,8 @@ export function InterviewClient({ projectName }: { projectName: string }) {
           <div className="flex items-center gap-2">
             <VoiceRecorder
               compact
-              onTranscript={(text) => setInput((prev) => prev + ' ' + text)}
+              locale={locale}
+              onTranscript={(text) => setInput((prev) => `${prev.trim()} ${text}`.trim())}
             />
             <Input
               ref={inputRef}

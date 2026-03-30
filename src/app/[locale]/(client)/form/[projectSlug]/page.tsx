@@ -1,14 +1,12 @@
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { WmcLogo } from '@/components/wmc-logo';
 import { Link } from '@/i18n/navigation';
 import { ArrowRight, Clock, FileText, AlertTriangle, Sparkles, Shield } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import type { Json } from '@/lib/supabase/types';
 
 export default async function FormWelcomePage({
   params,

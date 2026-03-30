@@ -89,6 +89,7 @@ export type ProjectResponse = {
   template_id: string;
   status: ResponseStatus;
   progress_percent: number;
+  summary_markdown: string | null;
   submitted_at: string | null;
   created_at: string;
   updated_at: string;
@@ -292,6 +293,7 @@ export type Database = {
           template_id: string;
           status?: ResponseStatus;
           progress_percent?: number;
+          summary_markdown?: string | null;
           submitted_at?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -305,6 +307,7 @@ export type Database = {
           template_id?: string;
           status?: ResponseStatus;
           progress_percent?: number;
+          summary_markdown?: string | null;
           submitted_at?: string | null;
           created_at?: string;
           updated_at?: string;

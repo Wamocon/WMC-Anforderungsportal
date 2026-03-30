@@ -34,7 +34,6 @@ import {
   Layers,
   HelpCircle,
   Save,
-  AlertCircle,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';

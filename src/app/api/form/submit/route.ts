@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   try {
-    const { responseId } = await req.json();
+    const { responseId, summary } = await req.json();
 
     if (!responseId) {
       return NextResponse.json({ error: 'Missing responseId' }, { status: 400 });
@@ -33,6 +33,7 @@ export async function POST(req: NextRequest) {
       .update({
         status: 'submitted',
         progress_percent: 100,
+        summary_markdown: typeof summary === 'string' && summary.trim() ? summary.trim() : null,
         submitted_at: new Date().toISOString(),
       })
       .eq('id', responseId);
