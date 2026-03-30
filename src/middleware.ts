@@ -24,6 +24,10 @@ function getLocaleFromPath(pathname: string): string {
 export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  if (pathname === '/landing' || pathname === '/landing/') {
+    return NextResponse.next();
+  }
+
   // Skip middleware for static files and API routes
   if (
     pathname.startsWith('/_next') ||

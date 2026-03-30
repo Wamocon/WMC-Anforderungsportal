@@ -39,11 +39,11 @@
       --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
     }
 
-    html { scrollbar-gutter: auto; }
-    body { font-family: var(--font-sans); background: var(--color-bg); color: var(--color-text-main); position: relative; }
+    html { scrollbar-gutter: auto; max-width:100%; overflow-x:clip; }
+    body { font-family: var(--font-sans); background: var(--color-bg); color: var(--color-text-main); position: relative; max-width:100%; overflow-x:clip; }
     ::selection { background: var(--color-accent); color:#fff; }
 
-    .gradient-orbs { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+    .gradient-orbs { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; width:100vw; }
     .orb { position:absolute; border-radius:50%; filter:blur(100px); will-change:transform; }
     .orb--1 { width:600px; height:600px; background:#FE0404; opacity:.04; top:5%; left:10%; animation:orb-drift-1 25s ease-in-out infinite; }
     .orb--2 { width:500px; height:500px; background:#6432b4; opacity:.03; top:35%; right:4%; animation:orb-drift-2 30s ease-in-out infinite; }
@@ -89,6 +89,23 @@
     .browser-dots span:nth-child(2) { background:#febc2e; }
     .browser-dots span:nth-child(3) { background:#28c840; }
     .browser-url { flex:1; padding:5px 12px; border-radius:6px; background:var(--color-bg); border:1px solid var(--color-border); font-size:11px; color:var(--color-faint); font-family:var(--font-sans); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .demo-preview { display:grid; grid-template-columns:1.15fr .85fr; gap:18px; padding:20px; background:linear-gradient(180deg,#f7f3f3 0%,#f1f1f4 100%); }
+    .demo-panel { border-radius:18px; background:rgba(255,255,255,.92); border:1px solid rgba(17,17,19,.08); box-shadow:0 12px 32px rgba(17,17,19,.08); padding:18px; }
+    .demo-panel--accent { background:linear-gradient(180deg,rgba(254,4,4,.08),rgba(255,255,255,.96)); }
+    .demo-kicker { display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; background:rgba(254,4,4,.08); color:var(--color-accent); font-size:.72rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+    .demo-grid { display:grid; gap:12px; margin-top:14px; }
+    .demo-project { border-radius:16px; border:1px solid rgba(17,17,19,.08); background:#fff; padding:16px; }
+    .demo-row { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .demo-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; background:rgba(17,17,19,.05); color:var(--color-muted); font-size:.76rem; font-weight:600; }
+    .demo-progress { height:10px; border-radius:999px; background:rgba(17,17,19,.08); overflow:hidden; }
+    .demo-progress > span { display:block; height:100%; border-radius:999px; background:linear-gradient(90deg,var(--color-accent),#ff6b6b); }
+    .demo-list { display:grid; gap:10px; margin-top:14px; }
+    .demo-list-item { display:flex; gap:10px; align-items:flex-start; padding:12px; border-radius:14px; background:rgba(17,17,19,.04); }
+    .demo-list-item strong { display:block; font-size:.9rem; color:var(--color-text-main); }
+    .demo-list-item span { display:block; font-size:.82rem; line-height:1.5; color:var(--color-muted); }
+    .demo-note { margin-top:16px; font-size:.82rem; color:var(--color-faint); text-align:center; }
+    .nav-brand { display:flex; align-items:center; gap:12px; min-width:0; }
+    .nav-brand__text { display:block; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:clamp(.96rem,3vw,1.05rem); font-weight:900; letter-spacing:-.04em; color:#FE0404; }
 
     .rm { position:relative; max-width:940px; margin:0 auto; padding:60px 0 40px; }
     .rm__line { position:absolute; left:50%; top:0; bottom:0; width:120px; transform:translateX(-50%); overflow:visible; pointer-events:none; }
@@ -180,6 +197,8 @@
 
     @media (max-width: 767px) {
       .nav-hamburger { display:flex; }
+      .ticker-item { padding:0 2rem; font-size:.82rem; letter-spacing:.12em; }
+      .ticker-item::before { margin-right:1rem; }
       .rm__row { grid-template-columns:40px 1fr; }
       .rm__center { padding-top:4px; grid-column:1; grid-row:1; }
       .rm__cell:not(.rm__cell--hide) { grid-column:2; grid-row:1; }
@@ -192,6 +211,21 @@
       .rm__row + .rm__row { margin-top:28px; }
       #hero { padding-top:7rem !important; }
       .lang-pill { margin-left:auto; }
+      .nav-brand { max-width:calc(100vw - 92px); }
+      .demo-preview { grid-template-columns:1fr; padding:14px; }
+      .demo-panel { padding:14px; }
+    }
+
+    @media (max-width: 520px) {
+      .demo-row { align-items:flex-start; flex-direction:column; }
+    }
+
+    @media (max-width: 420px) {
+      .nav-brand__text { font-size:.9rem; }
+    }
+
+    @media (min-width: 768px) {
+      .demo-note { text-align:left; }
     }
   </style>
 </head>
@@ -247,9 +281,9 @@
   <!-- ═══════════════════ NAV ═══════════════════ -->
   <nav class="fixed top-[48px] left-0 right-0 z-50 h-16 flex items-center transition-all duration-400" id="nav">
     <div class="w-full max-w-[1100px] mx-auto px-5 md:px-10 flex items-center justify-between gap-4">
-      <a href="#hero" class="flex items-center gap-3 hover:opacity-70 transition-opacity">
+      <a href="#hero" class="nav-brand hover:opacity-70 transition-opacity">
         <svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect x="4" y="4" width="32" height="32" rx="8" fill="url(#wmc-g)"/><path d="M14 14h12M14 20h8M14 26h10" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><path d="M28 18l-3 3-2-2" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="wmc-g" x1="4" y1="4" x2="36" y2="36"><stop stop-color="#FE0404"/><stop offset="1" stop-color="#CC0000"/></linearGradient></defs></svg>
-        <span style="font-size:1.05rem;font-weight:900;letter-spacing:-.04em;color:#FE0404;" data-i18n data-de="Anforderungs Manager" data-en="Requirement Manager">Anforderungs Manager</span>
+        <span class="nav-brand__text" data-i18n data-de="Anforderungs Manager" data-en="Requirement Manager">Anforderungs Manager</span>
       </a>
       <div class="hidden md:flex items-center gap-3">
         <div class="nav-links-pill">
@@ -314,7 +348,7 @@
 
       <div class="reveal hero-stats mt-14 grid grid-cols-1 md:grid-cols-4 gap-4 max-w-[920px] mx-auto text-center" style="grid-column:1 / -1;">
         <div class="rounded-2xl p-5" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);">
-          <div class="text-4xl font-black gradient-text mb-2" data-target="25" data-suffix=" ">0</div>
+          <div class="text-4xl font-black gradient-text mb-2">25</div>
           <div class="text-sm" style="color:#f0f0f2;" data-i18n data-de="Unterstuetzte Sprachen" data-en="Supported languages">Unterstuetzte Sprachen</div>
         </div>
         <div class="rounded-2xl p-5" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);">
@@ -337,7 +371,7 @@
   <!-- ═══════════════════ PROBLEM ═══════════════════ -->
   <section class="relative section-dark" id="problem" style="padding:7rem 0 6rem;margin-top:-2px;">
     <div class="max-w-[1100px] mx-auto px-5 md:px-10">
-      <h2 class="reveal text-4xl md:text-6xl font-black leading-[1.05] tracking-tight mb-6" style="color:#f0f0f2;">
+      <h2 class="reveal text-4xl md:text-6xl font-black leading-[1.05] tracking-tight mb-6" style="color:#f0f0f2;word-break:break-word;overflow-wrap:break-word;">
         <span data-i18n data-de="Warum traditionelle" data-en="Why traditional">Warum traditionelle</span><br>
         <span style="color:#FE0404;" data-i18n data-de="Anforderungserfassung scheitert" data-en="requirement collection fails">Anforderungserfassung scheitert</span>
       </h2>
@@ -487,8 +521,73 @@
           <div class="browser-dots"><span></span><span></span><span></span></div>
           <div class="browser-url">wmc-anforderungsportal.vercel.app</div>
         </div>
-        <div style="position:relative;width:100%;height:0;padding-bottom:62.5%;background:#f8f8fa;">
-          <iframe src="https://wmc-anforderungsportal.vercel.app/en/login" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;" loading="lazy" title="Requirement Manager Demo"></iframe>
+        <div class="demo-preview">
+          <div class="demo-panel demo-panel--accent">
+            <span class="demo-kicker" data-i18n data-de="Admin-Dashboard" data-en="Admin dashboard">Admin-Dashboard</span>
+            <div class="demo-grid">
+              <div class="demo-project">
+                <div class="demo-row">
+                  <div>
+                    <div class="text-lg font-bold text-[#111113]" data-i18n data-de="Waleri Product Discovery Workshop" data-en="Waleri Product Discovery Workshop">Waleri Product Discovery Workshop</div>
+                    <div class="text-sm text-muted" data-i18n data-de="Product Owner: Waleri" data-en="Product owner: Waleri">Product Owner: Waleri</div>
+                  </div>
+                  <span class="demo-pill" data-i18n data-de="In Bearbeitung" data-en="In progress">In Bearbeitung</span>
+                </div>
+                <div class="demo-progress mt-4"><span style="width:72%"></span></div>
+                <div class="demo-row mt-4">
+                  <span class="demo-pill" data-i18n data-de="Client: Maanik" data-en="Client: Maanik">Client: Maanik</span>
+                  <span class="demo-pill" data-i18n data-de="KI-Zusammenfassung bereit" data-en="AI summary ready">KI-Zusammenfassung bereit</span>
+                </div>
+              </div>
+              <div class="demo-list">
+                <div class="demo-list-item">
+                  <div class="w-8 h-8 rounded-full bg-[#FE0404]/10 text-[#FE0404] flex items-center justify-center font-bold">1</div>
+                  <div>
+                    <strong data-i18n data-de="Template auswaehlen" data-en="Select template">Template auswaehlen</strong>
+                    <span data-i18n data-de="Standard-Discovery-Fragen plus individuelle Produktfragen kombinieren." data-en="Combine the default discovery template with product-specific questions.">Standard-Discovery-Fragen plus individuelle Produktfragen kombinieren.</span>
+                  </div>
+                </div>
+                <div class="demo-list-item">
+                  <div class="w-8 h-8 rounded-full bg-[#FE0404]/10 text-[#FE0404] flex items-center justify-center font-bold">2</div>
+                  <div>
+                    <strong data-i18n data-de="Magic Link senden" data-en="Send magic link">Magic Link senden</strong>
+                    <span data-i18n data-de="Der Kunde startet ohne Registrierung direkt im Formular oder KI-Interview." data-en="The client starts immediately in the form or AI interview without registration.">Der Kunde startet ohne Registrierung direkt im Formular oder KI-Interview.</span>
+                  </div>
+                </div>
+                <div class="demo-list-item">
+                  <div class="w-8 h-8 rounded-full bg-[#FE0404]/10 text-[#FE0404] flex items-center justify-center font-bold">3</div>
+                  <div>
+                    <strong data-i18n data-de="Ergebnisse exportieren" data-en="Export results">Ergebnisse exportieren</strong>
+                    <span data-i18n data-de="CSV, Excel, PDF, Word oder PowerPoint fuer Vertrieb und Delivery." data-en="CSV, Excel, PDF, Word, or PowerPoint for sales and delivery.">CSV, Excel, PDF, Word oder PowerPoint fuer Vertrieb und Delivery.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="demo-panel">
+            <span class="demo-kicker" data-i18n data-de="Client-Ansicht" data-en="Client view">Client-Ansicht</span>
+            <div class="demo-list">
+              <div class="demo-list-item">
+                <div class="w-9 h-9 rounded-xl bg-[#111113] text-white flex items-center justify-center font-bold">AI</div>
+                <div>
+                  <strong data-i18n data-de="KI-Interviewer" data-en="AI interviewer">KI-Interviewer</strong>
+                  <span data-i18n data-de="Die KI fragt gezielt nach Budget, Umfang, Schnittstellen und Prioritaeten." data-en="The AI asks targeted questions about budget, scope, integrations, and priorities.">Die KI fragt gezielt nach Budget, Umfang, Schnittstellen und Prioritaeten.</span>
+                </div>
+              </div>
+              <div class="demo-list-item">
+                <div class="w-9 h-9 rounded-xl bg-[#111113] text-white flex items-center justify-center font-bold">25</div>
+                <div>
+                  <strong data-i18n data-de="Mehrsprachige Eingabe" data-en="Multilingual input">Mehrsprachige Eingabe</strong>
+                  <span data-i18n data-de="Formular, Freitext und Spracheingabe funktionieren in 25 Sprachen." data-en="Form, free text, and voice input work in 25 languages.">Formular, Freitext und Spracheingabe funktionieren in 25 Sprachen.</span>
+                </div>
+              </div>
+              <div class="demo-project mt-2">
+                <div class="text-sm font-semibold text-[#111113] mb-2" data-i18n data-de="KI-Zusammenfassung" data-en="AI executive summary">KI-Zusammenfassung</div>
+                <p class="text-sm leading-relaxed text-muted" data-i18n data-de="Zentrale Ziele, offene Punkte, Risiken und naechste Schritte werden automatisch fuer Ihr Delivery-Team aufbereitet." data-en="Core goals, open questions, risks, and next steps are automatically prepared for your delivery team.">Zentrale Ziele, offene Punkte, Risiken und naechste Schritte werden automatisch fuer Ihr Delivery-Team aufbereitet.</p>
+              </div>
+            </div>
+            <p class="demo-note" data-i18n data-de="Die Live-Plattform oeffnet aus Sicherheitsgruenden in einem neuen Tab." data-en="For security reasons, the live platform opens in a new tab.">Die Live-Plattform oeffnet aus Sicherheitsgruenden in einem neuen Tab.</p>
+          </div>
         </div>
       </div>
 
