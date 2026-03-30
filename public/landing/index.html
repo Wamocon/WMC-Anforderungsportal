@@ -40,7 +40,7 @@
     }
 
     html { scrollbar-gutter: auto; max-width:100%; overflow-x:clip; }
-    body { font-family: var(--font-sans); background: var(--color-bg); color: var(--color-text-main); position: relative; max-width:100%; overflow-x:clip; }
+    body { margin:0; font-family: var(--font-sans); background: var(--color-bg); color: var(--color-text-main); position: relative; max-width:100%; overflow-x:clip; }
     ::selection { background: var(--color-accent); color:#fff; }
 
     .gradient-orbs { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; width:100vw; }
@@ -104,8 +104,51 @@
     .demo-list-item strong { display:block; font-size:.9rem; color:var(--color-text-main); }
     .demo-list-item span { display:block; font-size:.82rem; line-height:1.5; color:var(--color-muted); }
     .demo-note { margin-top:16px; font-size:.82rem; color:var(--color-faint); text-align:center; }
+    .nav-shell { max-width:1120px; margin:0 auto; padding:10px 14px; border-radius:22px; background:rgba(255,255,255,.72); border:1px solid rgba(0,0,0,.08); box-shadow:0 18px 48px rgba(17,17,19,.08), 0 1px 0 rgba(255,255,255,.65) inset; backdrop-filter:saturate(180%) blur(24px); -webkit-backdrop-filter:saturate(180%) blur(24px); }
     .nav-brand { display:flex; align-items:center; gap:12px; min-width:0; }
     .nav-brand__text { display:block; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:clamp(.96rem,3vw,1.05rem); font-weight:900; letter-spacing:-.04em; color:#FE0404; }
+    .nav-cta { display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:10px 18px; background:linear-gradient(135deg,var(--color-accent),#ff4747); color:#fff; font-size:.8rem; font-weight:700; border-radius:12px; text-decoration:none; transition:transform .22s ease, box-shadow .22s ease, opacity .22s ease; box-shadow:0 10px 28px rgba(254,4,4,.22); white-space:nowrap; }
+    .nav-cta:hover { transform:translateY(-1px); box-shadow:0 16px 34px rgba(254,4,4,.28); }
+
+    .hero-shell { max-width:1180px; margin:0 auto; display:grid; gap:2rem; align-items:center; }
+    .hero-copy { text-align:center; max-width:760px; margin:0 auto; }
+    .hero-copy p { color:#43434a; }
+    .hero-actions { display:flex; align-items:center; justify-content:center; gap:1rem; flex-wrap:wrap; }
+    .hero-preview-wrap { display:flex; justify-content:center; }
+    .hero-preview { width:min(100%, 420px); border-radius:28px; padding:14px; background:linear-gradient(160deg, rgba(255,255,255,.82), rgba(255,255,255,.58)); border:1px solid rgba(255,255,255,.72); box-shadow:0 32px 90px rgba(17,17,19,.16), 0 0 0 1px rgba(254,4,4,.04); backdrop-filter:saturate(180%) blur(20px); -webkit-backdrop-filter:saturate(180%) blur(20px); }
+    .hero-preview__window { overflow:hidden; border-radius:22px; border:1px solid rgba(17,17,19,.08); background:linear-gradient(180deg,#fff 0%,#f6f6f9 100%); }
+    .hero-preview__bar { display:flex; align-items:center; gap:8px; padding:14px 16px; border-bottom:1px solid rgba(17,17,19,.08); background:rgba(255,255,255,.85); }
+    .hero-preview__dot { width:10px; height:10px; border-radius:50%; }
+    .hero-preview__dot--red { background:#ff5f57; }
+    .hero-preview__dot--yellow { background:#febc2e; }
+    .hero-preview__dot--green { background:#28c840; }
+    .hero-preview__url { margin-left:8px; flex:1; min-width:0; padding:8px 12px; border-radius:999px; background:#f4f4f7; border:1px solid rgba(17,17,19,.08); color:#7b7b85; font-size:.74rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .hero-preview__body { display:grid; grid-template-columns:96px 1fr; min-height:420px; }
+    .hero-preview__sidebar { padding:16px 12px; background:linear-gradient(180deg,#141417 0%,#0c0c0f 100%); color:#d7d7dc; }
+    .hero-preview__brand { display:flex; align-items:center; justify-content:center; width:44px; height:44px; margin:0 auto 16px; border-radius:14px; background:linear-gradient(135deg,var(--color-accent),#ff5f5f); color:#fff; font-weight:900; box-shadow:0 12px 26px rgba(254,4,4,.28); }
+    .hero-preview__nav { display:grid; gap:8px; }
+    .hero-preview__nav-item { padding:8px 10px; border-radius:12px; font-size:.74rem; font-weight:700; color:#868690; background:rgba(255,255,255,.02); }
+    .hero-preview__nav-item.is-active { color:#fff; background:rgba(254,4,4,.18); border:1px solid rgba(254,4,4,.22); }
+    .hero-preview__main { padding:18px; display:grid; gap:14px; }
+    .hero-preview__kicker { display:inline-flex; align-items:center; gap:8px; width:max-content; padding:7px 12px; border-radius:999px; background:rgba(254,4,4,.08); color:var(--color-accent); font-size:.7rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+    .hero-preview__headline { margin:0; font-size:1.15rem; line-height:1.15; letter-spacing:-.03em; font-weight:800; color:#141417; }
+    .hero-preview__meta { margin:0; font-size:.82rem; line-height:1.6; color:#666670; }
+    .hero-preview__grid { display:grid; gap:10px; }
+    .hero-preview__card { border-radius:16px; border:1px solid rgba(17,17,19,.08); background:#fff; padding:14px; box-shadow:0 8px 24px rgba(17,17,19,.05); }
+    .hero-preview__row { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+    .hero-preview__project { margin:0; font-size:.88rem; font-weight:700; color:#151519; }
+    .hero-preview__sub { margin:4px 0 0; font-size:.75rem; color:#7a7a84; }
+    .hero-preview__status { padding:5px 9px; border-radius:999px; background:rgba(254,4,4,.1); color:var(--color-accent); font-size:.68rem; font-weight:800; }
+    .hero-preview__progress { height:8px; margin-top:12px; border-radius:999px; background:#f0f0f4; overflow:hidden; }
+    .hero-preview__progress > span { display:block; height:100%; border-radius:999px; background:linear-gradient(90deg,var(--color-accent),#ff7878); }
+    .hero-preview__footer { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:8px; }
+    .hero-preview__metric { padding:12px 10px; border-radius:14px; background:linear-gradient(180deg,#fff 0%,#fafafd 100%); border:1px solid rgba(17,17,19,.06); text-align:center; }
+    .hero-preview__metric strong { display:block; font-size:1rem; font-weight:900; color:var(--color-accent); }
+    .hero-preview__metric span { display:block; margin-top:4px; font-size:.68rem; color:#7a7a84; }
+    .hero-stats { margin-left:auto; margin-right:auto; }
+    .hero-stat-card { padding:1.15rem 1.2rem; border-radius:22px; background:rgba(255,255,255,.8); border:1px solid rgba(17,17,19,.08); box-shadow:0 16px 40px rgba(17,17,19,.06); text-align:left; }
+    .hero-stat-value { display:block; margin-bottom:.45rem; font-size:clamp(1.7rem, 4vw, 2.6rem); font-weight:900; letter-spacing:-.05em; color:var(--color-accent); }
+    .hero-stat-label { display:block; font-size:.84rem; line-height:1.45; color:#555558; }
 
     .rm { position:relative; max-width:940px; margin:0 auto; padding:60px 0 40px; }
     .rm__line { position:absolute; left:50%; top:0; bottom:0; width:120px; transform:translateX(-50%); overflow:visible; pointer-events:none; }
@@ -161,18 +204,17 @@
     .signal-label { display:block; margin-bottom:.45rem; font-size:1.125rem; font-weight:600; color:#f0f0f2; text-wrap:balance; }
     .signal-copy { display:block; max-width:28ch; margin-inline:auto; font-size:.76rem; line-height:1.45; color:#7a7a88; text-wrap:balance; }
     .footer-badge { max-width:100%; flex-wrap:wrap; justify-content:flex-start; }
-    .hero-shell { max-width:1180px; margin:0 auto; display:grid; gap:2rem; align-items:center; }
-    .hero-copy { text-align:center; }
-    .hero-actions { display:flex; align-items:center; justify-content:center; gap:1rem; flex-wrap:wrap; }
-    .hero-stats { margin-left:auto; margin-right:auto; }
-
     .coming-soon-badge { display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:999px; font-size:.68rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; background:rgba(234,179,8,.12); color:#eab308; border:1px solid rgba(234,179,8,.25); }
 
     @media (min-width: 700px) {
       .signal-grid { grid-template-columns:repeat(2, minmax(0, 1fr)); }
     }
     @media (min-width: 1100px) {
-      .hero-shell { grid-template-columns:1fr; }
+      .hero-shell { grid-template-columns:minmax(0, 1.08fr) minmax(340px, 420px); gap:3rem; }
+      .hero-copy { text-align:left; margin:0; max-width:none; }
+      .hero-actions { justify-content:flex-start; }
+      .hero-stats { margin-left:0; margin-right:0; }
+      .hero-preview-wrap { justify-content:flex-end; }
     }
     @media (min-width: 1180px) {
       .signal-grid { grid-template-columns:repeat(3, minmax(0, 1fr)); }
@@ -196,6 +238,7 @@
     .mm-link--full { grid-column:span 2; }
 
     @media (max-width: 767px) {
+      .nav-shell { padding:10px 12px; border-radius:18px; }
       .nav-hamburger { display:flex; }
       .ticker-item { padding:0 2rem; font-size:.82rem; letter-spacing:.12em; }
       .ticker-item::before { margin-right:1rem; }
@@ -209,15 +252,23 @@
       .rm__card--active.rm__card--l,.rm__card--active.rm__card--r { transform:translateX(0) !important; }
       .rm__cell--hide,.rm__branch { display:none; }
       .rm__row + .rm__row { margin-top:28px; }
-      #hero { padding-top:7rem !important; }
+      #hero { padding-top:8.5rem !important; padding-bottom:5rem !important; }
       .lang-pill { margin-left:auto; }
       .nav-brand { max-width:calc(100vw - 92px); }
       .demo-preview { grid-template-columns:1fr; padding:14px; }
       .demo-panel { padding:14px; }
+      .hero-copy p { font-size:1rem !important; }
+      .hero-preview { width:100%; }
+      .hero-preview__body { grid-template-columns:84px 1fr; min-height:390px; }
+      .hero-preview__footer { grid-template-columns:1fr; }
     }
 
     @media (max-width: 520px) {
       .demo-row { align-items:flex-start; flex-direction:column; }
+      .hero-stats { grid-template-columns:1fr !important; }
+      .hero-preview__body { grid-template-columns:1fr; }
+      .hero-preview__sidebar { display:none; }
+      .hero-preview__main { padding:16px; }
     }
 
     @media (max-width: 420px) {
@@ -280,7 +331,7 @@
 
   <!-- ═══════════════════ NAV ═══════════════════ -->
   <nav class="fixed top-[48px] left-0 right-0 z-50 h-16 flex items-center transition-all duration-400" id="nav">
-    <div class="w-full max-w-[1100px] mx-auto px-5 md:px-10 flex items-center justify-between gap-4">
+    <div class="nav-shell w-full px-5 md:px-6 flex items-center justify-between gap-4">
       <a href="#hero" class="nav-brand hover:opacity-70 transition-opacity">
         <svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect x="4" y="4" width="32" height="32" rx="8" fill="url(#wmc-g)"/><path d="M14 14h12M14 20h8M14 26h10" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><path d="M28 18l-3 3-2-2" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="wmc-g" x1="4" y1="4" x2="36" y2="36"><stop stop-color="#FE0404"/><stop offset="1" stop-color="#CC0000"/></linearGradient></defs></svg>
         <span class="nav-brand__text" data-i18n data-de="Anforderungs Manager" data-en="Requirement Manager">Anforderungs Manager</span>
@@ -299,7 +350,7 @@
           <button class="lang-btn" type="button" data-lang-switch="de">DE</button>
           <button class="lang-btn" type="button" data-lang-switch="en">EN</button>
         </div>
-        <a href="/en/login" style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:var(--color-accent);color:#fff;font-size:.75rem;font-weight:700;border-radius:10px;text-decoration:none;transition:all .25s ease;box-shadow:0 2px 14px rgba(254,4,4,.25);white-space:nowrap;" data-i18n data-de="Anmelden" data-en="Sign In">Anmelden</a>
+        <a href="/de/login" class="nav-cta" data-auth-link data-i18n data-de="Anmelden" data-en="Sign In">Anmelden</a>
       </div>
       <button class="nav-hamburger md:hidden" id="navHamburger" aria-label="Menu open" aria-expanded="false"><span></span><span></span><span></span></button>
     </div>
@@ -317,17 +368,17 @@
       <a href="#roles" class="mm-link" onclick="closeMobileMenu()" data-i18n data-de="Rollen" data-en="Roles">Rollen</a>
       <a href="#demo" class="mm-link" onclick="closeMobileMenu()" data-i18n data-de="Demo" data-en="Demo">Demo</a>
       <a href="#tech" class="mm-link" onclick="closeMobileMenu()" data-i18n data-de="Tech" data-en="Tech">Tech</a>
-      <a href="/en/login" class="mm-link mm-link--full" onclick="closeMobileMenu()" data-i18n data-de="Anmelden" data-en="Sign In">Anmelden</a>
+      <a href="/de/login" class="mm-link mm-link--full" onclick="closeMobileMenu()" data-auth-link data-i18n data-de="Anmelden" data-en="Sign In">Anmelden</a>
     </div>
   </div>
 
   <!-- ═══════════════════ HERO ═══════════════════ -->
-  <section class="relative min-h-screen flex items-center justify-center overflow-hidden pb-[120px] pt-28" id="hero">
+  <section class="relative min-h-screen flex items-center justify-center overflow-hidden pb-[96px] pt-32" id="hero">
     <canvas id="heroParticles" class="absolute inset-0 z-[1]"></canvas>
     <div class="absolute inset-0 z-0" style="background:radial-gradient(ellipse 70% 55% at 50% 40%,rgba(254,4,4,.09)0%,transparent 65%),radial-gradient(ellipse 50% 60% at 20% 80%,rgba(254,4,4,.05)0%,transparent 50%),radial-gradient(ellipse 45% 50% at 80% 25%,rgba(140,0,0,.07)0%,transparent 50%)"></div>
     <div class="absolute inset-0 z-0 opacity-100" style="background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:72px 72px;mask-image:radial-gradient(ellipse 60% 55% at 50% 50%,black 0%,transparent 70%)"></div>
     <div class="relative z-10 hero-shell px-5">
-      <div class="hero-copy max-w-[860px] mx-auto">
+      <div class="hero-copy">
         <div class="reveal mb-5">
           <span class="inline-block text-xs font-semibold tracking-widest uppercase px-4 py-1.5 rounded-full" style="color:var(--color-accent);background:rgba(254,4,4,.08);border:1px solid rgba(254,4,4,.18);" data-i18n data-de="WAMOCON · KI-GESTUETZT · 25 SPRACHEN · DSGVO-KONFORM" data-en="WAMOCON · AI-POWERED · 25 LANGUAGES · GDPR COMPLIANT">WAMOCON · KI-GESTUETZT · 25 SPRACHEN · DSGVO-KONFORM</span>
         </div>
@@ -335,33 +386,87 @@
           <span data-i18n data-de="Anforderungen erfassen." data-en="Collect requirements.">Anforderungen erfassen.</span><br>
           <span class="gradient-text" data-i18n data-de="Ergebnisse liefern." data-en="Deliver results.">Ergebnisse liefern.</span>
         </h1>
-        <p class="reveal text-lg md:text-xl text-muted max-w-[760px] mx-auto leading-relaxed" data-i18n
+        <p class="reveal text-lg md:text-xl max-w-[760px] leading-relaxed" data-i18n
           data-de="Der Anforderungs Manager von WAMOCON ist Ihre KI-gestuetzte Plattform fuer professionelle Anforderungserfassung. Senden Sie Ihrem Kunden einfach einen sicheren Link. Der Kunde beschreibt sein Projekt ueber smarte Formulare, Spracheingabe oder ein KI-Interview — in seiner eigenen Sprache. Sie erhalten strukturierte, umsetzbare Anforderungen mit KI-Zusammenfassung. Kein Registrierungszwang fuer Kunden, keine Sprachbarriere, keine verschwendete Zeit."
           data-en="Requirement Manager by WAMOCON is your AI-powered platform for professional requirement collection. Simply send your client a secure link. They describe their project via smart forms, voice input, or an AI-guided interview — in their own language. You receive structured, actionable requirements with an AI executive summary. No client registration needed, no language barrier, no wasted time.">
           Der Anforderungs Manager von WAMOCON ist Ihre KI-gestuetzte Plattform fuer professionelle Anforderungserfassung. Senden Sie Ihrem Kunden einfach einen sicheren Link. Der Kunde beschreibt sein Projekt ueber smarte Formulare, Spracheingabe oder ein KI-Interview — in seiner eigenen Sprache. Sie erhalten strukturierte, umsetzbare Anforderungen mit KI-Zusammenfassung. Kein Registrierungszwang fuer Kunden, keine Sprachbarriere, keine verschwendete Zeit.
         </p>
-        <div class="reveal hero-actions mt-10 justify-center">
+        <div class="reveal hero-actions mt-10">
           <a href="#demo" class="magnetic-btn" style="display:inline-flex;align-items:center;gap:8px;padding:14px 32px;background:var(--color-accent);color:#fff;font-size:.95rem;font-weight:700;border-radius:12px;text-decoration:none;transition:all .25s ease;box-shadow:0 4px 24px rgba(254,4,4,.3);" data-i18n data-de="Demo ansehen" data-en="View demo">Demo ansehen</a>
           <a href="#features" style="display:inline-flex;align-items:center;gap:8px;padding:14px 24px;background:transparent;color:var(--color-muted);font-size:.9rem;font-weight:600;border-radius:12px;text-decoration:none;border:1px solid var(--color-border);transition:all .25s ease;" data-i18n data-de="Features entdecken" data-en="Explore features">Features entdecken</a>
         </div>
       </div>
 
-      <div class="reveal hero-stats mt-14 grid grid-cols-1 md:grid-cols-4 gap-4 max-w-[920px] mx-auto text-center" style="grid-column:1 / -1;">
-        <div class="rounded-2xl p-5" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);">
-          <div class="text-4xl font-black gradient-text mb-2">25</div>
-          <div class="text-sm" style="color:#f0f0f2;" data-i18n data-de="Unterstuetzte Sprachen" data-en="Supported languages">Unterstuetzte Sprachen</div>
+      <div class="reveal hero-preview-wrap">
+        <div class="hero-preview" aria-label="Produktvorschau">
+          <div class="hero-preview__window">
+            <div class="hero-preview__bar">
+              <span class="hero-preview__dot hero-preview__dot--red"></span>
+              <span class="hero-preview__dot hero-preview__dot--yellow"></span>
+              <span class="hero-preview__dot hero-preview__dot--green"></span>
+              <div class="hero-preview__url">anforderungsportal.de/{locale}/projects</div>
+            </div>
+            <div class="hero-preview__body">
+              <aside class="hero-preview__sidebar">
+                <div class="hero-preview__brand">AM</div>
+                <div class="hero-preview__nav">
+                  <div class="hero-preview__nav-item is-active" data-i18n data-de="Projekte" data-en="Projects">Projekte</div>
+                  <div class="hero-preview__nav-item" data-i18n data-de="Vorlagen" data-en="Templates">Vorlagen</div>
+                  <div class="hero-preview__nav-item" data-i18n data-de="Antworten" data-en="Responses">Antworten</div>
+                  <div class="hero-preview__nav-item" data-i18n data-de="KI-Zusammenfassung" data-en="AI Summary">KI-Zusammenfassung</div>
+                </div>
+              </aside>
+              <div class="hero-preview__main">
+                <span class="hero-preview__kicker" data-i18n data-de="Live-Plattform" data-en="Live platform">Live-Plattform</span>
+                <h3 class="hero-preview__headline" data-i18n data-de="Vom Client-Briefing zur strukturierten Anforderung" data-en="From client briefing to structured requirements">Vom Client-Briefing zur strukturierten Anforderung</h3>
+                <p class="hero-preview__meta" data-i18n data-de="Kunden antworten per Formular, Sprache oder KI-Interview. Ihr Team sieht Fortschritt, Qualitaet und offene Punkte sofort." data-en="Clients answer via forms, voice, or AI interviews. Your team sees progress, quality, and open items instantly.">Kunden antworten per Formular, Sprache oder KI-Interview. Ihr Team sieht Fortschritt, Qualitaet und offene Punkte sofort.</p>
+                <div class="hero-preview__grid">
+                  <div class="hero-preview__card">
+                    <div class="hero-preview__row">
+                      <div>
+                        <p class="hero-preview__project">Waleri Product Discovery</p>
+                        <p class="hero-preview__sub">waleri.moretz@wamocon.com</p>
+                      </div>
+                      <span class="hero-preview__status" data-i18n data-de="Aktiv" data-en="Active">Aktiv</span>
+                    </div>
+                    <div class="hero-preview__progress"><span style="width:72%"></span></div>
+                  </div>
+                  <div class="hero-preview__card">
+                    <div class="hero-preview__row">
+                      <div>
+                        <p class="hero-preview__project" data-i18n data-de="KI-Zusammenfassung bereit" data-en="AI summary ready">KI-Zusammenfassung bereit</p>
+                        <p class="hero-preview__sub" data-i18n data-de="Kritische Luecken und Folgefragen bereits markiert" data-en="Critical gaps and follow-ups already highlighted">Kritische Luecken und Folgefragen bereits markiert</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="hero-preview__footer">
+                  <div class="hero-preview__metric"><strong>25</strong><span data-i18n data-de="Sprachen" data-en="Languages">Sprachen</span></div>
+                  <div class="hero-preview__metric"><strong>&lt;5m</strong><span data-i18n data-de="Setup" data-en="Setup">Setup</span></div>
+                  <div class="hero-preview__metric"><strong>24/7</strong><span data-i18n data-de="KI" data-en="AI">KI</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="rounded-2xl p-5" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);">
-          <div class="text-4xl font-black gradient-text mb-2">100%</div>
-          <div class="text-sm" style="color:#f0f0f2;" data-i18n data-de="DSGVO-konform" data-en="GDPR compliant">DSGVO-konform</div>
+      </div>
+
+      <div class="reveal hero-stats mt-12 grid grid-cols-2 xl:grid-cols-4 gap-4 max-w-[980px]" style="grid-column:1 / -1;">
+        <div class="hero-stat-card">
+          <span class="hero-stat-value">25</span>
+          <span class="hero-stat-label" data-i18n data-de="Unterstuetzte Sprachen fuer Formulare, KI und Spracheingabe" data-en="Supported languages across forms, AI, and voice input">Unterstuetzte Sprachen fuer Formulare, KI und Spracheingabe</span>
         </div>
-        <div class="rounded-2xl p-5" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);">
-          <div class="text-sm font-black gradient-text mb-2" style="font-size:2rem;">&lt; 5 min</div>
-          <div class="text-sm" style="color:#f0f0f2;" data-i18n data-de="Setup-Zeit" data-en="Setup time">Setup-Zeit</div>
+        <div class="hero-stat-card">
+          <span class="hero-stat-value">100%</span>
+          <span class="hero-stat-label" data-i18n data-de="DSGVO-konforme Verarbeitung mit EU-Hosting" data-en="GDPR-compliant processing with EU hosting">DSGVO-konforme Verarbeitung mit EU-Hosting</span>
         </div>
-        <div class="rounded-2xl p-5" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);">
-          <div class="text-sm font-black gradient-text mb-2" style="font-size:2rem;">24/7</div>
-          <div class="text-sm" style="color:#f0f0f2;" data-i18n data-de="KI-Verfuegbarkeit" data-en="AI availability">KI-Verfuegbarkeit</div>
+        <div class="hero-stat-card">
+          <span class="hero-stat-value">&lt; 5 min</span>
+          <span class="hero-stat-label" data-i18n data-de="Von der Projekterstellung bis zum versendeten Magic Link" data-en="From project setup to a sent magic link">Von der Projekterstellung bis zum versendeten Magic Link</span>
+        </div>
+        <div class="hero-stat-card">
+          <span class="hero-stat-value">24/7</span>
+          <span class="hero-stat-label" data-i18n data-de="KI-Interviewer und Spracheingabe ohne Wartezeit" data-en="AI interviewer and voice input available without waiting">KI-Interviewer und Spracheingabe ohne Wartezeit</span>
         </div>
       </div>
     </div>

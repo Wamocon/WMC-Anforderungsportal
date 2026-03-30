@@ -12,10 +12,19 @@
 
   var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  function getRouteLanguage() {
+    var routeLang = document.body && document.body.getAttribute('data-route-locale');
+    return routeLang === 'en' ? 'en' : 'de';
+  }
+
+  function updateAuthLinks(lang) {
+    $$('[data-auth-link]').forEach(function (link) {
+      link.setAttribute('href', '/' + (lang === 'en' ? 'en' : 'de') + '/login');
+    });
+  }
+
   function getCurrentLanguage() {
-    var stored = localStorage.getItem('wmc_ap_lang');
-    if (stored === 'en' || stored === 'de') return stored;
-    return document.documentElement.getAttribute('lang') === 'en' ? 'en' : 'de';
+    return getRouteLanguage();
   }
 
   function applyLanguage(lang) {
@@ -33,6 +42,8 @@
     $$('[data-lang-switch]').forEach(function (btn) {
       btn.classList.toggle('is-active', btn.getAttribute('data-lang-switch') === nextLang);
     });
+
+    updateAuthLinks(nextLang);
   }
 
   function initLanguageToggle() {
