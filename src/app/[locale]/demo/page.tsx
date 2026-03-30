@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -68,12 +69,12 @@ export default function DemoPage() {
           </button>
         </div>
 
-        <a
+        <Link
           href="/de/login"
           className="inline-flex items-center gap-1.5 rounded-lg bg-[#FE0404] px-4 py-2 text-sm font-medium text-white hover:bg-[#CC0000] transition-colors"
         >
           Sign up <ArrowRight className="h-3.5 w-3.5" />
-        </a>
+        </Link>
       </div>
 
       {/* Content */}

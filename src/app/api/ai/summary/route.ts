@@ -86,7 +86,7 @@ export async function POST(req: Request) {
       });
     }
 
-    const { responseData, projectName, respondentName, locale, responseId } = await req.json();
+    const { responseData, projectName, respondentName, locale } = await req.json();
 
     if (!responseData || !Array.isArray(responseData) || responseData.length === 0) {
       return Response.json({ error: 'Missing or empty response data' }, { status: 400 });
