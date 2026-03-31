@@ -57,7 +57,10 @@ function getMimeIcon(mime: string | null) {
   if (mime.startsWith('image/')) return <ImageIcon className="h-5 w-5 text-blue-500" />;
   if (mime.startsWith('video/')) return <Film className="h-5 w-5 text-purple-500" />;
   if (mime === 'application/pdf') return <FileText className="h-5 w-5 text-red-500" />;
-  if (mime.includes('word')) return <FileText className="h-5 w-5 text-blue-700" />;
+  if (mime.includes('word') || mime.includes('document')) return <FileText className="h-5 w-5 text-blue-700" />;
+  if (mime.includes('excel') || mime.includes('spreadsheet')) return <FileText className="h-5 w-5 text-green-600" />;
+  if (mime.includes('powerpoint') || mime.includes('presentation')) return <FileText className="h-5 w-5 text-orange-500" />;
+  if (mime === 'text/csv') return <FileText className="h-5 w-5 text-green-600" />;
   return <FileIcon className="h-5 w-5 text-muted-foreground" />;
 }
 
@@ -415,7 +418,7 @@ export default function ProjectDetailPage() {
                   type="file"
                   multiple
                   className="sr-only"
-                  accept="image/*,video/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.*,application/vnd.ms-excel,application/vnd.ms-powerpoint,text/plain,text/csv"
+                  accept="image/*,video/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/plain,text/csv,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
                   onChange={(e) => e.target.files && uploadAttachments(e.target.files)}
                 />
               </div>
@@ -431,7 +434,7 @@ export default function ProjectDetailPage() {
               >
                 <Paperclip className="h-6 w-6 text-muted-foreground" />
                 <p className="text-sm text-muted-foreground">{t('form.dropFilesHere')}</p>
-                <p className="text-xs text-muted-foreground/60">PDF, Word, Excel, Images, Videos — max 50 MB</p>
+                <p className="text-xs text-muted-foreground/60">PDF, Word, Excel, PowerPoint, Images, Videos — max 50 MB</p>
               </div>
 
               {attachments.length === 0 ? (

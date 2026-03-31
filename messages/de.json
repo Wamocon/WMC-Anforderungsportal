@@ -422,7 +422,9 @@
     "attachDocument": "Dokument anhängen",
     "aiError": "Entschuldigung, das konnte ich nicht verarbeiten. Bitte versuchen Sie es erneut.",
     "questions": "Fragen",
-    "nOptions": "{count} Optionen"
+    "nOptions": "{count} Optionen",
+    "projectLinkTitle": "Projekt-Link (OneDrive / Cloud-Speicher)",
+    "projectLinkDescription": "Teilen Sie einen Link zu Ihrem Projektordner auf OneDrive, Google Drive oder anderem Cloud-Speicher"
   },
   "response": {
     "allResponses": "Alle Antworten",
@@ -450,7 +452,9 @@
     "missing": "Fehlend",
     "aiExecutiveSummary": "KI-Zusammenfassung",
     "clickGenerateSummary": "Klicken Sie auf \"Zusammenfassung generieren\", um eine KI-gestützte Management-Zusammenfassung aller Antworten zu erhalten.",
-    "responseReviewed": "Antwort als überprüft markiert"
+    "responseReviewed": "Antwort als überprüft markiert",
+    "projectLink": "Projekt-Link (Cloud-Speicher)",
+    "openLink": "Link öffnen"
   },
   "errors": {
     "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",

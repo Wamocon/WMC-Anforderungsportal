@@ -41,6 +41,7 @@ import {
   FileText,
   Image,
   File,
+  Link2,
 } from 'lucide-react';
 
 export type QuestionType = 'text' | 'textarea' | 'radio' | 'multi_select' | 'checkbox' | 'file' | 'date' | 'select' | 'voice' | 'rating';
@@ -124,6 +125,11 @@ export function FormFillClient({
   const lastPolishedAnswerRef = useRef<Record<string, string>>({});
   const lastPolishedFollowUpRef = useRef<Record<string, string>>({});
 
+  // OneDrive / project link (optional)
+  const [oneDriveLink, setOneDriveLink] = useState<string>(
+    (initialAnswers?.['__onedrive_link'] as string) ?? ''
+  );
+
   // AI Chat assistant state
   const [chatOpen, setChatOpen] = useState(false);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
@@ -191,13 +197,15 @@ export function FormFillClient({
     saveTimeoutRef.current = setTimeout(async () => {
       setSaving(true);
       try {
+        // Merge OneDrive link into answers under a reserved key
+        const mergedAnswers = { ...answers, ...(oneDriveLink.trim() ? { __onedrive_link: oneDriveLink.trim() } : {}) };
         const res = await fetch('/api/form/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             responseId: responseIdRef.current,
             projectSlug,
-            answers,
+            answers: mergedAnswers,
             followUps,
           }),
         });
@@ -212,7 +220,7 @@ export function FormFillClient({
         setSaving(false);
       }
     }, 1500);
-  }, [projectSlug, answers, followUps]);
+  }, [projectSlug, answers, followUps, oneDriveLink]);
 
   function updateAnswer(questionId: string, value: Answer) {
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
@@ -977,6 +985,31 @@ export function FormFillClient({
           );
           })}
         </div>
+
+        {/* Optional Project Link (OneDrive / Google Drive / etc.) — shown on last section */}
+        {currentSection === totalSections - 1 && (
+          <Card className="mt-6 border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm">
+            <CardContent className="p-5">
+              <div className="flex items-start gap-3 mb-3">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                  <Link2 className="h-4 w-4 text-blue-600" />
+                </div>
+                <div>
+                  <Label className="text-base font-medium">{t('form.projectLinkTitle')}</Label>
+                  <p className="text-xs text-muted-foreground mt-0.5">{t('form.projectLinkDescription')}</p>
+                </div>
+                <Badge variant="outline" className="text-muted-foreground text-xs ml-auto shrink-0">Optional</Badge>
+              </div>
+              <Input
+                type="url"
+                value={oneDriveLink}
+                onChange={(e) => { setOneDriveLink(e.target.value); debouncedSave(); }}
+                placeholder="https://onedrive.live.com/... or https://drive.google.com/..."
+                className="border-border/60 focus:border-blue-500 focus:ring-blue-500/20"
+              />
+            </CardContent>
+          </Card>
+        )}
 
         {/* Navigation */}
         <div className="flex items-center justify-between mt-8 pt-6 border-t">

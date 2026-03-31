@@ -50,6 +50,9 @@ function getMimeIcon(mime: string | null) {
   if (mime.startsWith('video/')) return <Film className="h-4 w-4 text-purple-500" />;
   if (mime === 'application/pdf') return <FileText className="h-4 w-4 text-red-500" />;
   if (mime.includes('word') || mime.includes('document')) return <FileText className="h-4 w-4 text-blue-700" />;
+  if (mime.includes('excel') || mime.includes('spreadsheet')) return <FileText className="h-4 w-4 text-green-600" />;
+  if (mime.includes('powerpoint') || mime.includes('presentation')) return <FileText className="h-4 w-4 text-orange-500" />;
+  if (mime === 'text/csv') return <FileText className="h-4 w-4 text-green-600" />;
   return <FileIcon className="h-4 w-4 text-muted-foreground" />;
 }
 
