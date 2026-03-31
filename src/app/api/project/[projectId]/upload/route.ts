@@ -42,11 +42,24 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Role check — only admin-level users can upload project attachments
+    // Role check — admin-level users can always upload; product_owners can upload to their own projects
     const role = user.app_metadata?.role as string | undefined;
-    const allowedRoles = ['super_admin', 'staff'];
-    if (!role || !allowedRoles.includes(role)) {
+    const adminRoles = ['super_admin', 'staff'];
+    if (!role || (!adminRoles.includes(role) && role !== 'product_owner')) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    // If product_owner, verify they created this project
+    if (role === 'product_owner') {
+      const { data: ownProject } = await supabase
+        .from('projects')
+        .select('id')
+        .eq('id', projectId)
+        .eq('created_by', user.id)
+        .single();
+      if (!ownProject) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
     }
 
     const formData = await req.formData();
