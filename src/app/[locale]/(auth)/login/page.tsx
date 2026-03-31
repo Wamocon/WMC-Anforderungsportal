@@ -77,7 +77,7 @@ function LoginForm() {
           window.location.href = redirectTo;
         } else {
           const role = data.user?.app_metadata?.role || 'client';
-          const adminRoles = ['super_admin', 'product_owner'];
+          const adminRoles = ['super_admin', 'staff'];
           if (adminRoles.includes(role)) {
             router.push('/dashboard');
           } else {
@@ -95,10 +95,10 @@ function LoginForm() {
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center p-4 overflow-hidden">
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-gray-100" />
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950" />
       <div className="absolute top-0 right-0 w-96 h-96 bg-[#FE0404]/5 rounded-full blur-3xl" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl" />
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem]" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.02)_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear_gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem]" />
 
       <div className="absolute top-4 right-4 z-10">
         <LanguageSwitcher />

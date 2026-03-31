@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
@@ -14,8 +14,22 @@ import {
   FileEdit,
   Loader2,
   Inbox,
+  Paperclip,
+  ChevronDown,
+  ChevronUp,
+  FileText,
+  Image as ImageIcon,
+  Film,
+  File as FileIcon,
+  Download,
+  Bell,
+  MessageSquare,
+  Send,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { toast } from 'sonner';
+import { Textarea } from '@/components/ui/textarea';
+import type { ProjectAttachment } from '@/lib/supabase/types';
 
 type ClientProject = {
   id: string;
@@ -30,15 +44,42 @@ type ClientProject = {
   response_id: string | null;
 };
 
+function getMimeIcon(mime: string | null) {
+  if (!mime) return <FileIcon className="h-4 w-4 text-muted-foreground" />;
+  if (mime.startsWith('image/')) return <ImageIcon className="h-4 w-4 text-blue-500" />;
+  if (mime.startsWith('video/')) return <Film className="h-4 w-4 text-purple-500" />;
+  if (mime === 'application/pdf') return <FileText className="h-4 w-4 text-red-500" />;
+  if (mime.includes('word') || mime.includes('document')) return <FileText className="h-4 w-4 text-blue-700" />;
+  return <FileIcon className="h-4 w-4 text-muted-foreground" />;
+}
+
+function formatBytes(bytes: number | null) {
+  if (!bytes) return '';
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 export default function MyProjectsPage() {
   const t = useTranslations();
   const locale = useLocale();
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [projects, setProjects] = useState<ClientProject[]>([]);
   const [userName, setUserName] = useState<string>('');
+  const [attachmentsByProject, setAttachmentsByProject] = useState<Record<string, ProjectAttachment[]>>({});
+  const [expandedAttachments, setExpandedAttachments] = useState<Set<string>>(new Set());
+  const [feedbackRequests, setFeedbackRequests] = useState<Array<{
+    id: string; project_id: string; question: string; answer: string | null;
+    status: string; created_at: string; project_name?: string;
+  }>>([]);
+  const [answeringId, setAnsweringId] = useState<string | null>(null);
+  const [answerText, setAnswerText] = useState('');
+  const [submittingAnswer, setSubmittingAnswer] = useState(false);
 
   useEffect(() => {
     async function load() {
+      try {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -101,10 +142,121 @@ export default function MyProjectsPage() {
       });
 
       setProjects(merged);
+
+      // Fetch attachments for all projects (RLS ensures client only sees their project attachments)
+      if (projectIds.size > 0) {
+        const { data: attData } = await supabase
+          .from('project_attachments')
+          .select('*')
+          .in('project_id', Array.from(projectIds))
+          .order('created_at', { ascending: false });
+
+        // Generate signed URLs for each attachment (1 hour validity)
+        const withUrls = await Promise.all(
+          (attData ?? []).map(async (att) => {
+            const { data: urlData } = await supabase.storage
+              .from('project-attachments')
+              .createSignedUrl(att.storage_path, 3600);
+            return { ...att, url: urlData?.signedUrl ?? null } as ProjectAttachment;
+          })
+        );
+
+        // Group by project_id
+        const byProject: Record<string, ProjectAttachment[]> = {};
+        withUrls.forEach(att => {
+          if (!byProject[att.project_id]) byProject[att.project_id] = [];
+          byProject[att.project_id].push(att);
+        });
+        setAttachmentsByProject(byProject);
+      }
+
+      // Load pending feedback requests assigned to this user
+      try {
+        const { data: fbData } = await supabase
+          .from('feedback_requests')
+          .select('id, project_id, question, answer, status, created_at')
+          .eq('assigned_to', user.id)
+          .in('status', ['pending', 'seen'])
+          .order('created_at', { ascending: false });
+
+        // Mark unseen ones as seen
+        const unseenIds = (fbData ?? []).filter(f => f.status === 'pending').map(f => f.id);
+        if (unseenIds.length > 0) {
+          await supabase
+            .from('feedback_requests')
+            .update({ status: 'seen', seen_at: new Date().toISOString() })
+            .in('id', unseenIds);
+        }
+
+        // Enrich with project names
+        const enriched = (fbData ?? []).map(fb => {
+          const proj = merged.find(p => p.id === fb.project_id);
+          return { ...fb, project_name: proj?.name ?? '' };
+        });
+        setFeedbackRequests(enriched);
+      } catch { /* non-critical */ }
+
       setLoading(false);
+      } catch (err) {
+        console.error('Failed to load projects:', err);
+        setLoadError(t('errors.loadFailed'));
+        setLoading(false);
+      }
     }
     load();
   }, []);
+
+  function toggleAttachments(projectId: string) {
+    setExpandedAttachments(prev => {
+      const next = new Set(prev);
+      if (next.has(projectId)) next.delete(projectId);
+      else next.add(projectId);
+      return next;
+    });
+  }
+
+  async function submitFeedbackAnswer(feedbackId: string) {
+    if (!answerText.trim()) return;
+    setSubmittingAnswer(true);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase
+        .from('feedback_requests')
+        .update({
+          answer: answerText.trim(),
+          status: 'answered',
+          answered_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', feedbackId);
+      if (error) {
+        toast.error(t('admin.feedbackAnswerFailed'));
+        return;
+      }
+      toast.success(t('admin.feedbackAnswered'));
+      setFeedbackRequests(prev => prev.filter(f => f.id !== feedbackId));
+      setAnsweringId(null);
+      setAnswerText('');
+    } catch {
+      toast.error(t('admin.feedbackAnswerFailed'));
+    } finally {
+      setSubmittingAnswer(false);
+    }
+  }
+
+  async function dismissFeedback(feedbackId: string) {
+    try {
+      const supabase = createClient();
+      await supabase
+        .from('feedback_requests')
+        .update({ status: 'dismissed', updated_at: new Date().toISOString() })
+        .eq('id', feedbackId);
+      setFeedbackRequests(prev => prev.filter(f => f.id !== feedbackId));
+      toast.success(t('admin.feedbackDismissed'));
+    } catch {
+      toast.error(t('errors.generic'));
+    }
+  }
 
   const statusConfig: Record<string, { icon: React.ElementType; color: string; bg: string }> = {
     draft: { icon: FileEdit, color: 'text-gray-600', bg: 'bg-muted' },
@@ -121,6 +273,24 @@ export default function MyProjectsPage() {
     );
   }
 
+  if (loadError) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 text-center">
+        <div className="rounded-2xl bg-destructive/10 p-4 mb-4">
+          <FolderKanban className="h-10 w-10 text-destructive" />
+        </div>
+        <h3 className="text-lg font-semibold mb-2">{t('errors.somethingWentWrong')}</h3>
+        <p className="text-muted-foreground max-w-md mb-4">{loadError}</p>
+        <Button onClick={() => window.location.reload()}>{t('errors.tryAgain')}</Button>
+      </div>
+    );
+  }
+
+  const totalProjects = projects.length;
+  const completedProjects = projects.filter(p => p.response_status === 'submitted' || p.response_status === 'reviewed').length;
+  const inProgressProjects = projects.filter(p => p.response_status === 'in_progress' || p.response_status === 'draft').length;
+  const pendingProjects = projects.filter(p => !p.response_status).length;
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -132,6 +302,117 @@ export default function MyProjectsPage() {
           {t('client.myProjectsDescription')}
         </p>
       </div>
+
+      {/* Stats Summary */}
+      {totalProjects > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="rounded-2xl bg-card/80 backdrop-blur-sm border border-border/40 p-4 text-center shadow-sm">
+            <p className="text-2xl font-bold">{totalProjects}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{t('client.totalProjects')}</p>
+          </div>
+          <div className="rounded-2xl bg-blue-50 dark:bg-blue-950/20 border border-blue-200/40 dark:border-blue-800/30 p-4 text-center shadow-sm">
+            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{inProgressProjects}</p>
+            <p className="text-xs text-blue-600/70 dark:text-blue-400/70 mt-0.5">{t('client.inProgress')}</p>
+          </div>
+          <div className="rounded-2xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200/40 dark:border-amber-800/30 p-4 text-center shadow-sm">
+            <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{pendingProjects}</p>
+            <p className="text-xs text-amber-600/70 dark:text-amber-400/70 mt-0.5">{t('client.notStarted')}</p>
+          </div>
+          <div className="rounded-2xl bg-green-50 dark:bg-green-950/20 border border-green-200/40 dark:border-green-800/30 p-4 text-center shadow-sm">
+            <p className="text-2xl font-bold text-green-600 dark:text-green-400">{completedProjects}</p>
+            <p className="text-xs text-green-600/70 dark:text-green-400/70 mt-0.5">{t('client.completed')}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Feedback Notifications */}
+      {feedbackRequests.length > 0 && (
+        <Card className="border-0 shadow-md bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border-l-4 border-l-amber-500">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="rounded-full bg-amber-100 dark:bg-amber-900/40 p-2">
+                <Bell className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-amber-900 dark:text-amber-200">
+                  {t('admin.feedbackRequests')}
+                </h3>
+                <p className="text-sm text-amber-700/80 dark:text-amber-400/80">
+                  {t('admin.feedbackNotifications', { count: String(feedbackRequests.length) })}
+                </p>
+              </div>
+            </div>
+            <div className="space-y-3">
+              {feedbackRequests.map((fb) => (
+                <div key={fb.id} className="rounded-xl bg-white/80 dark:bg-card/60 backdrop-blur-sm border border-border/50 p-4 space-y-3">
+                  <div className="flex items-start gap-3">
+                    <MessageSquare className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium">{fb.question}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {fb.project_name && <span className="font-medium">{fb.project_name}</span>}
+                        {' · '}
+                        {new Date(fb.created_at).toLocaleDateString(locale, { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    </div>
+                  </div>
+
+                  {answeringId === fb.id ? (
+                    <div className="space-y-2 ml-7">
+                      <Textarea
+                        value={answerText}
+                        onChange={(e) => setAnswerText(e.target.value)}
+                        placeholder={t('admin.feedbackAnswerPlaceholder')}
+                        rows={2}
+                        className="text-sm"
+                        autoFocus
+                      />
+                      <div className="flex items-center gap-2 justify-end">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => { setAnsweringId(null); setAnswerText(''); }}
+                        >
+                          {t('common.cancel')}
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="bg-[#FE0404] hover:bg-[#E00303] text-white gap-1.5"
+                          onClick={() => submitFeedbackAnswer(fb.id)}
+                          disabled={!answerText.trim() || submittingAnswer}
+                        >
+                          {submittingAnswer ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+                          {t('common.submit')}
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 ml-7">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-1.5 text-xs"
+                        onClick={() => { setAnsweringId(fb.id); setAnswerText(''); }}
+                      >
+                        <MessageSquare className="h-3 w-3" />
+                        {t('admin.answerFeedback')}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-xs text-muted-foreground"
+                        onClick={() => dismissFeedback(fb.id)}
+                      >
+                        {t('admin.dismissFeedback')}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Projects */}
       {projects.length === 0 ? (
@@ -153,6 +434,8 @@ export default function MyProjectsPage() {
             const cfg = statusConfig[resp ?? 'draft'] ?? statusConfig.draft;
             const StatusIcon = cfg.icon;
             const isSubmitted = resp === 'submitted' || resp === 'reviewed';
+            const projectAttachments = attachmentsByProject[project.id] ?? [];
+            const isAttachmentsExpanded = expandedAttachments.has(project.id);
 
             return (
               <Card
@@ -172,7 +455,7 @@ export default function MyProjectsPage() {
                             {project.description}
                           </p>
                         )}
-                        <div className="flex items-center gap-3 mt-3">
+                        <div className="flex items-center gap-3 mt-3 flex-wrap">
                           <Badge variant="outline" className={`${cfg.bg} ${cfg.color} border-0 gap-1`}>
                             <StatusIcon className="h-3 w-3" />
                             {resp ? t(`response.status.${resp}`) : t('client.notStarted')}
@@ -181,6 +464,21 @@ export default function MyProjectsPage() {
                             <span className="text-xs text-muted-foreground">
                               {project.response_progress}% {t('common.progress').toLowerCase()}
                             </span>
+                          )}
+                          {/* Attachment count badge */}
+                          {projectAttachments.length > 0 && (
+                            <button
+                              onClick={() => toggleAttachments(project.id)}
+                              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                              <Paperclip className="h-3 w-3" />
+                              {t('client.projectFiles', { count: projectAttachments.length })}
+                              {isAttachmentsExpanded ? (
+                                <ChevronUp className="h-3 w-3" />
+                              ) : (
+                                <ChevronDown className="h-3 w-3" />
+                              )}
+                            </button>
                           )}
                         </div>
                       </div>
@@ -217,6 +515,39 @@ export default function MyProjectsPage() {
                           style={{ width: `${project.response_progress}%` }}
                         />
                       </div>
+                    </div>
+                  )}
+
+                  {/* Expandable attachments section */}
+                  {isAttachmentsExpanded && projectAttachments.length > 0 && (
+                    <div className="mt-4 pt-4 border-t border-border/40 space-y-2">
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        {t('client.projectFiles', { count: projectAttachments.length })}
+                      </p>
+                      {projectAttachments.map((att) => (
+                        <div
+                          key={att.id}
+                          className="flex items-center gap-3 rounded-md bg-muted/30 px-3 py-2"
+                        >
+                          <div className="shrink-0">{getMimeIcon(att.mime_type)}</div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{att.file_name}</p>
+                            {att.description && (
+                              <p className="text-xs text-muted-foreground truncate">{att.description}</p>
+                            )}
+                            {att.file_size && (
+                              <p className="text-xs text-muted-foreground/60">{formatBytes(att.file_size)}</p>
+                            )}
+                          </div>
+                          {att.url && (
+                            <a href={att.url} target="_blank" rel="noopener noreferrer" className="shrink-0">
+                              <Button variant="ghost" size="icon" className="h-8 w-8" title={t('client.viewFiles')}>
+                                <Download className="h-3.5 w-3.5" />
+                              </Button>
+                            </a>
+                          )}
+                        </div>
+                      ))}
                     </div>
                   )}
                 </CardContent>

@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
-const ADMIN_ROLES = ['super_admin', 'product_owner'];
+const ADMIN_ROLES = ['super_admin', 'staff'];
 
 const clientNavItems = [
   { key: 'myProjects', href: '/my-projects', icon: FolderKanban },

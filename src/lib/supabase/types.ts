@@ -1,4 +1,4 @@
-export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
+﻿export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type QuestionType =
   | 'text'
@@ -118,6 +118,20 @@ export type MagicLink = {
   created_at: string;
 }
 
+export type ProjectAttachment = {
+  id: string;
+  project_id: string;
+  uploaded_by: string;
+  file_name: string;
+  file_size: number | null;
+  mime_type: string | null;
+  storage_path: string;
+  description: string | null;
+  created_at: string;
+  /** Signed URL â€” only present when fetched from the API, not stored in DB */
+  url?: string | null;
+}
+
 export type AiConversation = {
   id: string;
   response_id: string;
@@ -136,13 +150,50 @@ export type AuditLog = {
   created_at: string;
 }
 
+export type ArchivedProject = {
+  id: string;
+  original_project_id: string;
+  org_id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  status: string;
+  welcome_text: Json;
+  deadline_days: number;
+  template_id: string | null;
+  members_snapshot: Json;
+  responses_snapshot: Json;
+  attachments_snapshot: Json;
+  archived_by: string | null;
+  archived_reason: string | null;
+  original_created_at: string | null;
+  archived_at: string;
+}
+
+export type FeedbackStatus = 'pending' | 'seen' | 'answered' | 'dismissed';
+
+export type FeedbackRequest = {
+  id: string;
+  project_id: string;
+  response_id: string | null;
+  requested_by: string;
+  assigned_to: string;
+  question: string;
+  answer: string | null;
+  status: FeedbackStatus;
+  seen_at: string | null;
+  answered_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 // Helper types for multilingual content
 export type MultilingualText = Record<string, string>;
 
 // Database types compatible with @supabase/supabase-js v2
 // Schema key must match the db.schema option passed to the client
 export type Database = {
-  anforderungen: {
+  anforderungsportal: {
     Tables: {
       organizations: {
         Row: Organization;
@@ -404,9 +455,122 @@ export type Database = {
         };
         Relationships: [];
       };
+      project_attachments: {
+        Row: ProjectAttachment;
+        Insert: {
+          id?: string;
+          project_id: string;
+          uploaded_by: string;
+          file_name: string;
+          file_size?: number | null;
+          mime_type?: string | null;
+          storage_path: string;
+          description?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          uploaded_by?: string;
+          file_name?: string;
+          file_size?: number | null;
+          mime_type?: string | null;
+          storage_path?: string;
+          description?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      archived_projects: {
+        Row: ArchivedProject;
+        Insert: {
+          id?: string;
+          original_project_id: string;
+          name: string;
+          slug: string;
+          description?: string | null;
+          org_id: string;
+          archived_by: string;
+          archived_at?: string;
+          reason?: string | null;
+          members_snapshot?: Json;
+          responses_snapshot?: Json;
+          attachments_snapshot?: Json;
+          template_id?: string | null;
+          welcome_text?: Json;
+          deadline_days?: number;
+          original_created_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          original_project_id?: string;
+          name?: string;
+          slug?: string;
+          description?: string | null;
+          org_id?: string;
+          archived_by?: string;
+          archived_at?: string;
+          reason?: string | null;
+          members_snapshot?: Json;
+          responses_snapshot?: Json;
+          attachments_snapshot?: Json;
+          template_id?: string | null;
+          welcome_text?: Json;
+          deadline_days?: number;
+          original_created_at?: string | null;
+        };
+        Relationships: [];
+      };
+      feedback_requests: {
+        Row: FeedbackRequest;
+        Insert: {
+          id?: string;
+          project_id: string;
+          response_id?: string | null;
+          requested_by: string;
+          assigned_to: string;
+          question: string;
+          answer?: string | null;
+          status?: FeedbackStatus;
+          seen_at?: string | null;
+          answered_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          response_id?: string | null;
+          requested_by?: string;
+          assigned_to?: string;
+          question?: string;
+          answer?: string | null;
+          status?: FeedbackStatus;
+          seen_at?: string | null;
+          answered_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      archive_project: {
+        Args: { p_project_id: string; p_reason?: string };
+        Returns: void;
+      };
+      get_project_members_info: {
+        Args: Record<string, never>;
+        Returns: Array<{
+          project_id: string;
+          user_id: string;
+          role: string;
+          email: string;
+          full_name: string | null;
+        }>;
+      };
+    };
     Enums: {
       project_status: ProjectStatus;
       response_status: ResponseStatus;

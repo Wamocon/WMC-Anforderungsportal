@@ -33,6 +33,7 @@ import remarkGfm from 'remark-gfm';
 type ResponseDetail = {
   id: string;
   project_id: string;
+  respondent_id: string | null;
   respondent_name: string | null;
   respondent_email: string;
   status: string;
@@ -80,12 +81,18 @@ export default function ResponseDetailPage() {
   const [questions, setQuestions] = useState<QuestionRow[]>([]);
   const [sections, setSections] = useState<SectionRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [aiSummary, setAiSummary] = useState<string | null>(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [followUpText, setFollowUpText] = useState('');
   const [sendingFollowUp, setSendingFollowUp] = useState(false);
+  const [feedbackHistory, setFeedbackHistory] = useState<Array<{
+    id: string; question: string; answer: string | null; status: string;
+    created_at: string; answered_at: string | null;
+  }>>([]);
 
   const loadData = useCallback(async () => {
+    try {
     const supabase = createClient();
     await supabase.auth.refreshSession();
 
@@ -126,7 +133,22 @@ export default function ResponseDetailPage() {
         .sort((a, b) => a.order_index - b.order_index)
     );
 
+    // Load feedback history for this response
+    try {
+      const { data: fbData } = await supabase
+        .from('feedback_requests')
+        .select('id, question, answer, status, created_at, answered_at')
+        .eq('response_id', responseId)
+        .order('created_at', { ascending: false });
+      setFeedbackHistory((fbData ?? []) as typeof feedbackHistory);
+    } catch { /* non-critical */ }
+
     setLoading(false);
+    } catch (err) {
+      console.error('Failed to load response:', err);
+      setLoadError(t('errors.loadFailed'));
+      setLoading(false);
+    }
   }, [responseId]);
 
   useEffect(() => {
@@ -328,36 +350,45 @@ export default function ResponseDetailPage() {
     setSendingFollowUp(true);
     try {
       const supabase = createClient();
-      // Store follow-up as ai_conversation message
-      const { data: existing } = await supabase
-        .from('ai_conversations')
-        .select('id, messages')
-        .eq('response_id', responseId)
-        .single();
 
-      const followUpMsg = {
-        role: 'system',
-        content: `[Manager Follow-Up Request] ${followUpText.trim()}`,
-        timestamp: new Date().toISOString(),
-      };
-
-      if (existing) {
-        const msgs = Array.isArray(existing.messages) ? existing.messages : [];
-        await supabase
-          .from('ai_conversations')
-          .update({ messages: [...msgs, followUpMsg] })
-          .eq('id', existing.id);
-      } else {
-        await supabase.from('ai_conversations').insert({
-          response_id: responseId,
-          messages: [followUpMsg],
-        });
+      // Get the respondent user ID to assign the feedback request
+      let assignedTo = response.respondent_id;
+      if (!assignedTo) {
+        // Lookup by email if respondent_id not set
+        const { data: memberData } = await supabase
+          .from('project_members')
+          .select('user_id')
+          .eq('project_id', response.project_id)
+          .limit(1);
+        assignedTo = memberData?.[0]?.user_id ?? null;
       }
 
-      toast.success(t('admin.followUpSent'));
+      if (!assignedTo) {
+        toast.error(t('admin.feedbackSendFailed'));
+        return;
+      }
+
+      const { data: { user } } = await supabase.auth.getUser();
+
+      const { error } = await supabase.from('feedback_requests').insert({
+        project_id: response.project_id,
+        response_id: responseId,
+        requested_by: user!.id,
+        assigned_to: assignedTo,
+        question: followUpText.trim(),
+        status: 'pending',
+      });
+
+      if (error) {
+        toast.error(`${t('admin.feedbackSendFailed')}: ${error.message}`);
+        return;
+      }
+
+      toast.success(t('admin.feedbackSent'));
       setFollowUpText('');
+      loadData(); // Refresh feedback history
     } catch {
-      toast.error(t('admin.followUpFailed'));
+      toast.error(t('admin.feedbackSendFailed'));
     } finally {
       setSendingFollowUp(false);
     }
@@ -374,6 +405,19 @@ export default function ResponseDetailPage() {
     return (
       <div className="flex items-center justify-center py-24">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 text-center">
+        <div className="rounded-2xl bg-destructive/10 p-4 mb-4">
+          <AlertCircle className="h-10 w-10 text-destructive" />
+        </div>
+        <h3 className="text-lg font-semibold mb-2">{t('errors.somethingWentWrong')}</h3>
+        <p className="text-muted-foreground max-w-md mb-4">{loadError}</p>
+        <Button onClick={() => window.location.reload()}>{t('errors.tryAgain')}</Button>
       </div>
     );
   }
@@ -645,17 +689,17 @@ export default function ResponseDetailPage() {
       {/* Follow-up Request */}
       <Card className="border-0 shadow-md shadow-black/5">
         <CardHeader>
-          <CardTitle className="text-lg">{t('admin.requestFollowUp')}</CardTitle>
+          <CardTitle className="text-lg">{t('admin.sendFeedbackRequest')}</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            {t('admin.followUpDescription')}
+            {t('admin.sendFeedbackRequestDesc')}
           </p>
           <div className="flex gap-2">
             <Textarea
               value={followUpText}
               onChange={(e) => setFollowUpText(e.target.value)}
-              placeholder={t('admin.followUpPlaceholder')}
+              placeholder={t('admin.feedbackQuestionPlaceholder')}
               rows={2}
               className="flex-1"
             />
@@ -672,9 +716,58 @@ export default function ResponseDetailPage() {
               ) : (
                 <Send className="h-4 w-4" />
               )}
-              {t('admin.sendFollowUp')}
+              {t('admin.sendFeedbackRequest')}
             </Button>
           </div>
+
+          {/* Feedback history thread */}
+          {feedbackHistory.length > 0 && (
+            <div className="mt-4 pt-4 border-t space-y-3">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                {t('admin.feedbackRequests')}
+              </p>
+              {feedbackHistory.map((fb) => {
+                const statusColor: Record<string, string> = {
+                  pending: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400',
+                  seen: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+                  answered: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+                  dismissed: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
+                };
+                const statusLabel: Record<string, string> = {
+                  pending: t('admin.feedbackPending'),
+                  seen: t('admin.feedbackSeen'),
+                  answered: t('admin.feedbackAnsweredStatus'),
+                  dismissed: t('admin.feedbackDismissed'),
+                };
+                return (
+                  <div key={fb.id} className="rounded-lg border border-border/50 bg-muted/20 p-3 space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-start gap-2">
+                        <Send className="h-3.5 w-3.5 text-[#FE0404] mt-0.5 shrink-0" />
+                        <p className="text-sm">{fb.question}</p>
+                      </div>
+                      <Badge variant="secondary" className={`text-[10px] shrink-0 ${statusColor[fb.status] || ''}`}>
+                        {statusLabel[fb.status] || fb.status}
+                      </Badge>
+                    </div>
+                    {fb.answer && (
+                      <div className="ml-5 pl-3 border-l-2 border-green-300 dark:border-green-700">
+                        <p className="text-sm text-green-800 dark:text-green-300">{fb.answer}</p>
+                        {fb.answered_at && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {new Date(fb.answered_at).toLocaleDateString(locale, { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                    <p className="text-[10px] text-muted-foreground/60 ml-5">
+                      {new Date(fb.created_at).toLocaleDateString(locale, { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </CardContent>
       </Card>
 

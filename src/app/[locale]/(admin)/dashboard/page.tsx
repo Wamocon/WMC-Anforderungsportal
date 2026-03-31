@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useLocale } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Link } from '@/i18n/navigation';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -15,7 +16,6 @@ import {
   Plus,
   ArrowRight,
   Users,
-  Loader2,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
@@ -68,17 +68,31 @@ export default function DashboardPage() {
     load();
   }, []);
 
-  const statusColors: Record<string, string> = {
-    draft: 'bg-muted text-muted-foreground',
-    in_progress: 'bg-blue-100 text-blue-800',
-    submitted: 'bg-green-100 text-green-800',
-    reviewed: 'bg-purple-100 text-purple-800',
+  const statusConfig: Record<string, { label: string; color: string }> = {
+    draft:       { label: 'Draft',       color: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400' },
+    in_progress: { label: 'In Progress', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' },
+    submitted:   { label: 'Submitted',   color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' },
+    reviewed:    { label: 'Reviewed',    color: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400' },
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-24">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      <div className="space-y-8">
+        <div className="space-y-2"><Skeleton className="h-9 w-48" /><Skeleton className="h-4 w-64" /></div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {[1,2,3,4].map(i => (
+            <Card key={i} className="border-0 shadow-md">
+              <CardContent className="p-6 flex items-center justify-between">
+                <div className="space-y-2"><Skeleton className="h-4 w-24" /><Skeleton className="h-8 w-16" /></div>
+                <Skeleton className="h-12 w-12 rounded-2xl" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <div className="grid gap-6 lg:grid-cols-3">
+          <Card className="lg:col-span-2 border-0 shadow-md"><CardContent className="p-6 space-y-3">{[1,2,3].map(i => <Skeleton key={i} className="h-16 rounded-lg" />)}</CardContent></Card>
+          <Card className="border-0 shadow-md"><CardContent className="p-6 space-y-3">{[1,2,3].map(i => <Skeleton key={i} className="h-16 rounded-lg" />)}</CardContent></Card>
+        </div>
       </div>
     );
   }
@@ -181,8 +195,8 @@ export default function DashboardPage() {
                           </p>
                         </div>
                       </div>
-                      <Badge variant="secondary" className={`${statusColors[r.status] || ''} self-start sm:self-center shrink-0`}>
-                        {tResponse(`status.${r.status}`, { defaultValue: r.status.replace('_', ' ') })}
+                      <Badge variant="secondary" className={`${statusConfig[r.status]?.color ?? ''} self-start sm:self-center shrink-0`}>
+                        {tResponse(`status.${r.status}`, { defaultValue: statusConfig[r.status]?.label ?? r.status })}
                       </Badge>
                     </div>
                   </Link>

@@ -20,16 +20,18 @@ import {
   LogOut,
   ChevronLeft,
   Loader2,
+  Archive,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
-const ADMIN_ROLES = ['super_admin', 'product_owner'];
+const ADMIN_ROLES = ['super_admin', 'staff'];
 
 const navItems = [
   { key: 'dashboard', href: '/dashboard', icon: LayoutDashboard },
   { key: 'projects', href: '/projects', icon: FolderKanban },
   { key: 'templates', href: '/templates', icon: FileText },
   { key: 'responses', href: '/responses', icon: MessageSquareText },
+  { key: 'archive', href: '/archive', icon: Archive },
   { key: 'settings', href: '/settings', icon: Settings },
 ] as const;
 
