@@ -23,6 +23,7 @@ import {
   Paperclip,
   Image as ImageIcon,
   ExternalLink,
+  Link2,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
@@ -649,6 +650,35 @@ export default function ResponseDetailPage() {
           </Card>
         );
       })}
+
+      {/* OneDrive / Cloud Storage Link */}
+      {(() => {
+        const linkAnswer = answers.find(a => a.question_id === '__onedrive_link');
+        const linkValue = linkAnswer?.value;
+        const linkStr = typeof linkValue === 'string' ? linkValue.trim() : '';
+        if (!linkStr) return null;
+        return (
+          <Card className="border-0 shadow-md shadow-black/5">
+            <CardContent className="p-5">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                  <Link2 className="h-5 w-5 text-blue-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium">{t('response.projectLink')}</p>
+                  <p className="text-xs text-muted-foreground truncate">{linkStr}</p>
+                </div>
+                <a href={linkStr} target="_blank" rel="noopener noreferrer">
+                  <Button variant="outline" size="sm" className="gap-2 shrink-0">
+                    <ExternalLink className="h-3.5 w-3.5" />
+                    {t('response.openLink')}
+                  </Button>
+                </a>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })()}
 
       {/* AI Summary */}
       <Card className="border-0 shadow-md shadow-black/5">

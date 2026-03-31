@@ -422,7 +422,9 @@
     "attachDocument": "Attach document",
     "aiError": "Sorry, I couldn't process that. Please try again.",
     "questions": "questions",
-    "nOptions": "{count} options"
+    "nOptions": "{count} options",
+    "projectLinkTitle": "Project Link (OneDrive / Cloud Storage)",
+    "projectLinkDescription": "Share a link to your project folder on OneDrive, Google Drive, or other cloud storage"
   },
   "response": {
     "allResponses": "All Responses",
@@ -445,6 +447,8 @@
     "aiExecutiveSummary": "AI Executive Summary",
     "clickGenerateSummary": "Click \"Generate Summary\" to get an AI-powered executive summary of all responses.",
     "responseReviewed": "Response marked as reviewed",
+    "projectLink": "Project Link (Cloud Storage)",
+    "openLink": "Open Link",
     "status": {
       "draft": "Draft",
       "in_progress": "In Progress",
