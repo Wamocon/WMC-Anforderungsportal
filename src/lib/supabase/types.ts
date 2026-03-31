@@ -36,6 +36,7 @@ export type Project = {
   deadline_days: number;
   template_id: string | null;
   created_by: string | null;
+  onedrive_link: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -227,6 +228,7 @@ export type Database = {
           deadline_days?: number;
           template_id?: string | null;
           created_by?: string | null;
+          onedrive_link?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -241,6 +243,7 @@ export type Database = {
           deadline_days?: number;
           template_id?: string | null;
           created_by?: string | null;
+          onedrive_link?: string | null;
           created_at?: string;
           updated_at?: string;
         };

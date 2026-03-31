@@ -80,6 +80,7 @@ type ProjectData = {
   description: string | null;
   status: string;
   deadline_days: number;
+  onedrive_link: string | null;
   welcome_text: Record<string, string> | null;
 };
 
@@ -272,7 +273,7 @@ export default function ProjectDetailPage() {
     toast.success(t('admin.linkCopied'));
   }
 
-  const statusColor: Record<string, string> = { active: 'bg-green-100 text-green-800', draft: 'bg-yellow-100 text-yellow-800', archived: 'bg-muted text-muted-foreground' };
+  const statusColor: Record<string, string> = { active: 'bg-green-100 text-green-800', draft: 'bg-yellow-100 text-yellow-800', archived: 'bg-muted text-muted-foreground', pending_review: 'bg-amber-100 text-amber-800' };
   const respStatusColor: Record<string, string> = { submitted: 'bg-green-100 text-green-800', in_progress: 'bg-blue-100 text-blue-800', draft: 'bg-yellow-100 text-yellow-800', reviewed: 'bg-purple-100 text-purple-800' };
   const invStatusColor: Record<string, string> = { sent: 'bg-yellow-100 text-yellow-800', opened: 'bg-blue-100 text-blue-800', in_progress: 'bg-blue-100 text-blue-800', submitted: 'bg-green-100 text-green-800', expired: 'bg-muted text-muted-foreground', revoked: 'bg-red-100 text-red-800' };
 
@@ -294,6 +295,17 @@ export default function ProjectDetailPage() {
             </Button>
           </div>
           <p className="text-muted-foreground mt-1">{project.description || t('admin.noDescription')}</p>
+          {project.onedrive_link && (
+            <a
+              href={project.onedrive_link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 mt-2 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+              {t('admin.oneDriveLink')}
+            </a>
+          )}
         </div>
       </div>
 

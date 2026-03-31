@@ -254,7 +254,9 @@
     "projectRejected": "Proje reddedildi ve arşivlendi",
     "approveFailed": "Proje onaylanamadı",
     "rejectFailed": "Proje reddedilemedi",
-    "rejectProjectConfirm": "\"{name}\" projesini reddet? Arşivlenecek."
+    "rejectProjectConfirm": "\"{name}\" projesini reddet? Arşivlenecek.",
+    "oneDriveLink": "OneDrive Bağlantısı",
+    "filesAttached": "dosya eklendi"
   },
   "project": {
     "newProject": "Yeni Proje",
@@ -564,7 +566,21 @@
     "proposeFailed": "Proje önerisi gönderilemedi",
     "proposeSuccess": "Proje önerisi inceleme için gönderildi",
     "pendingReview": "İnceleme Bekliyor",
-    "awaitingApproval": "Onay bekleniyor"
+    "awaitingApproval": "Onay bekleniyor",
+    "editProject": "Edit Project",
+    "editProjectDesc": "Update your project details and manage attachments",
+    "projectUpdated": "Project updated successfully",
+    "cannotEditActive": "This project is already active and cannot be edited. Please contact staff if changes are needed.",
+    "attachmentDeleted": "Attachment deleted",
+    "newAttachments": "New Files to Upload",
+    "oneDriveLink": "OneDrive / SharePoint Bağlantısı",
+    "oneDriveLinkPlaceholder": "https://onedrive.live.com/... veya https://sharepoint.com/...",
+    "oneDriveLinkHelp": "İsteğe bağlı: Proje belgeleri içeren paylaşılan OneDrive veya SharePoint klasörü bağlantısı.",
+    "attachments": "Ekler",
+    "dropOrClick": "Dosyaları buraya sürükleyin veya göz atmak için tıklayın",
+    "allowedFileTypes": "PDF, Word, Excel, PowerPoint, Görseller, Videolar — maks. dosya başına 50 MB",
+    "invalidLink": "Lütfen geçerli bir URL girin (https://...)",
+    "partialUpload": "{total} dosyadan {uploaded} tanesi başarıyla yüklendi"
   },
   "landing": {
     "heroTitle1": "Gereksinimleri Toplayın",

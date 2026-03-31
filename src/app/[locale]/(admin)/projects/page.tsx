@@ -12,7 +12,7 @@ import {
   Plus, FolderKanban, MoreVertical, ExternalLink,
   Search, X, ArrowUpDown, UserCircle2, Crown, Briefcase,
   Clock, MessageSquare, Trash2, Loader2, CheckSquare, Square, Archive,
-  CheckCircle2, XCircle, Hourglass,
+  CheckCircle2, XCircle, Hourglass, Link2, Paperclip,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -32,6 +32,7 @@ type ProjectRow = {
   slug: string;
   description: string | null;
   status: string;
+  onedrive_link: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -85,6 +86,7 @@ export default function ProjectsPage() {
   const [projects, setProjects] = useState<ProjectRow[]>([]);
   const [responseCounts, setResponseCounts] = useState<Record<string, number>>({});
   const [membersByProject, setMembersByProject] = useState<Record<string, ProjectMember[]>>({});
+  const [attachmentCounts, setAttachmentCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
 
   // Filter & sort state
@@ -165,6 +167,19 @@ export default function ProjectsPage() {
         const { data, error } = await supabase.rpc('get_project_members_info');
         if (!error && data) membersData = data as ProjectMember[];
       } catch { /* ignored — members just won't appear */ }
+
+      // Fetch attachment counts per project
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data: attData } = await (supabase as any)
+          .from('project_attachments')
+          .select('project_id');
+        const attCounts = ((attData ?? []) as { project_id: string }[]).reduce<Record<string, number>>((acc, r) => {
+          acc[r.project_id] = (acc[r.project_id] || 0) + 1;
+          return acc;
+        }, {});
+        setAttachmentCounts(attCounts);
+      } catch { /* non-critical */ }
 
       setProjects((projData ?? []) as ProjectRow[]);
 
@@ -534,6 +549,29 @@ export default function ProjectsPage() {
                           <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2 leading-relaxed">
                             {project.description || t('admin.noDescription')}
                           </p>
+                          {/* OneDrive link + attachment count for pending_review */}
+                          {project.status === 'pending_review' && (project.onedrive_link || (attachmentCounts[project.id] ?? 0) > 0) && (
+                            <div className="flex items-center gap-3 mt-1.5 flex-wrap">
+                              {project.onedrive_link && (
+                                <a
+                                  href={project.onedrive_link}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 text-[11px] text-blue-600 dark:text-blue-400 hover:underline"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <Link2 className="h-3 w-3" />
+                                  {t('admin.oneDriveLink')}
+                                </a>
+                              )}
+                              {(attachmentCounts[project.id] ?? 0) > 0 && (
+                                <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+                                  <Paperclip className="h-3 w-3" />
+                                  {attachmentCounts[project.id]} {t('admin.filesAttached')}
+                                </span>
+                              )}
+                            </div>
+                          )}
                         </div>
                         <DropdownMenu>
                           <DropdownMenuTrigger

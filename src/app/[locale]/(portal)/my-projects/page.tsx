@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useLocale } from 'next-intl';
 import { Card, CardContent } from '@/components/ui/card';
@@ -27,6 +27,12 @@ import {
   Send,
   Plus,
   Hourglass,
+  Pencil,
+  Upload,
+  Trash2,
+  Link2,
+  ExternalLink,
+  X,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
@@ -50,6 +56,8 @@ type ClientProject = {
   status: string;
   deadline_days: number;
   created_at: string;
+  created_by: string | null;
+  onedrive_link: string | null;
   response_status: string | null;
   response_progress: number | null;
   response_id: string | null;
@@ -91,10 +99,14 @@ export default function MyProjectsPage() {
   const [answerText, setAnswerText] = useState('');
   const [submittingAnswer, setSubmittingAnswer] = useState(false);
 
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
   // Propose project dialog state
   const [proposeOpen, setProposeOpen] = useState(false);
-  const [proposeForm, setProposeForm] = useState({ name: '', description: '' });
+  const [proposeForm, setProposeForm] = useState({ name: '', description: '', onedriveLink: '' });
   const [proposing, setProposing] = useState(false);
+  const [proposeFiles, setProposeFiles] = useState<File[]>([]);
+  const proposeFileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     async function load() {
@@ -102,6 +114,7 @@ export default function MyProjectsPage() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
+      setCurrentUserId(user.id);
 
       // Display name: prefer full_name, then format email prefix nicely
       const fullName = user.user_metadata?.full_name;
@@ -146,14 +159,14 @@ export default function MyProjectsPage() {
       // Fetch project details (active + pending_review from memberships)
       const { data: projectData } = await supabase
         .from('projects')
-        .select('id, name, slug, description, status, deadline_days, created_at, created_by')
+        .select('id, name, slug, description, status, deadline_days, created_at, created_by, onedrive_link')
         .in('id', Array.from(projectIds))
         .in('status', ['active', 'pending_review']);
 
       // Also fetch any pending_review projects created by this user (may not have membership yet)
       const { data: ownPending } = await supabase
         .from('projects')
-        .select('id, name, slug, description, status, deadline_days, created_at, created_by')
+        .select('id, name, slug, description, status, deadline_days, created_at, created_by, onedrive_link')
         .eq('created_by', user.id)
         .eq('status', 'pending_review');
 
@@ -292,6 +305,30 @@ export default function MyProjectsPage() {
 
   async function proposeProject() {
     if (!proposeForm.name.trim()) return;
+
+    // Validate OneDrive link if provided
+    const link = proposeForm.onedriveLink.trim();
+    if (link) {
+      try {
+        const url = new URL(link);
+        if (!['http:', 'https:'].includes(url.protocol)) {
+          toast.error(t('client.invalidLink'));
+          return;
+        }
+      } catch {
+        toast.error(t('client.invalidLink'));
+        return;
+      }
+    }
+
+    // Validate file sizes
+    const MAX_FILE_SIZE = 50 * 1024 * 1024;
+    const oversized = proposeFiles.find(f => f.size > MAX_FILE_SIZE);
+    if (oversized) {
+      toast.error(`"${oversized.name}" exceeds 50 MB limit.`);
+      return;
+    }
+
     setProposing(true);
     try {
       const supabase = createClient();
@@ -306,25 +343,51 @@ export default function MyProjectsPage() {
         .replace(/-+/g, '-')
         .slice(0, 60);
 
-      const { error } = await supabase.from('projects').insert({
+      const { data: newProject, error } = await supabase.from('projects').insert({
         org_id: orgId,
         name: proposeForm.name.trim(),
         slug: slug + '-' + Date.now().toString(36),
         description: proposeForm.description.trim() || null,
         status: 'pending_review' as const,
         created_by: user.id,
+        onedrive_link: link || null,
         deadline_days: 5,
-      });
+      }).select('id').single();
 
-      if (error) {
+      if (error || !newProject) {
         console.error('Propose error:', error);
         toast.error(t('client.proposeFailed'));
         return;
       }
 
+      // Upload attachments to the newly created project
+      let uploadCount = 0;
+      for (const file of proposeFiles) {
+        const fd = new FormData();
+        fd.append('file', file);
+        try {
+          const res = await fetch(`/api/project/${newProject.id}/upload`, {
+            method: 'POST',
+            body: fd,
+          });
+          if (res.ok) uploadCount++;
+          else {
+            const body = await res.json().catch(() => ({ error: 'Upload failed' }));
+            console.error(`Upload failed for ${file.name}:`, body.error);
+          }
+        } catch {
+          console.error(`Upload failed for ${file.name}`);
+        }
+      }
+
+      if (proposeFiles.length > 0 && uploadCount < proposeFiles.length) {
+        toast.warning(t('client.partialUpload', { uploaded: String(uploadCount), total: String(proposeFiles.length) }));
+      }
+
       toast.success(t('client.proposeSuccess'));
       setProposeOpen(false);
-      setProposeForm({ name: '', description: '' });
+      setProposeForm({ name: '', description: '', onedriveLink: '' });
+      setProposeFiles([]);
       window.location.reload();
     } catch {
       toast.error(t('client.proposeFailed'));
@@ -385,14 +448,15 @@ export default function MyProjectsPage() {
             <Plus className="h-4 w-4" />
             {t('client.proposeProject')}
           </Button>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{t('client.proposeProject')}</DialogTitle>
               <DialogDescription>{t('client.proposeProjectDesc')}</DialogDescription>
             </DialogHeader>
             <div className="space-y-4 pt-2">
+              {/* Project Name */}
               <div className="space-y-2">
-                <Label htmlFor="proposeName">{t('project.projectName')} *</Label>
+                <Label htmlFor="proposeName">{t('client.projectName')} *</Label>
                 <Input
                   id="proposeName"
                   value={proposeForm.name}
@@ -401,8 +465,10 @@ export default function MyProjectsPage() {
                   maxLength={100}
                 />
               </div>
+
+              {/* Description */}
               <div className="space-y-2">
-                <Label htmlFor="proposeDesc">{t('project.projectDescription')}</Label>
+                <Label htmlFor="proposeDesc">{t('client.projectDescription')}</Label>
                 <Textarea
                   id="proposeDesc"
                   value={proposeForm.description}
@@ -411,6 +477,79 @@ export default function MyProjectsPage() {
                   rows={3}
                 />
               </div>
+
+              {/* OneDrive / SharePoint Link */}
+              <div className="space-y-2">
+                <Label htmlFor="proposeLink" className="flex items-center gap-1.5">
+                  <Link2 className="h-3.5 w-3.5" />
+                  {t('client.oneDriveLink')}
+                </Label>
+                <Input
+                  id="proposeLink"
+                  type="url"
+                  value={proposeForm.onedriveLink}
+                  onChange={(e) => setProposeForm(prev => ({ ...prev, onedriveLink: e.target.value }))}
+                  placeholder={t('client.oneDriveLinkPlaceholder')}
+                />
+                <p className="text-xs text-muted-foreground">{t('client.oneDriveLinkHelp')}</p>
+              </div>
+
+              {/* File Attachments */}
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1.5">
+                  <Paperclip className="h-3.5 w-3.5" />
+                  {t('client.attachments')}
+                </Label>
+                <div
+                  className="flex flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed border-border hover:border-[#FE0404]/40 hover:bg-muted/20 p-4 transition-colors cursor-pointer"
+                  onClick={() => proposeFileRef.current?.click()}
+                  onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const files = Array.from(e.dataTransfer.files);
+                    setProposeFiles(prev => [...prev, ...files]);
+                  }}
+                >
+                  <Upload className="h-5 w-5 text-muted-foreground" />
+                  <p className="text-xs text-muted-foreground text-center">{t('client.dropOrClick')}</p>
+                  <p className="text-[10px] text-muted-foreground/60">{t('client.allowedFileTypes')}</p>
+                </div>
+                <input
+                  ref={proposeFileRef}
+                  type="file"
+                  multiple
+                  className="sr-only"
+                  accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip,.png,.jpg,.jpeg,.gif,.webp,.mp4,.webm"
+                  onChange={(e) => {
+                    if (e.target.files) {
+                      setProposeFiles(prev => [...prev, ...Array.from(e.target.files!)]);
+                      e.target.value = '';
+                    }
+                  }}
+                />
+
+                {/* Selected files list */}
+                {proposeFiles.length > 0 && (
+                  <div className="space-y-1.5 mt-2">
+                    {proposeFiles.map((file, idx) => (
+                      <div key={`${file.name}-${idx}`} className="flex items-center gap-2 rounded-md bg-muted/30 px-3 py-1.5 text-sm">
+                        <div className="shrink-0">{getMimeIcon(file.type)}</div>
+                        <span className="flex-1 truncate text-xs">{file.name}</span>
+                        <span className="text-[10px] text-muted-foreground shrink-0">{formatBytes(file.size)}</span>
+                        <button
+                          type="button"
+                          onClick={() => setProposeFiles(prev => prev.filter((_, i) => i !== idx))}
+                          className="text-muted-foreground hover:text-destructive shrink-0"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <div className="rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200/40 dark:border-amber-800/30 p-3">
                 <p className="text-xs text-amber-700 dark:text-amber-400">
                   <Hourglass className="h-3 w-3 inline mr-1" />
@@ -418,7 +557,7 @@ export default function MyProjectsPage() {
                 </p>
               </div>
               <div className="flex justify-end gap-2 pt-1">
-                <Button variant="outline" onClick={() => setProposeOpen(false)}>
+                <Button variant="outline" onClick={() => { setProposeOpen(false); setProposeFiles([]); }}>
                   {t('common.cancel')}
                 </Button>
                 <Button
@@ -588,6 +727,20 @@ export default function MyProjectsPage() {
                             {project.description}
                           </p>
                         )}
+                        {/* OneDrive link for pending_review */}
+                        {isPendingReview && project.onedrive_link && (
+                          <a
+                            href={project.onedrive_link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 mt-2 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Link2 className="h-3 w-3 shrink-0" />
+                            <span className="truncate max-w-[200px]">{t('client.oneDriveLink')}</span>
+                            <ExternalLink className="h-3 w-3 shrink-0" />
+                          </a>
+                        )}
                         <div className="flex items-center gap-3 mt-3 flex-wrap">
                           {isPendingReview ? (
                             <Badge variant="outline" className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-0 gap-1">
@@ -624,7 +777,16 @@ export default function MyProjectsPage() {
                       </div>
                     </div>
 
-                    <div className="shrink-0 self-start sm:self-center w-full sm:w-auto">
+                    <div className="shrink-0 self-start sm:self-center w-full sm:w-auto flex flex-col sm:flex-row gap-2">
+                      {/* Edit button — only for projects the user created and that are draft/pending_review */}
+                      {project.created_by === currentUserId && ['draft', 'pending_review'].includes(project.status) && (
+                        <a href={`/${locale}/my-projects/${project.id}/edit`}>
+                          <Button variant="outline" size="sm" className="gap-1 w-full sm:w-auto">
+                            <Pencil className="h-3.5 w-3.5" />
+                            {t('common.edit')}
+                          </Button>
+                        </a>
+                      )}
                       {isPendingReview ? (
                         <Badge variant="outline" className="bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400 border-amber-200 dark:border-amber-800 gap-1 py-1.5 px-3">
                           <Hourglass className="h-3.5 w-3.5" />

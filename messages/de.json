@@ -254,7 +254,9 @@
     "projectRejected": "Projekt abgelehnt und archiviert",
     "approveFailed": "Projekt konnte nicht genehmigt werden",
     "rejectFailed": "Projekt konnte nicht abgelehnt werden",
-    "rejectProjectConfirm": "Projekt \"{name}\" ablehnen? Es wird archiviert."
+    "rejectProjectConfirm": "Projekt \"{name}\" ablehnen? Es wird archiviert.",
+    "oneDriveLink": "OneDrive-Link",
+    "filesAttached": "Datei(en) angehängt"
   },
   "project": {
     "newProject": "Neues Projekt",
@@ -523,7 +525,21 @@
     "proposeFailed": "Projektvorschlag konnte nicht eingereicht werden",
     "proposeSuccess": "Projektvorschlag zur Überprüfung eingereicht",
     "pendingReview": "Überprüfung ausstehend",
-    "awaitingApproval": "Wartet auf Genehmigung"
+    "awaitingApproval": "Wartet auf Genehmigung",
+    "editProject": "Projekt bearbeiten",
+    "editProjectDesc": "Projektdetails aktualisieren und Anhänge verwalten",
+    "projectUpdated": "Projekt erfolgreich aktualisiert",
+    "cannotEditActive": "Dieses Projekt ist bereits aktiv und kann nicht bearbeitet werden. Bitte kontaktieren Sie das Team, wenn Änderungen erforderlich sind.",
+    "attachmentDeleted": "Anhang gelöscht",
+    "newAttachments": "Neue Dateien zum Hochladen",
+    "oneDriveLink": "OneDrive / SharePoint-Link",
+    "oneDriveLinkPlaceholder": "https://onedrive.live.com/... oder https://sharepoint.com/...",
+    "oneDriveLinkHelp": "Optional: Link zu einem freigegebenen OneDrive- oder SharePoint-Ordner mit Projektdokumenten.",
+    "attachments": "Anhänge",
+    "dropOrClick": "Dateien hierher ziehen oder klicken zum Durchsuchen",
+    "allowedFileTypes": "PDF, Word, Excel, PowerPoint, Bilder, Videos — max. 50 MB pro Datei",
+    "invalidLink": "Bitte geben Sie eine gültige URL ein (https://...)",
+    "partialUpload": "{uploaded} von {total} Dateien erfolgreich hochgeladen"
   },
   "settings": {
     "changePassword": "Passwort ändern",
