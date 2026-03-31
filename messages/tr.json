@@ -247,7 +247,14 @@
     "feedbackNotifications": "You have {count} pending feedback request(s)",
     "answerFeedback": "Answer",
     "dismissFeedback": "Dismiss",
-    "selectProductOwner": "Select product owner"
+    "selectProductOwner": "Select product owner",
+    "approveProject": "Projeyi Onayla",
+    "rejectProject": "Projeyi Reddet",
+    "projectApproved": "Proje onaylandı ve aktif edildi",
+    "projectRejected": "Proje reddedildi ve arşivlendi",
+    "approveFailed": "Proje onaylanamadı",
+    "rejectFailed": "Proje reddedilemedi",
+    "rejectProjectConfirm": "\"{name}\" projesini reddet? Arşivlenecek."
   },
   "project": {
     "newProject": "Yeni Proje",
@@ -547,7 +554,17 @@
     "role_product_owner": "Ürün Sahibi",
     "role_super_admin": "Yönetici",
     "role_staff": "Personel",
-    "role_client": "Müşteri"
+    "role_client": "Müşteri",
+    "proposeProject": "Proje Öner",
+    "proposeProjectDesc": "Personel incelemesi için yeni proje önerin",
+    "projectName": "Proje Adı",
+    "projectDescription": "Açıklama",
+    "proposeNote": "Öneriniz aktif edilmeden önce personel tarafından incelenecektir.",
+    "submitProposal": "Öneriyi Gönder",
+    "proposeFailed": "Proje önerisi gönderilemedi",
+    "proposeSuccess": "Proje önerisi inceleme için gönderildi",
+    "pendingReview": "İnceleme Bekliyor",
+    "awaitingApproval": "Onay bekleniyor"
   },
   "landing": {
     "heroTitle1": "Gereksinimleri Toplayın",

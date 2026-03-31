@@ -247,7 +247,14 @@
     "feedbackNotifications": "Sie haben {count} ausstehende Rückfrage(n)",
     "answerFeedback": "Antworten",
     "dismissFeedback": "Ablehnen",
-    "selectProductOwner": "Product Owner auswählen"
+    "selectProductOwner": "Product Owner auswählen",
+    "approveProject": "Projekt genehmigen",
+    "rejectProject": "Projekt ablehnen",
+    "projectApproved": "Projekt genehmigt und aktiviert",
+    "projectRejected": "Projekt abgelehnt und archiviert",
+    "approveFailed": "Projekt konnte nicht genehmigt werden",
+    "rejectFailed": "Projekt konnte nicht abgelehnt werden",
+    "rejectProjectConfirm": "Projekt \"{name}\" ablehnen? Es wird archiviert."
   },
   "project": {
     "newProject": "Neues Projekt",
@@ -506,7 +513,17 @@
     "role_product_owner": "Produktinhaber",
     "role_super_admin": "Administrator",
     "role_staff": "Mitarbeiter",
-    "role_client": "Kunde"
+    "role_client": "Kunde",
+    "proposeProject": "Projekt vorschlagen",
+    "proposeProjectDesc": "Neues Projekt zur Prüfung durch Mitarbeiter vorschlagen",
+    "projectName": "Projektname",
+    "projectDescription": "Beschreibung",
+    "proposeNote": "Ihr Vorschlag wird vor der Aktivierung von Mitarbeitern geprüft.",
+    "submitProposal": "Vorschlag einreichen",
+    "proposeFailed": "Projektvorschlag konnte nicht eingereicht werden",
+    "proposeSuccess": "Projektvorschlag zur Überprüfung eingereicht",
+    "pendingReview": "Überprüfung ausstehend",
+    "awaitingApproval": "Wartet auf Genehmigung"
   },
   "settings": {
     "changePassword": "Passwort ändern",
