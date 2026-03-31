@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,10 +14,47 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowLeft, Loader2, Save, Globe, AlertCircle } from 'lucide-react';
+import {
+  ArrowLeft,
+  Loader2,
+  Save,
+  Globe,
+  AlertCircle,
+  Paperclip,
+  X,
+  FileText,
+  Image as ImageIcon,
+  Film,
+  File as FileIcon,
+  Upload,
+} from 'lucide-react';
 import { Link, useRouter } from '@/i18n/navigation';
 import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
+
+// ── Attachment helpers ─────────────────────────────────────────
+type PendingFile = {
+  id: string; // local temp id
+  file: File;
+  description: string;
+  status: 'pending' | 'uploading' | 'done' | 'error';
+  errorMsg?: string;
+};
+
+function getMimeIcon(mime: string) {
+  if (mime.startsWith('image/')) return <ImageIcon className="h-4 w-4 text-blue-500" />;
+  if (mime.startsWith('video/')) return <Film className="h-4 w-4 text-purple-500" />;
+  if (mime === 'application/pdf') return <FileText className="h-4 w-4 text-red-500" />;
+  return <FileIcon className="h-4 w-4 text-muted-foreground" />;
+}
+
+function formatBytes(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+const MAX_ATTACHMENT_SIZE = 50 * 1024 * 1024; // 50 MB
 
 const PRIMARY_LANGS = [
   { code: 'en', label: 'English' },
@@ -39,6 +76,9 @@ export default function NewProjectPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [templates, setTemplates] = useState<TemplateOption[]>([]);
+  const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const defaultWelcome = t('project.defaultWelcome', { days: '5' });
 
@@ -78,6 +118,41 @@ export default function NewProjectPage() {
 
   function handleNameChange(name: string) {
     setForm((prev) => ({ ...prev, name, slug: generateSlug(name) }));
+  }
+
+  // ── File attachment handlers ────────────────────────────────
+  const addFiles = useCallback((files: FileList | File[]) => {
+    const arr = Array.from(files);
+    const valid: PendingFile[] = [];
+    for (const file of arr) {
+      if (file.size > MAX_ATTACHMENT_SIZE) {
+        toast.error(`"${file.name}" exceeds 50 MB limit.`);
+        continue;
+      }
+      valid.push({
+        id: `${Date.now()}-${Math.random()}`,
+        file,
+        description: '',
+        status: 'pending',
+      });
+    }
+    setPendingFiles((prev) => [...prev, ...valid]);
+  }, []);
+
+  function removeFile(id: string) {
+    setPendingFiles((prev) => prev.filter((f) => f.id !== id));
+  }
+
+  function updateDescription(id: string, description: string) {
+    setPendingFiles((prev) =>
+      prev.map((f) => (f.id === id ? { ...f, description } : f))
+    );
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setIsDragging(false);
+    addFiles(e.dataTransfer.files);
   }
 
   function updateWelcomeText(lang: string, value: string) {
@@ -120,16 +195,21 @@ export default function NewProjectPage() {
         if (text.trim()) welcomeText[lang] = text.trim();
       }
 
-      const { error: insertError } = await supabase.from('projects').insert({
-        org_id: orgId as string,
-        name: form.name,
-        slug: form.slug,
-        description: form.description || null,
-        status: form.status as 'draft' | 'active' | 'archived',
-        deadline_days: form.deadline_days,
-        template_id: form.template_id || null,
-        welcome_text: welcomeText,
-      });
+      // Insert project and capture the new ID for file uploads
+      const { data: newProject, error: insertError } = await supabase
+        .from('projects')
+        .insert({
+          org_id: orgId as string,
+          name: form.name,
+          slug: form.slug,
+          description: form.description || null,
+          status: form.status as 'draft' | 'active' | 'archived',
+          deadline_days: form.deadline_days,
+          template_id: form.template_id || null,
+          welcome_text: welcomeText,
+        })
+        .select('id')
+        .single();
 
       if (insertError) {
         if (insertError.code === '23505') {
@@ -140,6 +220,50 @@ export default function NewProjectPage() {
           setError(`Failed to create project: ${insertError.message}`);
         }
         return;
+      }
+
+      // Upload pending attachments sequentially
+      if (pendingFiles.length > 0 && newProject?.id) {
+        for (const pf of pendingFiles) {
+          setPendingFiles((prev) =>
+            prev.map((f) => (f.id === pf.id ? { ...f, status: 'uploading' } : f))
+          );
+          const fd = new FormData();
+          fd.append('file', pf.file);
+          if (pf.description) fd.append('description', pf.description);
+
+          try {
+            const res = await fetch(`/api/project/${newProject.id}/upload`, {
+              method: 'POST',
+              body: fd,
+            });
+            if (res.ok) {
+              setPendingFiles((prev) =>
+                prev.map((f) => (f.id === pf.id ? { ...f, status: 'done' } : f))
+              );
+            } else {
+              const body = await res.json();
+              setPendingFiles((prev) =>
+                prev.map((f) =>
+                  f.id === pf.id ? { ...f, status: 'error', errorMsg: body.error } : f
+                )
+              );
+            }
+          } catch {
+            setPendingFiles((prev) =>
+              prev.map((f) =>
+                f.id === pf.id ? { ...f, status: 'error', errorMsg: 'Network error' } : f
+              )
+            );
+          }
+        }
+
+        const failedCount = pendingFiles.filter((f) => f.status === 'error').length;
+        if (failedCount > 0) {
+          toast.warning(
+            `Project created, but ${failedCount} file(s) failed to upload. You can retry from the project detail page.`
+          );
+        }
       }
 
       toast.success(t('project.projectCreated'));
@@ -319,6 +443,90 @@ export default function NewProjectPage() {
           </CardContent>
         </Card>
 
+        {/* ── Project Attachments ───────────────────────────────── */}
+        <Card className="border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Paperclip className="h-5 w-5 text-muted-foreground" />
+              {t('project.projectAttachments')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              {t('project.attachmentsHelp')}
+            </p>
+
+            {/* Drop zone */}
+            <div
+              className={`relative flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-8 transition-colors cursor-pointer
+                ${isDragging ? 'border-[#FE0404] bg-[#FE0404]/5' : 'border-border hover:border-[#FE0404]/50 hover:bg-muted/30'}`}
+              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Upload className="h-8 w-8 text-muted-foreground" />
+              <p className="text-sm font-medium">{t('form.dropFilesHere')}</p>
+              <p className="text-xs text-muted-foreground">
+                PDF, Word, Excel, Images, Videos (max 50 MB each)
+              </p>
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                className="sr-only"
+                accept="image/*,video/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.*,application/vnd.ms-excel,application/vnd.ms-powerpoint,text/plain,text/csv"
+                onChange={(e) => e.target.files && addFiles(e.target.files)}
+              />
+            </div>
+
+            {/* Pending files list */}
+            {pendingFiles.length > 0 && (
+              <div className="space-y-2">
+                {pendingFiles.map((pf) => (
+                  <div
+                    key={pf.id}
+                    className="flex items-start gap-3 rounded-lg border border-border/50 bg-muted/20 p-3"
+                  >
+                    <div className="mt-0.5 shrink-0">{getMimeIcon(pf.file.type)}</div>
+                    <div className="flex-1 min-w-0 space-y-1.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-medium truncate">{pf.file.name}</p>
+                        <span className="text-xs text-muted-foreground shrink-0">
+                          {formatBytes(pf.file.size)}
+                        </span>
+                      </div>
+                      <Input
+                        value={pf.description}
+                        onChange={(e) => updateDescription(pf.id, e.target.value)}
+                        placeholder={t('project.attachmentDescriptionPlaceholder')}
+                        className="h-7 text-xs"
+                      />
+                      {pf.status === 'error' && (
+                        <p className="text-xs text-destructive">{pf.errorMsg}</p>
+                      )}
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 shrink-0 text-muted-foreground hover:text-destructive"
+                      onClick={() => removeFile(pf.id)}
+                      disabled={pf.status === 'uploading'}
+                    >
+                      {pf.status === 'uploading' ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <X className="h-3.5 w-3.5" />
+                      )}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         <div className="flex justify-end gap-3">
           <Link href="/projects">
             <Button variant="outline">{t('common.cancel')}</Button>
@@ -333,7 +541,9 @@ export default function NewProjectPage() {
             ) : (
               <Save className="h-4 w-4" />
             )}
-            {t('common.create')}
+            {pendingFiles.length > 0
+              ? `${t('common.create')} + ${t('project.attachmentsCount', { count: pendingFiles.length })}`
+              : t('common.create')}
           </Button>
         </div>
       </form>

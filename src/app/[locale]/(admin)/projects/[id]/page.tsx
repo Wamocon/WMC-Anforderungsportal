@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -37,10 +37,38 @@ import {
   Send,
   AlertCircle,
   Pencil,
+  Paperclip,
+  Upload,
+  Trash2,
+  FileText,
+  Image as ImageIcon,
+  Film,
+  File as FileIcon,
+  Download,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useParams } from 'next/navigation';
 import { toast } from 'sonner';
+import type { ProjectAttachment } from '@/lib/supabase/types';
+
+// ── Attachment helpers ──────────────────────────────────────────
+function getMimeIcon(mime: string | null) {
+  if (!mime) return <FileIcon className="h-5 w-5 text-muted-foreground" />;
+  if (mime.startsWith('image/')) return <ImageIcon className="h-5 w-5 text-blue-500" />;
+  if (mime.startsWith('video/')) return <Film className="h-5 w-5 text-purple-500" />;
+  if (mime === 'application/pdf') return <FileText className="h-5 w-5 text-red-500" />;
+  if (mime.includes('word')) return <FileText className="h-5 w-5 text-blue-700" />;
+  return <FileIcon className="h-5 w-5 text-muted-foreground" />;
+}
+
+function formatBytes(bytes: number | null) {
+  if (!bytes) return '';
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+const MAX_ATTACHMENT_SIZE = 50 * 1024 * 1024; // 50 MB
 
 type ProjectData = {
   id: string;
@@ -77,7 +105,11 @@ export default function ProjectDetailPage() {
   const [project, setProject] = useState<ProjectData | null>(null);
   const [responses, setResponses] = useState<ResponseData[]>([]);
   const [invitations, setInvitations] = useState<MagicLinkData[]>([]);
+  const [attachments, setAttachments] = useState<ProjectAttachment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [uploadingAttachment, setUploadingAttachment] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const attachFileRef = useRef<HTMLInputElement>(null);
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [sending, setSending] = useState(false);
@@ -96,10 +128,73 @@ export default function ProjectDetailPage() {
     setProject(projData as ProjectData | null);
     setResponses((respData ?? []) as ResponseData[]);
     setInvitations((linkData ?? []) as MagicLinkData[]);
+
+    // Load attachments via API (provides signed URLs)
+    try {
+      const attRes = await fetch(`/api/project/${projectId}/upload`);
+      if (attRes.ok) {
+        const { attachments: attData } = await attRes.json();
+        setAttachments(attData ?? []);
+      }
+    } catch {
+      // Non-critical — attachments tab will show empty state
+    }
+
     setLoading(false);
   }, [projectId]);
 
   useEffect(() => { loadData(); }, [loadData]);
+
+  // ── Attachment management ──────────────────────────────────
+  async function uploadAttachments(files: FileList | File[]) {
+    const arr = Array.from(files);
+    setUploadingAttachment(true);
+    let successCount = 0;
+    for (const file of arr) {
+      if (file.size > MAX_ATTACHMENT_SIZE) {
+        toast.error(`"${file.name}" exceeds 50 MB limit.`);
+        continue;
+      }
+      const fd = new FormData();
+      fd.append('file', file);
+      try {
+        const res = await fetch(`/api/project/${projectId}/upload`, {
+          method: 'POST',
+          body: fd,
+        });
+        if (res.ok) {
+          const { attachment } = await res.json();
+          setAttachments((prev) => [attachment, ...prev]);
+          successCount++;
+        } else {
+          const body = await res.json();
+          toast.error(`"${file.name}": ${body.error}`);
+        }
+      } catch {
+        toast.error(`"${file.name}": upload failed`);
+      }
+    }
+    if (successCount > 0) toast.success(t('project.attachmentUploaded'));
+    setUploadingAttachment(false);
+  }
+
+  async function deleteAttachment(attachmentId: string) {
+    try {
+      const res = await fetch(`/api/project/${projectId}/upload`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ attachmentId }),
+      });
+      if (res.ok) {
+        setAttachments((prev) => prev.filter((a) => a.id !== attachmentId));
+        toast.success(t('project.attachmentDeleted'));
+      } else {
+        toast.error(t('project.attachmentDeleteFailed'));
+      }
+    } catch {
+      toast.error(t('project.attachmentDeleteFailed'));
+    }
+  }
 
   function openEditDialog() {
     if (!project) return;
@@ -224,6 +319,15 @@ export default function ProjectDetailPage() {
         <TabsList>
           <TabsTrigger value="responses">{t('admin.responses')}</TabsTrigger>
           <TabsTrigger value="invitations">{t('admin.invitations')}</TabsTrigger>
+          <TabsTrigger value="attachments" className="gap-1.5">
+            <Paperclip className="h-3.5 w-3.5" />
+            {t('project.attachmentsTab')}
+            {attachments.length > 0 && (
+              <Badge variant="secondary" className="h-4 min-w-4 px-1 text-[10px]">
+                {attachments.length}
+              </Badge>
+            )}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="responses" className="mt-4 space-y-3">
@@ -283,6 +387,96 @@ export default function ProjectDetailPage() {
                     ))}
                   </div>
               }
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ── Attachments Tab ───────────────────────── */}
+        <TabsContent value="attachments" className="mt-4 space-y-4">
+          <Card>
+            <CardHeader>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <CardTitle className="text-lg">{t('project.projectAttachments')}</CardTitle>
+                <Button
+                  size="sm"
+                  className="bg-[#FE0404] hover:bg-[#E00303] text-white gap-2 w-full sm:w-auto"
+                  onClick={() => attachFileRef.current?.click()}
+                  disabled={uploadingAttachment}
+                >
+                  {uploadingAttachment ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Upload className="h-4 w-4" />
+                  )}
+                  {t('project.addAttachments')}
+                </Button>
+                <input
+                  ref={attachFileRef}
+                  type="file"
+                  multiple
+                  className="sr-only"
+                  accept="image/*,video/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.*,application/vnd.ms-excel,application/vnd.ms-powerpoint,text/plain,text/csv"
+                  onChange={(e) => e.target.files && uploadAttachments(e.target.files)}
+                />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div
+                className={`mb-4 flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-6 transition-colors cursor-pointer
+                  ${isDragging ? 'border-[#FE0404] bg-[#FE0404]/5' : 'border-border hover:border-[#FE0404]/40 hover:bg-muted/20'}`}
+                onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={(e) => { e.preventDefault(); setIsDragging(false); uploadAttachments(e.dataTransfer.files); }}
+                onClick={() => attachFileRef.current?.click()}
+              >
+                <Paperclip className="h-6 w-6 text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">{t('form.dropFilesHere')}</p>
+                <p className="text-xs text-muted-foreground/60">PDF, Word, Excel, Images, Videos — max 50 MB</p>
+              </div>
+
+              {attachments.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">{t('project.noAttachments')}</p>
+              ) : (
+                <div className="space-y-2">
+                  {attachments.map((att) => (
+                    <div
+                      key={att.id}
+                      className="flex items-center gap-3 rounded-lg border border-border/50 bg-muted/20 p-3"
+                    >
+                      <div className="shrink-0">{getMimeIcon(att.mime_type)}</div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{att.file_name}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          {att.file_size && (
+                            <span className="text-xs text-muted-foreground">{formatBytes(att.file_size)}</span>
+                          )}
+                          {att.description && (
+                            <span className="text-xs text-muted-foreground/70 truncate">· {att.description}</span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
+                        {att.url && (
+                          <a href={att.url} target="_blank" rel="noopener noreferrer">
+                            <Button variant="ghost" size="icon" className="h-8 w-8" title={t('project.viewAttachment')}>
+                              <Download className="h-3.5 w-3.5" />
+                            </Button>
+                          </a>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                          onClick={() => deleteAttachment(att.id)}
+                          title={t('project.deleteAttachment')}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

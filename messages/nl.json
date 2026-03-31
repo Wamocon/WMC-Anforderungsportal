@@ -232,7 +232,21 @@
     "placeholderName": "bijv. Kinderclub App",
     "descPlaceholder": "Korte beschrijving waarvoor dit project vereisten verzamelt...",
     "slugPlaceholder": "childrens-club-app",
-    "urlPrefix": "URL: /form/"
+    "urlPrefix": "URL: /form/",
+    "attachmentsTab": "Attachments",
+    "addAttachments": "Add Attachments",
+    "attachmentsHelp": "Attach documents, images, or videos to share context with clients (images, PDFs, Word, Excel, videos — max 50 MB each)",
+    "attachmentsUploading": "Uploading {count} file(s)...",
+    "noAttachments": "No attachments yet",
+    "attachmentsCount": "{count, plural, one {# file} other {# files}}",
+    "viewAttachment": "View",
+    "deleteAttachment": "Delete",
+    "attachmentDeleteFailed": "Could not delete attachment",
+    "attachmentDeleted": "Attachment deleted",
+    "attachmentUploaded": "File uploaded successfully",
+    "attachmentUploadFailed": "Upload failed",
+    "attachmentDescriptionPlaceholder": "Optional note about this file...",
+    "projectAttachments": "Project Attachments"
   },
   "template": {
     "newTemplate": "Nieuw Sjabloon",
@@ -429,7 +443,10 @@
     "notStarted": "Niet gestart",
     "submitted": "Ingediend",
     "settings": "Settings",
-    "account": "Account Settings"
+    "account": "Account Settings",
+    "projectFiles": "{count, plural, one {# attachment} other {# attachments}}",
+    "viewFiles": "View Files",
+    "noFilesYet": "No files attached"
   },
   "landing": {
     "heroTitle1": "Verzamel Vereisten",
