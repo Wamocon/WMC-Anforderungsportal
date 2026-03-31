@@ -12,6 +12,7 @@ import {
   Plus, FolderKanban, MoreVertical, ExternalLink,
   Search, X, ArrowUpDown, UserCircle2, Crown, Briefcase,
   Clock, MessageSquare, Trash2, Loader2, CheckSquare, Square, Archive,
+  CheckCircle2, XCircle, Hourglass,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -59,20 +60,22 @@ function relativeTime(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('en', { day: '2-digit', month: 'short' });
 }
 
-const STATUS_FILTERS = ['all', 'active', 'draft', 'archived'] as const;
+const STATUS_FILTERS = ['all', 'pending_review', 'active', 'draft', 'archived'] as const;
 type StatusFilter = (typeof STATUS_FILTERS)[number];
 
 const statusConfig: Record<string, { label: string; bar: string; badge: string }> = {
-  active:   { label: 'Active',   bar: 'bg-emerald-500', badge: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400' },
-  draft:    { label: 'Draft',    bar: 'bg-slate-400',   badge: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400' },
-  archived: { label: 'Archived', bar: 'bg-orange-400',  badge: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400' },
+  active:         { label: 'Active',         bar: 'bg-emerald-500', badge: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400' },
+  draft:          { label: 'Draft',          bar: 'bg-slate-400',   badge: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400' },
+  archived:       { label: 'Archived',       bar: 'bg-orange-400',  badge: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400' },
+  pending_review: { label: 'Pending Review', bar: 'bg-amber-500',   badge: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' },
 };
 
 const statusTabColors: Record<StatusFilter, string> = {
-  all:      'bg-foreground text-background',
-  active:   'bg-emerald-600 text-white',
-  draft:    'bg-slate-500 text-white',
-  archived: 'bg-orange-500 text-white',
+  all:            'bg-foreground text-background',
+  pending_review: 'bg-amber-500 text-white',
+  active:         'bg-emerald-600 text-white',
+  draft:          'bg-slate-500 text-white',
+  archived:       'bg-orange-500 text-white',
 };
 
 export default function ProjectsPage() {
@@ -418,6 +421,7 @@ export default function ProjectsPage() {
                 ? projects.length
                 : projects.filter((p) => p.status === s).length;
             const isActive = statusFilter === s;
+            const tabLabel = s === 'all' ? 'All' : s === 'pending_review' ? 'Pending Review' : s.charAt(0).toUpperCase() + s.slice(1);
             return (
               <button
                 key={s}
@@ -426,9 +430,10 @@ export default function ProjectsPage() {
                   isActive
                     ? statusTabColors[s]
                     : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                }`}
+                } ${s === 'pending_review' && count > 0 && !isActive ? 'ring-1 ring-amber-400/50' : ''}`}
               >
-                {s === 'all' ? 'All' : s.charAt(0).toUpperCase() + s.slice(1)}
+                {s === 'pending_review' && <Hourglass className="h-3 w-3" />}
+                {tabLabel}
                 <span
                   className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
                     isActive ? 'bg-white/20' : 'bg-background'
@@ -544,28 +549,67 @@ export default function ProjectsPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); router.push(`/projects/${project.id}`); }}>
-                              {t('common.edit')}
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              className="text-destructive focus:text-destructive"
-                              onClick={async (e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                if (!confirm(t('admin.archiveProjectConfirm', { name: project.name }))) return;
-                                const supabase = createClient();
-                                const { error } = await supabase.rpc('archive_project', {
-                                  p_project_id: project.id,
-                                  p_reason: 'Archived from project menu',
-                                });
-                                if (error) { toast.error(`${t('admin.archiveFailed')}: ${error.message}`); return; }
-                                setProjects((prev) => prev.filter((p) => p.id !== project.id));
-                                toast.success(t('admin.projectArchived'));
-                              }}
-                            >
-                              {t('admin.archive')}
-                            </DropdownMenuItem>
+                            {project.status === 'pending_review' ? (
+                              <>
+                                <DropdownMenuItem
+                                  className="text-emerald-600 focus:text-emerald-600"
+                                  onClick={async (e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    const supabase = createClient();
+                                    const { error } = await supabase.rpc('approve_project', { p_project_id: project.id });
+                                    if (error) { toast.error(`${t('admin.approveFailed')}: ${error.message}`); return; }
+                                    setProjects((prev) => prev.map((p) => p.id === project.id ? { ...p, status: 'active' } : p));
+                                    toast.success(t('admin.projectApproved'));
+                                  }}
+                                >
+                                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                                  {t('admin.approveProject')}
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  className="text-destructive focus:text-destructive"
+                                  onClick={async (e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    if (!confirm(t('admin.rejectProjectConfirm', { name: project.name }))) return;
+                                    const supabase = createClient();
+                                    const { error } = await supabase.rpc('reject_project', { p_project_id: project.id, p_reason: 'Rejected by staff' });
+                                    if (error) { toast.error(`${t('admin.rejectFailed')}: ${error.message}`); return; }
+                                    setProjects((prev) => prev.filter((p) => p.id !== project.id));
+                                    toast.success(t('admin.projectRejected'));
+                                  }}
+                                >
+                                  <XCircle className="h-4 w-4 mr-2" />
+                                  {t('admin.rejectProject')}
+                                </DropdownMenuItem>
+                              </>
+                            ) : (
+                              <>
+                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); router.push(`/projects/${project.id}`); }}>
+                                  {t('common.edit')}
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  className="text-destructive focus:text-destructive"
+                                  onClick={async (e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    if (!confirm(t('admin.archiveProjectConfirm', { name: project.name }))) return;
+                                    const supabase = createClient();
+                                    const { error } = await supabase.rpc('archive_project', {
+                                      p_project_id: project.id,
+                                      p_reason: 'Archived from project menu',
+                                    });
+                                    if (error) { toast.error(`${t('admin.archiveFailed')}: ${error.message}`); return; }
+                                    setProjects((prev) => prev.filter((p) => p.id !== project.id));
+                                    toast.success(t('admin.projectArchived'));
+                                  }}
+                                >
+                                  {t('admin.archive')}
+                                </DropdownMenuItem>
+                              </>
+                            )}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>

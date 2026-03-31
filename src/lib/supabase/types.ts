@@ -12,7 +12,7 @@ export type QuestionType =
   | 'rating'
   | 'date';
 
-export type ProjectStatus = 'draft' | 'active' | 'archived';
+export type ProjectStatus = 'draft' | 'active' | 'archived' | 'pending_review';
 export type ResponseStatus = 'draft' | 'in_progress' | 'submitted' | 'reviewed';
 export type MemberRole = 'super_admin' | 'product_owner' | 'client';
 export type InvitationStatus = 'sent' | 'opened' | 'in_progress' | 'submitted' | 'expired' | 'revoked';
@@ -35,6 +35,7 @@ export type Project = {
   welcome_text: Json; // { en: "...", de: "...", tr: "..." }
   deadline_days: number;
   template_id: string | null;
+  created_by: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -225,6 +226,7 @@ export type Database = {
           welcome_text?: Json;
           deadline_days?: number;
           template_id?: string | null;
+          created_by?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -238,6 +240,7 @@ export type Database = {
           welcome_text?: Json;
           deadline_days?: number;
           template_id?: string | null;
+          created_by?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -557,6 +560,14 @@ export type Database = {
     Views: Record<string, never>;
     Functions: {
       archive_project: {
+        Args: { p_project_id: string; p_reason?: string };
+        Returns: void;
+      };
+      approve_project: {
+        Args: { p_project_id: string };
+        Returns: void;
+      };
+      reject_project: {
         Args: { p_project_id: string; p_reason?: string };
         Returns: void;
       };

@@ -25,10 +25,21 @@ import {
   Bell,
   MessageSquare,
   Send,
+  Plus,
+  Hourglass,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import type { ProjectAttachment } from '@/lib/supabase/types';
 
 type ClientProject = {
@@ -80,6 +91,11 @@ export default function MyProjectsPage() {
   const [answerText, setAnswerText] = useState('');
   const [submittingAnswer, setSubmittingAnswer] = useState(false);
 
+  // Propose project dialog state
+  const [proposeOpen, setProposeOpen] = useState(false);
+  const [proposeForm, setProposeForm] = useState({ name: '', description: '' });
+  const [proposing, setProposing] = useState(false);
+
   useEffect(() => {
     async function load() {
       try {
@@ -127,14 +143,27 @@ export default function MyProjectsPage() {
         return;
       }
 
-      // Fetch project details
+      // Fetch project details (active + pending_review from memberships)
       const { data: projectData } = await supabase
         .from('projects')
-        .select('id, name, slug, description, status, deadline_days, created_at')
+        .select('id, name, slug, description, status, deadline_days, created_at, created_by')
         .in('id', Array.from(projectIds))
-        .eq('status', 'active');
+        .in('status', ['active', 'pending_review']);
 
-      const merged: ClientProject[] = (projectData ?? []).map(p => {
+      // Also fetch any pending_review projects created by this user (may not have membership yet)
+      const { data: ownPending } = await supabase
+        .from('projects')
+        .select('id, name, slug, description, status, deadline_days, created_at, created_by')
+        .eq('created_by', user.id)
+        .eq('status', 'pending_review');
+
+      // Merge, deduplicate by id
+      const allProjects = [...(projectData ?? [])];
+      (ownPending ?? []).forEach(p => {
+        if (!allProjects.find(ep => ep.id === p.id)) allProjects.push(p);
+      });
+
+      const merged: ClientProject[] = allProjects.map(p => {
         const resp = responses?.find(r => r.project_id === p.id);
         return {
           ...p,
@@ -261,6 +290,49 @@ export default function MyProjectsPage() {
     }
   }
 
+  async function proposeProject() {
+    if (!proposeForm.name.trim()) return;
+    setProposing(true);
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const orgId = user.app_metadata?.org_id;
+      const slug = proposeForm.name.trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .slice(0, 60);
+
+      const { error } = await supabase.from('projects').insert({
+        org_id: orgId,
+        name: proposeForm.name.trim(),
+        slug: slug + '-' + Date.now().toString(36),
+        description: proposeForm.description.trim() || null,
+        status: 'pending_review' as const,
+        created_by: user.id,
+        deadline_days: 5,
+      });
+
+      if (error) {
+        console.error('Propose error:', error);
+        toast.error(t('client.proposeFailed'));
+        return;
+      }
+
+      toast.success(t('client.proposeSuccess'));
+      setProposeOpen(false);
+      setProposeForm({ name: '', description: '' });
+      window.location.reload();
+    } catch {
+      toast.error(t('client.proposeFailed'));
+    } finally {
+      setProposing(false);
+    }
+  }
+
   const statusConfig: Record<string, { icon: React.ElementType; color: string; bg: string }> = {
     draft: { icon: FileEdit, color: 'text-gray-600', bg: 'bg-muted' },
     in_progress: { icon: Clock, color: 'text-blue-600', bg: 'bg-blue-100' },
@@ -294,16 +366,73 @@ export default function MyProjectsPage() {
   const inProgressProjects = projects.filter(p => p.response_status === 'in_progress' || p.response_status === 'draft').length;
   const pendingProjects = projects.filter(p => !p.response_status).length;
 
+  const pendingReviewProjects = projects.filter(p => p.status === 'pending_review').length;
+
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">
-          {t('client.welcome', { name: userName })}
-        </h1>
-        <p className="text-muted-foreground mt-1">
-          {t('client.myProjectsDescription')}
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">
+            {t('client.welcome', { name: userName })}
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            {t('client.myProjectsDescription')}
+          </p>
+        </div>
+        <Dialog open={proposeOpen} onOpenChange={setProposeOpen}>
+          <Button onClick={() => setProposeOpen(true)} className="gap-2 bg-gradient-to-r from-[#FE0404] to-[#D00303] hover:from-[#E00303] hover:to-[#BB0000] text-white shadow-sm shrink-0">
+            <Plus className="h-4 w-4" />
+            {t('client.proposeProject')}
+          </Button>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>{t('client.proposeProject')}</DialogTitle>
+              <DialogDescription>{t('client.proposeProjectDesc')}</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 pt-2">
+              <div className="space-y-2">
+                <Label htmlFor="proposeName">{t('project.projectName')} *</Label>
+                <Input
+                  id="proposeName"
+                  value={proposeForm.name}
+                  onChange={(e) => setProposeForm(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder={t('project.placeholderName')}
+                  maxLength={100}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="proposeDesc">{t('project.projectDescription')}</Label>
+                <Textarea
+                  id="proposeDesc"
+                  value={proposeForm.description}
+                  onChange={(e) => setProposeForm(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder={t('project.descPlaceholder')}
+                  rows={3}
+                />
+              </div>
+              <div className="rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200/40 dark:border-amber-800/30 p-3">
+                <p className="text-xs text-amber-700 dark:text-amber-400">
+                  <Hourglass className="h-3 w-3 inline mr-1" />
+                  {t('client.proposeNote')}
+                </p>
+              </div>
+              <div className="flex justify-end gap-2 pt-1">
+                <Button variant="outline" onClick={() => setProposeOpen(false)}>
+                  {t('common.cancel')}
+                </Button>
+                <Button
+                  onClick={proposeProject}
+                  disabled={!proposeForm.name.trim() || proposing}
+                  className="bg-[#FE0404] hover:bg-[#E00303] text-white gap-1.5"
+                >
+                  {proposing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                  {t('client.submitProposal')}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Stats Summary */}
@@ -433,9 +562,10 @@ export default function MyProjectsPage() {
       ) : (
         <div className="grid gap-4">
           {projects.map((project) => {
+            const isPendingReview = project.status === 'pending_review';
             const resp = project.response_status;
             const cfg = statusConfig[resp ?? 'draft'] ?? statusConfig.draft;
-            const StatusIcon = cfg.icon;
+            const StatusIcon = isPendingReview ? Hourglass : cfg.icon;
             const isSubmitted = resp === 'submitted' || resp === 'reviewed';
             const projectAttachments = attachmentsByProject[project.id] ?? [];
             const isAttachmentsExpanded = expandedAttachments.has(project.id);
@@ -443,13 +573,13 @@ export default function MyProjectsPage() {
             return (
               <Card
                 key={project.id}
-                className="border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm hover:shadow-lg transition-all duration-200"
+                className={`border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm hover:shadow-lg transition-all duration-200 ${isPendingReview ? 'border-l-4 border-l-amber-400' : ''}`}
               >
                 <CardContent className="p-4 sm:p-6">
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                     <div className="flex items-start gap-3 sm:gap-4 min-w-0">
-                      <div className="rounded-xl bg-gradient-to-br from-[#FE0404]/10 to-[#FE0404]/5 p-2.5 sm:p-3 shrink-0">
-                        <FolderKanban className="h-5 w-5 sm:h-6 sm:w-6 text-[#FE0404]" />
+                      <div className={`rounded-xl p-2.5 sm:p-3 shrink-0 ${isPendingReview ? 'bg-gradient-to-br from-amber-100 to-amber-50 dark:from-amber-900/30 dark:to-amber-950/20' : 'bg-gradient-to-br from-[#FE0404]/10 to-[#FE0404]/5'}`}>
+                        <FolderKanban className={`h-5 w-5 sm:h-6 sm:w-6 ${isPendingReview ? 'text-amber-600' : 'text-[#FE0404]'}`} />
                       </div>
                       <div className="min-w-0">
                         <h3 className="text-base sm:text-lg font-semibold truncate">{project.name}</h3>
@@ -459,10 +589,17 @@ export default function MyProjectsPage() {
                           </p>
                         )}
                         <div className="flex items-center gap-3 mt-3 flex-wrap">
-                          <Badge variant="outline" className={`${cfg.bg} ${cfg.color} border-0 gap-1`}>
-                            <StatusIcon className="h-3 w-3" />
-                            {resp ? t(`response.status.${resp}`) : t('client.notStarted')}
-                          </Badge>
+                          {isPendingReview ? (
+                            <Badge variant="outline" className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-0 gap-1">
+                              <Hourglass className="h-3 w-3" />
+                              {t('client.pendingReview')}
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className={`${cfg.bg} ${cfg.color} border-0 gap-1`}>
+                              <StatusIcon className="h-3 w-3" />
+                              {resp ? t(`response.status.${resp}`) : t('client.notStarted')}
+                            </Badge>
+                          )}
                           {project.response_progress !== null && project.response_progress > 0 && (
                             <span className="text-xs text-muted-foreground">
                               {project.response_progress}% {t('common.progress').toLowerCase()}
@@ -488,7 +625,12 @@ export default function MyProjectsPage() {
                     </div>
 
                     <div className="shrink-0 self-start sm:self-center w-full sm:w-auto">
-                      {isSubmitted ? (
+                      {isPendingReview ? (
+                        <Badge variant="outline" className="bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400 border-amber-200 dark:border-amber-800 gap-1 py-1.5 px-3">
+                          <Hourglass className="h-3.5 w-3.5" />
+                          {t('client.awaitingApproval')}
+                        </Badge>
+                      ) : isSubmitted ? (
                         <Button variant="outline" size="sm" disabled className="gap-1 w-full sm:w-auto">
                           <CheckCircle className="h-4 w-4" />
                           {t('client.submitted')}
