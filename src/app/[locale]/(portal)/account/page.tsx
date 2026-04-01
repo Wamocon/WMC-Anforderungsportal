@@ -103,7 +103,7 @@ export default function ClientSettingsPage() {
 
       {/* Profile Card */}
       {userInfo && (
-        <Card className="border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm overflow-hidden">
+        <Card className="border-0 shadow-md shadow-black/5 glass-v2 overflow-hidden">
           <div className="h-20 bg-gradient-to-r from-[#FE0404]/80 to-[#D00303]/60" />
           <CardContent className="relative pt-0 pb-6 px-6">
             <div className="flex items-end gap-4 -mt-8">
@@ -153,7 +153,7 @@ export default function ClientSettingsPage() {
         </Card>
       )}
 
-      <Card className="border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm">
+      <Card className="border-0 shadow-md shadow-black/5 glass-v2">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Lock className="h-5 w-5" />

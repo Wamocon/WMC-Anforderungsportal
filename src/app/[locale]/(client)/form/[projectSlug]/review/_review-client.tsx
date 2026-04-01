@@ -148,7 +148,7 @@ export function ReviewClient({
   }
 
   return (
-    <main className="container mx-auto px-4 py-8 max-w-2xl">
+    <main className="container mx-auto px-4 py-8 max-w-2xl animate-page-enter">
       <div className="mb-8 text-center">
         <div className="inline-flex items-center justify-center rounded-full bg-gradient-to-br from-green-100 to-emerald-100 p-3 mb-4">
           <CheckCircle className="h-8 w-8 text-green-600" />
@@ -177,7 +177,7 @@ export function ReviewClient({
           if (section.questions.length === 0) return null;
 
           return (
-            <Card key={section.id} className="border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm">
+            <Card key={section.id} className="border-0 shadow-md shadow-black/5 glass-v2 spotlight-card">
               <CardHeader className="pb-3">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                   <CardTitle className="text-base sm:text-lg">{section.title}</CardTitle>

@@ -26,7 +26,7 @@ function DoneContent() {
       <div className="absolute top-1/4 right-1/4 w-72 h-72 bg-green-200/20 rounded-full blur-3xl" />
       <div className="absolute bottom-1/4 left-1/4 w-72 h-72 bg-emerald-200/20 rounded-full blur-3xl" />
 
-      <Card className="relative z-10 w-full max-w-md text-center border-0 shadow-2xl shadow-black/5 bg-card/80 backdrop-blur-xl">
+      <Card className="relative z-10 w-full max-w-md text-center border-0 shadow-2xl shadow-black/5 glass-v2 glow-border">
         <CardContent className="p-8 sm:p-12">
           <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-green-100 to-emerald-100 animate-pulse-glow">
             <CheckCircle2 className="h-10 w-10 text-green-600" />

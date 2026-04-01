@@ -93,20 +93,18 @@ export default async function HomePage({
 
       <main className="flex-1">
         {/* Hero */}
-        <section className="relative min-h-[85vh] flex items-center overflow-hidden">
-          {/* Animated background */}
-          <div className="absolute inset-0">
-            <div className="absolute top-20 left-10 w-72 h-72 bg-[#FE0404]/10 rounded-full blur-3xl animate-pulse-glow" />
-            <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/8 rounded-full blur-3xl animate-pulse-glow" style={{ animationDelay: '2s' }} />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-[#FE0404]/5 to-purple-500/5 rounded-full blur-3xl animate-pulse-glow" style={{ animationDelay: '4s' }} />
-            {/* Grid pattern */}
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.02)_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:4rem_4rem]" />
-          </div>
+        <section className="relative min-h-[85vh] flex items-center overflow-hidden aurora-bg grain-overlay">
+          {/* Mesh gradient orbs */}
+          <div className="mesh-orb mesh-orb-1 w-[500px] h-[500px] top-[10%] left-[5%]" />
+          <div className="mesh-orb mesh-orb-2 w-[400px] h-[400px] bottom-[10%] right-[10%]" />
+          <div className="mesh-orb mesh-orb-3 w-[350px] h-[350px] top-[40%] left-[50%]" />
+          {/* Dot grid pattern */}
+          <div className="absolute inset-0 dot-grid" />
 
           <div className="container mx-auto px-4 sm:px-6 relative">
             <div className="mx-auto max-w-4xl text-center">
               {/* Badge */}
-              <div className="animate-slide-up inline-flex items-center gap-2 rounded-full border border-[#FE0404]/20 bg-card/80 backdrop-blur-sm px-4 py-2 text-sm font-medium text-[#FE0404] shadow-sm mb-8">
+              <div className="animate-slide-up inline-flex items-center gap-2 rounded-full border border-[#FE0404]/20 glass-v2 px-4 py-2 text-sm font-medium text-[#FE0404] shadow-sm mb-8">
                 <Sparkles className="h-4 w-4" />
                 <span>{t('common.poweredBy')}</span>
               </div>
@@ -168,11 +166,11 @@ export default async function HomePage({
           <div className="container mx-auto px-4 sm:px-6 py-12 sm:py-16">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
               {stats.map((stat, i) => (
-                <div key={stat.label} className={`animate-slide-up stagger-${i + 1} text-center group`}>
-                  <div className="inline-flex items-center justify-center rounded-2xl bg-[#FE0404]/10 p-3 mb-4 group-hover:bg-[#FE0404] group-hover:text-white transition-all duration-300 group-hover:shadow-lg group-hover:shadow-[#FE0404]/20">
+                <div key={stat.label} className="stagger-enter text-center group">
+                  <div className="inline-flex items-center justify-center rounded-2xl bg-[#FE0404]/10 p-3 mb-4 group-hover:bg-[#FE0404] group-hover:text-white transition-all duration-500 group-hover:shadow-lg group-hover:shadow-[#FE0404]/20 group-hover:scale-110">
                     <stat.icon className="h-6 w-6 text-[#FE0404] group-hover:text-white transition-colors" />
                   </div>
-                  <p className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground">{stat.value}</p>
+                  <p className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground animate-count">{stat.value}</p>
                   <p className="text-sm text-muted-foreground mt-1 font-medium">{stat.label}</p>
                 </div>
               ))}
@@ -199,20 +197,20 @@ export default async function HomePage({
                 {t('landing.everythingYouNeedDesc')}
               </p>
             </div>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 perspective-container">
               {features.map((feature, i) => (
                 <Card
                   key={feature.title}
-                  className={`animate-slide-up stagger-${i + 1} group relative overflow-hidden border-0 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1`}
+                  className={`stagger-enter group relative overflow-hidden border-0 shadow-sm hover:shadow-xl card-3d spotlight-card bento-card transition-all duration-500`}
                 >
-                  <CardContent className="p-8">
-                    <div className={`mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl ${feature.bg} group-hover:scale-110 transition-transform duration-300`}>
+                  <CardContent className="p-8 relative z-10">
+                    <div className={`mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl ${feature.bg} group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
                       <feature.icon className="h-7 w-7 text-[#FE0404]" />
                     </div>
                     <h3 className="mb-3 font-bold text-xl">{feature.title}</h3>
                     <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
                     {/* Hover gradient accent */}
-                    <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${feature.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+                    <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${feature.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
                   </CardContent>
                 </Card>
               ))}
@@ -234,11 +232,11 @@ export default async function HomePage({
                 {t('landing.stepsDesc')}
               </p>
             </div>
-            <div className="grid gap-8 lg:grid-cols-3 max-w-5xl mx-auto">
+            <div className="grid gap-8 lg:grid-cols-3 max-w-5xl mx-auto perspective-container">
               {steps.map((s, i) => (
-                <div key={s.step} className={`animate-slide-up stagger-${i + 1} relative group`}>
+                <div key={s.step} className="stagger-enter relative group">
                   <div className="text-center">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-[#FE0404] to-[#CC0000] text-white text-xl font-extrabold shadow-lg shadow-[#FE0404]/20 mb-6 group-hover:scale-110 group-hover:shadow-xl transition-all duration-300">
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-[#FE0404] to-[#CC0000] text-white text-xl font-extrabold shadow-lg shadow-[#FE0404]/20 mb-6 group-hover:scale-110 group-hover:shadow-xl group-hover:rotate-3 transition-all duration-500">
                       {s.step}
                     </div>
                     <h3 className="text-xl font-bold mb-3">{s.title}</h3>
@@ -259,11 +257,14 @@ export default async function HomePage({
         <RevealOnScroll delay={150}>
         <section className="relative py-24">
           <div className="container mx-auto px-4 sm:px-6">
-            <div className="relative rounded-3xl overflow-hidden">
+            <div className="relative rounded-3xl overflow-hidden grain-overlay">
               {/* Gradient background */}
               <div className="absolute inset-0 bg-gradient-to-br from-[#FE0404] via-[#E00303] to-[#AA0000]" />
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.15),transparent_50%)]" />
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(0,0,0,0.1),transparent_50%)]" />
+              {/* Animated orbs inside CTA */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl animate-pulse-glow" />
+              <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full blur-3xl animate-pulse-glow" style={{ animationDelay: '2s' }} />
 
               <div className="relative px-8 py-16 sm:px-16 sm:py-20 text-center text-white">
                 <h2 className="text-3xl sm:text-4xl font-extrabold mb-4">

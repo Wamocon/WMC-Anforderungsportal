@@ -6,6 +6,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { routing } from '@/i18n/routing';
 
 import { ThemeProvider } from '@/components/theme-provider';
+import { SpotlightCards } from '@/components/spotlight-cards';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -45,6 +46,7 @@ export default async function LocaleLayout({
       <body className="min-h-full flex flex-col bg-background text-foreground env-safe-area">
         <ThemeProvider>
           <NextIntlClientProvider messages={messages}>
+            <SpotlightCards />
             {children}
             <Toaster position="top-right" richColors />
           </NextIntlClientProvider>

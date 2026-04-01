@@ -51,7 +51,7 @@ export async function POST(req: Request) {
       model: google('gemini-2.5-flash'),
       system: SYSTEM_PROMPT,
       prompt: `Language: ${language}\n\nExisting questions already asked: ${existingLabels}\n\nClient's answers so far:\n${answeredSummary}\n\nGenerate additional questions in ${language} as JSON array:`,
-      maxOutputTokens: 300,
+      maxOutputTokens: 800,
       temperature: 0.6,
     });
 

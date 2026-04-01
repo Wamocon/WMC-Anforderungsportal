@@ -148,7 +148,7 @@ export default function ClientPortalLayout({
 
   return (
     <div className="flex h-screen overflow-hidden bg-muted/30">
-      <aside className="hidden lg:flex flex-col border-r border-border/50 bg-card/80 backdrop-blur-xl w-64">
+      <aside className="hidden lg:flex flex-col border-r border-border/30 glass-v2 w-64">
         <ClientPortalNavContent
           pathname={pathname}
           userEmail={userEmail}
@@ -170,7 +170,7 @@ export default function ClientPortalLayout({
       </Sheet>
 
       <div className="flex flex-1 flex-col overflow-hidden">
-        <header className="flex h-16 items-center border-b border-border/50 bg-card/80 backdrop-blur-xl px-4 lg:hidden">
+        <header className="flex h-16 items-center border-b border-border/30 glass-v2 px-4 lg:hidden">
           <button
             onClick={() => setMobileOpen(true)}
             className="inline-flex items-center justify-center rounded-lg p-2 text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
@@ -187,7 +187,7 @@ export default function ClientPortalLayout({
         </header>
 
         <main className="flex-1 overflow-y-auto">
-          <div className="container mx-auto p-4 sm:p-6 max-w-5xl animate-fade-in">
+          <div className="container mx-auto p-4 sm:p-6 max-w-5xl animate-page-enter">
             {children}
           </div>
         </main>

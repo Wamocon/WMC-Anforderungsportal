@@ -31,7 +31,7 @@ export default async function FormWelcomePage({
     return (
       <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-gray-100" />
-        <Card className="relative max-w-md w-full mx-4 border-0 shadow-2xl shadow-black/5 bg-card/80 backdrop-blur-xl">
+        <Card className="relative max-w-md w-full mx-4 border-0 shadow-2xl shadow-black/5 glass-v2 glow-border">
           <CardContent className="p-8 text-center">
             <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-orange-100 mb-4">
               <AlertTriangle className="h-8 w-8 text-orange-600" />
@@ -91,7 +91,7 @@ export default async function FormWelcomePage({
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl" />
 
       {/* Header */}
-      <header className="relative border-b border-border/40 bg-card/80 backdrop-blur-xl">
+      <header className="relative border-b border-border/30 glass-v2">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <WmcLogo size="md" />
           <LanguageSwitcher />
@@ -112,7 +112,7 @@ export default async function FormWelcomePage({
           </p>
         </div>
 
-        <Card className="mb-8 border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm">
+        <Card className="mb-8 border-0 shadow-md shadow-black/5 glass-v2 spotlight-card">
           <CardContent className="p-6 sm:p-8">
             <p className="text-foreground leading-relaxed whitespace-pre-line">
               {welcomeMessage}

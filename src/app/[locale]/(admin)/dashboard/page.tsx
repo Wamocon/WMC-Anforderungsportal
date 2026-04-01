@@ -135,24 +135,24 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       {/* Page Header */}
-      <div className="animate-slide-up">
+      <div className="animate-page-enter">
         <h1 className="text-3xl font-bold tracking-tight">{t('dashboard')}</h1>
         <p className="text-muted-foreground mt-1">{t('overview')}</p>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 perspective-container">
         {stats.map((stat, i) => (
-          <Card key={stat.title} className={`group border-0 shadow-md shadow-black/5 hover:shadow-xl hover:shadow-black/10 transition-all duration-300 hover:-translate-y-1 bg-card/80 backdrop-blur-sm ring-1 ${stat.ring} animate-slide-up stagger-${i + 1}`}>
+          <Card key={stat.title} className={`group border-0 shadow-md shadow-black/5 card-3d spotlight-card glass-v2 ring-1 ${stat.ring} stagger-enter`}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">
                     {stat.title}
                   </p>
-                  <p className="mt-2 text-3xl font-bold tracking-tight">{stat.value}</p>
+                  <p className="mt-2 text-3xl font-bold tracking-tight animate-count">{stat.value}</p>
                 </div>
-                <div className={`rounded-2xl ${stat.bg} p-3 group-hover:scale-110 transition-transform duration-300`}>
+                <div className={`rounded-2xl ${stat.bg} p-3 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
                   <stat.icon className={`h-6 w-6 ${stat.color}`} />
                 </div>
               </div>
@@ -164,7 +164,7 @@ export default function DashboardPage() {
       {/* Recent Activity + Quick Actions */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Recent Activity */}
-        <Card className="lg:col-span-2 border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm">
+        <Card className="lg:col-span-2 border-0 shadow-md shadow-black/5 glass-v2 spotlight-card">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <div className="rounded-lg bg-gradient-to-br from-gray-100 to-gray-50 p-1.5">
@@ -207,7 +207,7 @@ export default function DashboardPage() {
         </Card>
 
         {/* Quick Actions */}
-        <Card className="border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm">
+        <Card className="border-0 shadow-md shadow-black/5 glass-v2 spotlight-card">
           <CardHeader>
             <CardTitle className="text-lg">{t('quickActions')}</CardTitle>
           </CardHeader>

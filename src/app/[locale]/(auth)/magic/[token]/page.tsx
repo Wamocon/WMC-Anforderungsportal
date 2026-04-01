@@ -74,7 +74,7 @@ async function MagicLinkErrorContent({ reason }: { reason: string }) {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-gray-100" />
-      <Card className="relative w-full max-w-md text-center border-0 shadow-2xl shadow-black/5 bg-card/80 backdrop-blur-xl">
+      <Card className="relative w-full max-w-md text-center border-0 shadow-2xl shadow-black/5 glass-v2">
         <CardContent className="p-8">
           <AlertCircle className="h-12 w-12 mx-auto mb-4 text-destructive" />
           <h1 className="text-xl font-bold mb-2">

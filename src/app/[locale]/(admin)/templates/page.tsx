@@ -168,7 +168,7 @@ export default function TemplatesPage() {
       )}
 
       {templates.length === 0 ? (
-        <Card className="border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm">
+        <Card className="border-0 shadow-md shadow-black/5 glass-v2">
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
             <div className="rounded-2xl bg-muted p-4 mb-4">
               <FileText className="h-10 w-10 text-muted-foreground" />
@@ -190,7 +190,7 @@ export default function TemplatesPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {templates.map((template) => (
             <Link key={template.id} href={`/templates/${template.id}`}>
-              <Card className="border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm transition-all hover:shadow-lg hover:border-[#FE0404]/20 h-full cursor-pointer">
+              <Card className="border-0 shadow-md shadow-black/5 glass-v2 spotlight-card transition-all duration-300 hover:shadow-lg hover:border-[#FE0404]/20 h-full cursor-pointer">
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">

@@ -577,7 +577,7 @@ export default function MyProjectsPage() {
       {/* Stats Summary */}
       {totalProjects > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="rounded-2xl bg-card/80 backdrop-blur-sm border border-border/40 p-4 text-center shadow-sm">
+          <div className="rounded-2xl glass-v2 border border-border/30 p-4 text-center shadow-sm">
             <p className="text-2xl font-bold">{totalProjects}</p>
             <p className="text-xs text-muted-foreground mt-0.5">{t('client.totalProjects')}</p>
           </div>
@@ -687,7 +687,7 @@ export default function MyProjectsPage() {
 
       {/* Projects */}
       {projects.length === 0 ? (
-        <Card className="border-0 shadow-md bg-card/80 backdrop-blur-sm">
+        <Card className="border-0 shadow-md glass-v2">
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
             <div className="rounded-full bg-gray-100 p-4 mb-4">
               <Inbox className="h-8 w-8 text-muted-foreground" />
@@ -712,7 +712,7 @@ export default function MyProjectsPage() {
             return (
               <Card
                 key={project.id}
-                className={`border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm hover:shadow-lg transition-all duration-200 ${isPendingReview ? 'border-l-4 border-l-amber-400' : ''}`}
+                className={`border-0 shadow-md shadow-black/5 glass-v2 spotlight-card hover:shadow-lg transition-all duration-300 ${isPendingReview ? 'border-l-4 border-l-amber-400' : ''}`}
               >
                 <CardContent className="p-4 sm:p-6">
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">

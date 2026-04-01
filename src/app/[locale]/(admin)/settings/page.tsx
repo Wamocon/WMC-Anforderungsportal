@@ -135,7 +135,7 @@ export default function SettingsPage() {
         </p>
       </div>
 
-      <Card className="border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm">
+      <Card className="border-0 shadow-md shadow-black/5 glass-v2">
         <CardHeader>
           <CardTitle>{t('admin.organization')}</CardTitle>
         </CardHeader>
@@ -159,7 +159,7 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
-      <Card className="border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm">
+      <Card className="border-0 shadow-md shadow-black/5 glass-v2">
         <CardHeader>
           <CardTitle>{t('admin.branding')}</CardTitle>
         </CardHeader>
@@ -190,7 +190,7 @@ export default function SettingsPage() {
       <Separator />
 
       {/* Password Change Card */}
-      <Card className="border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm">
+      <Card className="border-0 shadow-md shadow-black/5 glass-v2">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Lock className="h-5 w-5" />

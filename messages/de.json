@@ -433,7 +433,11 @@
     "questions": "Fragen",
     "nOptions": "{count} Optionen",
     "projectLinkTitle": "Projekt-Link (OneDrive / Cloud-Speicher)",
-    "projectLinkDescription": "Teilen Sie einen Link zu Ihrem Projektordner auf OneDrive, Google Drive oder anderem Cloud-Speicher"
+    "projectLinkDescription": "Teilen Sie einen Link zu Ihrem Projektordner auf OneDrive, Google Drive oder anderem Cloud-Speicher",
+    "textareaHint": "Tipp: Für umfangreiche Details können Sie auch ein Dokument über \"Dokument anhängen\" beifügen.",
+    "fileTooLarge": "Datei zu groß (max. 10 MB)",
+    "fileTypeNotAllowed": "Dateityp nicht erlaubt",
+    "polishing": "Text wird optimiert…"
   },
   "response": {
     "allResponses": "Alle Antworten",
