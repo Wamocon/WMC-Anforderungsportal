@@ -128,7 +128,7 @@ export function InterviewClient({ projectName }: { projectName: string }) {
   return (
     <div className="flex min-h-screen flex-col">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-border/40 bg-card/80 backdrop-blur-xl shadow-sm">
+      <header className="sticky top-0 z-50 border-b border-border/40 glass-v2 shadow-sm">
         <div className="container mx-auto flex h-14 items-center justify-between px-4">
           <div className="flex items-center gap-3">
             <Link href="../">
@@ -201,7 +201,7 @@ export function InterviewClient({ projectName }: { projectName: string }) {
       </main>
 
       {/* Input */}
-      <div className="sticky bottom-0 border-t border-border/40 bg-card/80 backdrop-blur-xl">
+      <div className="sticky bottom-0 border-t border-border/40 glass-v2">
         <div className="container mx-auto max-w-2xl px-4 py-3">
           <div className="flex items-center gap-2">
             <VoiceRecorder

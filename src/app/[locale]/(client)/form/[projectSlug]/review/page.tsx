@@ -182,7 +182,7 @@ export default async function ReviewPage({
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
-      <header className="sticky top-0 z-50 border-b border-border/40 bg-card/80 backdrop-blur-xl shadow-sm">
+      <header className="sticky top-0 z-50 border-b border-border/30 glass-v2 shadow-sm">
         <div className="container mx-auto flex h-14 items-center justify-between px-4">
           <div className="flex items-center gap-3">
             <Link href={`/form/${projectSlug}/fill`}>

@@ -93,25 +93,26 @@ function LoginForm() {
   }
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center p-4 overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950" />
-      <div className="absolute top-0 right-0 w-96 h-96 bg-[#FE0404]/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl" />
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.02)_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear_gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem]" />
+    <div className="relative flex min-h-screen flex-col items-center justify-center p-4 overflow-hidden aurora-bg grain-overlay">
+      {/* Mesh gradient orbs */}
+      <div className="mesh-orb mesh-orb-1 w-[400px] h-[400px] top-[5%] right-[5%]" />
+      <div className="mesh-orb mesh-orb-2 w-[350px] h-[350px] bottom-[10%] left-[5%]" />
+      <div className="mesh-orb mesh-orb-3 w-[300px] h-[300px] top-[50%] left-[40%]" />
+      {/* Dot grid */}
+      <div className="absolute inset-0 dot-grid" />
 
       <div className="absolute top-4 right-4 z-10">
         <LanguageSwitcher />
       </div>
 
-      <div className="relative z-10 w-full max-w-md">
+      <div className="relative z-10 w-full max-w-md animate-page-enter">
         {/* Logo */}
         <Link href="/" className="flex justify-center mb-8">
           <WmcLogo size="xl" showTagline />
         </Link>
 
         {/* Card */}
-        <Card className="border-0 shadow-2xl shadow-black/5 bg-card/80 backdrop-blur-xl">
+        <Card className="border-0 shadow-2xl shadow-black/5 glass-v2 glow-border">
           <CardHeader className="text-center pb-2">
             <CardTitle className="text-2xl font-bold">{t('auth.loginTitle')}</CardTitle>
             <CardDescription className="text-base">{t('auth.loginSubtitle')}</CardDescription>

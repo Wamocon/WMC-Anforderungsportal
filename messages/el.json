@@ -433,7 +433,11 @@
     "questions": "ερωτήσεις",
     "nOptions": "{count} επιλογές",
     "projectLinkTitle": "Project Link (OneDrive / Cloud Storage)",
-    "projectLinkDescription": "Share a link to your project folder on OneDrive, Google Drive, or other cloud storage"
+    "projectLinkDescription": "Share a link to your project folder on OneDrive, Google Drive, or other cloud storage",
+    "textareaHint": "Tip: For extensive details, you can also attach a document via \"Attach document\" below.",
+    "fileTooLarge": "File too large (max 10 MB)",
+    "fileTypeNotAllowed": "File type not allowed",
+    "polishing": "Polishing text…"
   },
   "response": {
     "allResponses": "Όλες οι Απαντήσεις",

@@ -31,8 +31,8 @@ export async function POST(req: Request) {
     if (!allowed) return Response.json({ followUp: null });
 
     const body = await req.json();
-    const rawLabel = String(body.questionLabel ?? '').slice(0, 300);
-    const rawAnswer = String(body.userAnswer ?? '').slice(0, 2000);
+    const rawLabel = String(body.questionLabel ?? '').slice(0, 500);
+    const rawAnswer = String(body.userAnswer ?? '').slice(0, 5000);
     const locale = body.locale;
     const language = getLanguageName(locale);
 

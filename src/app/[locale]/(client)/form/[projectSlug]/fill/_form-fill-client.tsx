@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, lazy, Suspense } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,7 +19,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { LanguageSwitcher } from '@/components/language-switcher';
-import { VoiceRecorder } from '@/components/voice/voice-recorder';
 import { WmcLogo } from '@/components/wmc-logo';
 import { Link } from '@/i18n/navigation';
 import { polishTextClient } from '@/lib/polish-text-client';
@@ -42,7 +41,22 @@ import {
   Image,
   File,
   Link2,
+  Mic,
 } from 'lucide-react';
+
+// Lazy-load VoiceRecorder — it includes Web Speech API and MediaRecorder,
+// which are only needed when the user interacts with voice features
+const VoiceRecorder = lazy(() =>
+  import('@/components/voice/voice-recorder').then((m) => ({ default: m.VoiceRecorder }))
+);
+
+function VoiceRecorderFallback({ compact }: { compact?: boolean }) {
+  return (
+    <Button variant="ghost" size={compact ? 'icon' : 'sm'} disabled className="gap-2 opacity-50">
+      <Mic className="h-4 w-4" />
+    </Button>
+  );
+}
 
 export type QuestionType = 'text' | 'textarea' | 'radio' | 'multi_select' | 'checkbox' | 'file' | 'date' | 'select' | 'voice' | 'rating';
 
@@ -124,6 +138,8 @@ export function FormFillClient({
   const responseIdRef = useRef<string | null>(initialResponseId ?? null);
   const lastPolishedAnswerRef = useRef<Record<string, string>>({});
   const lastPolishedFollowUpRef = useRef<Record<string, string>>({});
+  const blurTimeoutRef = useRef<Record<string, NodeJS.Timeout>>({});
+  const [polishingField, setPolishingField] = useState<string | null>(null);
 
   // OneDrive / project link (optional)
   const [oneDriveLink, setOneDriveLink] = useState<string>(
@@ -240,21 +256,39 @@ export function FormFillClient({
     if (typeof currentValue !== 'string') return null;
 
     const normalizedValue = currentValue.trim();
-    if (normalizedValue.length < 5) return normalizedValue;
+    // Only polish text that is long enough to benefit from it
+    if (normalizedValue.length < 20) return normalizedValue;
+    // Skip polish for very long text — guide user to use attachment instead
+    if (normalizedValue.length > 10_000) return normalizedValue;
     if (lastPolishedAnswerRef.current[questionId] === normalizedValue) return normalizedValue;
 
-    const polished = await polishTextClient(normalizedValue, locale);
-    lastPolishedAnswerRef.current[questionId] = polished;
+    try {
+      setPolishingField(questionId);
+      const polished = await polishTextClient(normalizedValue, locale);
 
-    if (polished !== normalizedValue) {
-      setAnswers((prev) => {
-        if (prev[questionId] !== currentValue) return prev;
-        return { ...prev, [questionId]: polished };
-      });
-      debouncedSave();
+      // Safety: if polished text lost significant content, keep the original
+      if (polished.length < normalizedValue.length * 0.7) {
+        lastPolishedAnswerRef.current[questionId] = normalizedValue;
+        return normalizedValue;
+      }
+
+      lastPolishedAnswerRef.current[questionId] = polished;
+
+      if (polished !== normalizedValue) {
+        setAnswers((prev) => {
+          // Abort if user continued typing since blur
+          if (prev[questionId] !== currentValue) return prev;
+          return { ...prev, [questionId]: polished };
+        });
+        debouncedSave();
+      }
+
+      return polished;
+    } catch {
+      return normalizedValue;
+    } finally {
+      setPolishingField(null);
     }
-
-    return polished;
   }
 
   async function polishFollowUpAnswer(questionId: string) {
@@ -262,30 +296,53 @@ export function FormFillClient({
     if (!currentValue) return currentValue || '';
 
     const normalizedValue = currentValue.trim();
-    if (normalizedValue.length < 5) return normalizedValue;
+    if (normalizedValue.length < 20) return normalizedValue;
     if (lastPolishedFollowUpRef.current[questionId] === normalizedValue) return normalizedValue;
 
-    const polished = await polishTextClient(normalizedValue, locale);
-    lastPolishedFollowUpRef.current[questionId] = polished;
+    try {
+      const polished = await polishTextClient(normalizedValue, locale);
 
-    if (polished !== normalizedValue) {
-      setFollowUps((prev) => {
-        const existing = prev[questionId];
-        if (!existing || existing.answer !== currentValue) return prev;
-        return {
-          ...prev,
-          [questionId]: { ...existing, answer: polished },
-        };
-      });
-      debouncedSave();
+      // Safety: keep original if polished text lost content
+      if (polished.length < normalizedValue.length * 0.7) {
+        lastPolishedFollowUpRef.current[questionId] = normalizedValue;
+        return normalizedValue;
+      }
+
+      lastPolishedFollowUpRef.current[questionId] = polished;
+
+      if (polished !== normalizedValue) {
+        setFollowUps((prev) => {
+          const existing = prev[questionId];
+          if (!existing || existing.answer !== currentValue) return prev;
+          return {
+            ...prev,
+            [questionId]: { ...existing, answer: polished },
+          };
+        });
+        debouncedSave();
+      }
+
+      return polished;
+    } catch {
+      return normalizedValue;
     }
-
-    return polished;
   }
 
   async function handleAnswerBlur(questionId: string, questionLabel: string) {
-    const polished = await polishAnswer(questionId);
-    await requestFollowUp(questionId, questionLabel, polished ?? undefined);
+    // Debounce: wait 800ms after blur before triggering AI polish.
+    // If the user re-focuses and types more, the timeout is cleared in onChange.
+    if (blurTimeoutRef.current[questionId]) clearTimeout(blurTimeoutRef.current[questionId]);
+    blurTimeoutRef.current[questionId] = setTimeout(async () => {
+      const polished = await polishAnswer(questionId);
+      await requestFollowUp(questionId, questionLabel, polished ?? undefined);
+    }, 800);
+  }
+
+  function cancelBlurTimeout(questionId: string) {
+    if (blurTimeoutRef.current[questionId]) {
+      clearTimeout(blurTimeoutRef.current[questionId]);
+      delete blurTimeoutRef.current[questionId];
+    }
   }
 
   function toggleMultiSelect(questionId: string, option: string) {
@@ -383,6 +440,7 @@ export function FormFillClient({
   function handleFileUpload(questionId: string, e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
     if (!files) return;
+    const maxSizeBytes = 10 * 1024 * 1024;
     const allowed = [
       'application/pdf',
       'application/msword',
@@ -397,9 +455,23 @@ export function FormFillClient({
       'image/webp',
       'text/plain',
     ];
-    const validFiles = Array.from(files).filter(
-      (f) => allowed.includes(f.type) && f.size <= 10 * 1024 * 1024
+
+    const allFiles = Array.from(files);
+    const validFiles = allFiles.filter(
+      (f) => allowed.includes(f.type) && f.size <= maxSizeBytes
     );
+
+    // Show feedback for rejected files
+    const rejected = allFiles.filter(
+      (f) => !allowed.includes(f.type) || f.size > maxSizeBytes
+    );
+    if (rejected.length > 0) {
+      const names = rejected.map((f) => f.name).join(', ');
+      const reason = rejected.some((f) => f.size > maxSizeBytes)
+        ? t('form.fileTooLarge')
+        : t('form.fileTypeNotAllowed');
+      alert(`${reason}: ${names}`);
+    }
 
     // Upload each file to storage
     validFiles.forEach(async (file) => {
@@ -489,8 +561,8 @@ export function FormFillClient({
     setChatInput('');
     setChatLoading(true);
 
-    const polishedChatInput = await polishTextClient(rawChatInput, locale);
-    const userMsg: ChatMessage = { role: 'user', content: polishedChatInput };
+    // Don't polish chat messages — send the user's text as-is to preserve intent
+    const userMsg: ChatMessage = { role: 'user', content: rawChatInput };
     setChatMessages((prev) => [...prev, userMsg]);
 
     try {
@@ -515,7 +587,7 @@ export function FormFillClient({
               ? [{ role: 'user' as const, content: `[Context: Client's answers so far]\n${contextSummary}` }]
               : []),
             ...chatMessages.map((m) => ({ role: m.role, content: m.content })),
-            { role: 'user', content: polishedChatInput },
+            { role: 'user', content: rawChatInput },
           ],
           locale,
         }),
@@ -560,9 +632,9 @@ export function FormFillClient({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 pb-24 sm:pb-20">
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 pb-24 sm:pb-20 aurora-bg">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-border/40 bg-card/80 backdrop-blur-xl shadow-sm">
+      <header className="sticky top-0 z-50 border-b border-border/30 glass-v2 shadow-sm">
         <div className="container mx-auto flex h-14 items-center justify-between px-4">
           <Link href="/">
             <WmcLogo size="sm" />
@@ -602,7 +674,7 @@ export function FormFillClient({
       </header>
 
       {/* Section Navigation (pills) */}
-      <div className="border-b border-border/40 bg-card/50 backdrop-blur-sm">
+      <div className="border-b border-border/30 glass-v2">
         <div className="container mx-auto px-4 py-3 overflow-x-auto">
           <div className="flex gap-2 min-w-max">
             {sections.map((s, idx) => {
@@ -617,12 +689,12 @@ export function FormFillClient({
                 <button
                   key={s.id}
                   onClick={() => setCurrentSection(idx)}
-                  className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-300 ${
                     idx === currentSection
-                      ? 'bg-[#FE0404] text-white'
+                      ? 'bg-[#FE0404] text-white shadow-md shadow-[#FE0404]/20'
                       : isComplete
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-muted text-muted-foreground hover:bg-accent'
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                        : 'bg-muted text-muted-foreground hover:bg-accent hover:scale-105'
                   }`}
                 >
                   {isComplete && idx !== currentSection ? (
@@ -661,7 +733,7 @@ export function FormFillClient({
             return (
             <div key={question.id} className={`space-y-2 ${isSkipped ? 'opacity-50' : ''} ${isLater ? 'border-l-4 border-amber-400 pl-3' : ''}`}>
               {/* Main Question Card */}
-              <Card className="border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm transition-all hover:shadow-lg hover:shadow-black/10">
+              <Card className="border-0 shadow-md shadow-black/5 glass-v2 spotlight-card transition-all duration-300 hover:shadow-lg hover:shadow-black/8">
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between gap-2 mb-3">
                     <Label className="text-base font-medium flex items-center gap-2">
@@ -690,55 +762,97 @@ export function FormFillClient({
                         <div className="flex gap-2">
                           <Input
                             value={(answers[question.id] as string) || ''}
-                            onChange={(e) => updateAnswer(question.id, e.target.value)}
+                            onChange={(e) => { cancelBlurTimeout(question.id); updateAnswer(question.id, e.target.value); }}
+                            onFocus={() => cancelBlurTimeout(question.id)}
                             onBlur={() => void handleAnswerBlur(question.id, question.label)}
                             placeholder={t('form.yourAnswer')}
                           />
+                          <Suspense fallback={<VoiceRecorderFallback />}>
                           <VoiceRecorder
                             locale={locale}
                             onTranscript={(text) =>
                               updateAnswer(question.id, appendTranscript((answers[question.id] as string) || '', text))
                             }
                           />
+                          </Suspense>
                         </div>
                       )}
 
-                      {question.type === 'textarea' && (
+                      {question.type === 'textarea' && (() => {
+                        const textLen = ((answers[question.id] as string) || '').length;
+                        const maxChars = 10_000;
+                        const isPolishing = polishingField === question.id;
+                        return (
                         <div className="space-y-2">
-                          <Textarea
-                            value={(answers[question.id] as string) || ''}
-                            onChange={(e) => updateAnswer(question.id, e.target.value)}
-                            onBlur={() => void handleAnswerBlur(question.id, question.label)}
-                            placeholder={t('form.yourAnswer')}
-                            rows={4}
-                          />
-                          <div className="flex justify-end">
+                          <div className="relative">
+                            <Textarea
+                              value={(answers[question.id] as string) || ''}
+                              onChange={(e) => { cancelBlurTimeout(question.id); updateAnswer(question.id, e.target.value); }}
+                              onFocus={() => cancelBlurTimeout(question.id)}
+                              onBlur={() => void handleAnswerBlur(question.id, question.label)}
+                              placeholder={t('form.yourAnswer')}
+                              rows={6}
+                              className="min-h-[150px]"
+                            />
+                            {isPolishing && (
+                              <div className="absolute top-2 right-2 flex items-center gap-1.5 bg-background/90 backdrop-blur-sm rounded-md px-2 py-1 border border-border/50 shadow-sm">
+                                <Sparkles className="h-3 w-3 text-[#FE0404] animate-pulse" />
+                                <span className="text-xs text-muted-foreground">{t('form.polishing')}</span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <span className={`text-xs tabular-nums shrink-0 ${textLen > maxChars ? 'text-destructive font-medium' : textLen > maxChars * 0.8 ? 'text-amber-600' : 'text-muted-foreground'}`}>
+                                {textLen.toLocaleString()} / {maxChars.toLocaleString()}
+                              </span>
+                              {textLen > maxChars * 0.8 && (
+                                <p className="text-xs text-muted-foreground truncate">
+                                  {t('form.textareaHint')}
+                                </p>
+                              )}
+                            </div>
+                            <Suspense fallback={<VoiceRecorderFallback />}>
                             <VoiceRecorder
                               locale={locale}
                               onTranscript={(text) =>
                                 updateAnswer(question.id, appendTranscript((answers[question.id] as string) || '', text))
                               }
                             />
+                            </Suspense>
                           </div>
                         </div>
-                      )}
+                        );
+                      })()}
 
                       {question.type === 'voice' && (
                         <div className="space-y-2">
-                          <Textarea
-                            value={(answers[question.id] as string) || ''}
-                            onChange={(e) => updateAnswer(question.id, e.target.value)}
-                            onBlur={() => void handleAnswerBlur(question.id, question.label)}
-                            placeholder={t('form.yourAnswer')}
-                            rows={4}
-                          />
+                          <div className="relative">
+                            <Textarea
+                              value={(answers[question.id] as string) || ''}
+                              onChange={(e) => { cancelBlurTimeout(question.id); updateAnswer(question.id, e.target.value); }}
+                              onFocus={() => cancelBlurTimeout(question.id)}
+                              onBlur={() => void handleAnswerBlur(question.id, question.label)}
+                              placeholder={t('form.yourAnswer')}
+                              rows={6}
+                              className="min-h-[150px]"
+                            />
+                            {polishingField === question.id && (
+                              <div className="absolute top-2 right-2 flex items-center gap-1.5 bg-background/90 backdrop-blur-sm rounded-md px-2 py-1 border border-border/50 shadow-sm">
+                                <Sparkles className="h-3 w-3 text-[#FE0404] animate-pulse" />
+                                <span className="text-xs text-muted-foreground">{t('form.polishing')}</span>
+                              </div>
+                            )}
+                          </div>
                           <div className="flex justify-end">
+                            <Suspense fallback={<VoiceRecorderFallback />}>
                             <VoiceRecorder
                               locale={locale}
                               onTranscript={(text) =>
                                 updateAnswer(question.id, appendTranscript((answers[question.id] as string) || '', text))
                               }
                             />
+                            </Suspense>
                           </div>
                         </div>
                       )}
@@ -966,6 +1080,7 @@ export function FormFillClient({
                                 placeholder={t('form.yourClarification')}
                                 className="text-sm h-9 border-[#FE0404]/20 focus:border-[#FE0404] focus:ring-[#FE0404]/20"
                               />
+                              <Suspense fallback={<VoiceRecorderFallback compact />}>
                               <VoiceRecorder
                                 compact
                                 locale={locale}
@@ -973,6 +1088,7 @@ export function FormFillClient({
                                   updateFollowUpAnswer(question.id, appendTranscript(followUps[question.id].answer, text))
                                 }
                               />
+                              </Suspense>
                             </div>
                           </div>
                         </div>
@@ -988,7 +1104,7 @@ export function FormFillClient({
 
         {/* Optional Project Link (OneDrive / Google Drive / etc.) — shown on last section */}
         {currentSection === totalSections - 1 && (
-          <Card className="mt-6 border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm">
+          <Card className="mt-6 border-0 shadow-md shadow-black/5 glass-v2 spotlight-card">
             <CardContent className="p-5">
               <div className="flex items-start gap-3 mb-3">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/20">
@@ -1012,12 +1128,12 @@ export function FormFillClient({
         )}
 
         {/* Navigation */}
-        <div className="flex items-center justify-between mt-8 pt-6 border-t">
+        <div className="flex items-center justify-between mt-8 pt-6 border-t border-border/30">
           <Button
             variant="outline"
             onClick={() => setCurrentSection((prev) => Math.max(0, prev - 1))}
             disabled={currentSection === 0}
-            className="gap-2"
+            className="gap-2 hover:shadow-md transition-all duration-300"
           >
             <ArrowLeft className="h-4 w-4" />
             {t('common.previous')}
@@ -1029,14 +1145,14 @@ export function FormFillClient({
                 requestDynamicQuestions(currentSection);
                 setCurrentSection((prev) => Math.min(totalSections - 1, prev + 1));
               }}
-              className="bg-[#FE0404] hover:bg-[#E00303] text-white gap-2"
+              className="bg-[#FE0404] hover:bg-[#E00303] text-white gap-2 shadow-lg shadow-[#FE0404]/20 hover:shadow-xl hover:shadow-[#FE0404]/30 hover:-translate-y-0.5 transition-all duration-300"
             >
               {t('common.next')}
               <ArrowRight className="h-4 w-4" />
             </Button>
           ) : (
             <Link href={`/form/${projectSlug}/review`}>
-              <Button className="bg-[#FE0404] hover:bg-[#E00303] text-white gap-2">
+              <Button className="bg-[#FE0404] hover:bg-[#E00303] text-white gap-2 shadow-lg shadow-[#FE0404]/20 hover:shadow-xl hover:shadow-[#FE0404]/30 hover:-translate-y-0.5 transition-all duration-300">
                 {t('form.reviewTitle')}
                 <ChevronRight className="h-4 w-4" />
               </Button>
@@ -1048,7 +1164,7 @@ export function FormFillClient({
       {/* Floating AI Chat Assistant */}
       <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
         {chatOpen && (
-          <Card className="mb-3 w-[calc(100vw-3rem)] sm:w-[360px] max-h-[70vh] sm:max-h-[480px] flex flex-col border-0 shadow-2xl shadow-black/15 bg-card/95 backdrop-blur-xl animate-slide-up overflow-hidden rounded-2xl">
+          <Card className="mb-3 w-[calc(100vw-3rem)] sm:w-[360px] max-h-[70vh] sm:max-h-[480px] flex flex-col border-0 shadow-2xl shadow-black/15 glass-v2 animate-slide-up overflow-hidden rounded-2xl">
             {/* Chat Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b bg-gradient-to-r from-[#FE0404] to-[#D00303] text-white rounded-t-2xl">
               <div className="flex items-center gap-2">

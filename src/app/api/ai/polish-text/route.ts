@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     if (!allowed) return Response.json({ polished: null });
 
     const body = await req.json();
-    const rawText = String(body.text ?? '').slice(0, 3000);
+    const rawText = String(body.text ?? '').slice(0, 10_000);
     const locale = body.locale;
 
     if (!rawText || rawText.trim().length < 3) {
@@ -37,11 +37,19 @@ export async function POST(req: Request) {
       model: google('gemini-2.5-flash'),
       system: SYSTEM_PROMPT,
       prompt: `Locale hint: ${getLanguageName(locale)}\n\nPolish this text without summarizing it:\n${rawText}`,
-      maxOutputTokens: 500,
+      maxOutputTokens: 8192,
       temperature: 0.2,
     });
 
-    return Response.json({ polished: polished.trim() || rawText });
+    const result = polished.trim() || rawText;
+
+    // Safety: if the polished text is significantly shorter than the original,
+    // the AI likely summarized instead of polishing — return the original
+    if (result.length < rawText.length * 0.7) {
+      return Response.json({ polished: rawText });
+    }
+
+    return Response.json({ polished: result });
   } catch {
     return Response.json({ polished: null });
   }

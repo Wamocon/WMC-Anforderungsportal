@@ -305,7 +305,7 @@ export default function NewProjectPage() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <Card className="border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm">
+        <Card className="border-0 shadow-md shadow-black/5 glass-v2">
           <CardHeader>
             <CardTitle>{t('admin.projectDetails')}</CardTitle>
           </CardHeader>
@@ -416,7 +416,7 @@ export default function NewProjectPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm">
+        <Card className="border-0 shadow-md shadow-black/5 glass-v2">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Globe className="h-5 w-5 text-muted-foreground" />
@@ -444,7 +444,7 @@ export default function NewProjectPage() {
         </Card>
 
         {/* ── Project Attachments ───────────────────────────────── */}
-        <Card className="border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm">
+        <Card className="border-0 shadow-md shadow-black/5 glass-v2">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Paperclip className="h-5 w-5 text-muted-foreground" />

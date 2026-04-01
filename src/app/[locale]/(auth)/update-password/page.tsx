@@ -122,7 +122,7 @@ function UpdatePasswordForm() {
           <WmcLogo size="xl" showTagline />
         </Link>
 
-        <Card className="border-0 shadow-2xl shadow-black/5 bg-card/80 backdrop-blur-xl">
+        <Card className="border-0 shadow-2xl shadow-black/5 glass-v2">
           <CardHeader className="text-center pb-2">
             <CardTitle className="text-2xl font-bold">{t('auth.updatePassword')}</CardTitle>
             <CardDescription className="text-base">

@@ -361,7 +361,7 @@ export default function EditProjectPage() {
 
       <form onSubmit={handleSave} className="space-y-6">
         {/* Project Details */}
-        <Card className="border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm">
+        <Card className="border-0 shadow-md shadow-black/5 glass-v2">
           <CardHeader>
             <CardTitle>{t('admin.projectDetails')}</CardTitle>
           </CardHeader>
@@ -426,7 +426,7 @@ export default function EditProjectPage() {
         </Card>
 
         {/* Existing Attachments */}
-        <Card className="border-0 shadow-md shadow-black/5 bg-card/80 backdrop-blur-sm">
+        <Card className="border-0 shadow-md shadow-black/5 glass-v2">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Paperclip className="h-5 w-5 text-muted-foreground" />
