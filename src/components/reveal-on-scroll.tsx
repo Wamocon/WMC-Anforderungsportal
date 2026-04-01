@@ -32,7 +32,7 @@ export function RevealOnScroll({ children, className = '', delay = 0 }: RevealOn
   }, [delay]);
 
   return (
-    <div ref={ref} className={`reveal-on-scroll ${className}`}>
+    <div ref={ref} className={`reveal-on-scroll ${className}`} aria-live="polite">
       {children}
     </div>
   );

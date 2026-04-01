@@ -43,7 +43,11 @@
     "copied": "Kopyalandı!",
     "requirementManager": "Gereksinim Yöneticisi",
     "switchToLightMode": "Açık moda geç",
-    "switchToDarkMode": "Koyu moda geç"
+    "switchToDarkMode": "Koyu moda geç",
+    "pendingReview": "Pending Review",
+    "inProgress": "In Progress",
+    "submitted": "Submitted",
+    "reviewed": "Reviewed"
   },
   "auth": {
     "login": "Giriş yap",
@@ -256,7 +260,25 @@
     "rejectFailed": "Proje reddedilemedi",
     "rejectProjectConfirm": "\"{name}\" projesini reddet? Arşivlenecek.",
     "oneDriveLink": "OneDrive Bağlantısı",
-    "filesAttached": "dosya eklendi"
+    "filesAttached": "dosya eklendi",
+    "proposalReviewTitle": "Project Proposal Review",
+    "proposalReviewDesc": "This project was proposed by a product owner and is awaiting your review. Review the details below and approve or reject.",
+    "approveAndActivate": "Approve & Activate",
+    "rejectAndArchive": "Reject & Archive",
+    "staffNoteLabel": "Staff Note (optional)",
+    "staffNotePlaceholder": "Add a note about your decision...",
+    "sendFollowUpToOwner": "Send Follow-up to Product Owner",
+    "followUpToOwnerDesc": "Ask the product owner for clarification before making your decision.",
+    "followUpMessageLabel": "Your Question",
+    "followUpMessagePlaceholder": "e.g., Can you clarify the target audience for this project? What is the expected timeline?",
+    "followUpSentToOwner": "Follow-up sent to product owner",
+    "followUpSendFailed": "Failed to send follow-up",
+    "proposedBy": "Proposed by",
+    "proposedOn": "Proposed on",
+    "reviewActions": "Review Actions",
+    "askBeforeApproving": "Ask Before Approving",
+    "markAsReviewed": "Mark as Reviewed",
+    "markedAsReviewed": "Response marked as reviewed"
   },
   "project": {
     "newProject": "Yeni Proje",

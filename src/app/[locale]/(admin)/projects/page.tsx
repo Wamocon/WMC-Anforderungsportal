@@ -436,7 +436,7 @@ export default function ProjectsPage() {
                 ? projects.length
                 : projects.filter((p) => p.status === s).length;
             const isActive = statusFilter === s;
-            const tabLabel = s === 'all' ? 'All' : s === 'pending_review' ? 'Pending Review' : s.charAt(0).toUpperCase() + s.slice(1);
+            const tabLabel = s === 'all' ? t('common.all') : s === 'pending_review' ? t('common.pendingReview') : t(`common.${s}`, { defaultValue: s.charAt(0).toUpperCase() + s.slice(1) });
             return (
               <button
                 key={s}
@@ -695,7 +695,7 @@ export default function ProjectsPage() {
                       <div className="mt-4 pt-3 border-t flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
                           <Badge variant="secondary" className={`text-[11px] font-medium px-2 py-0.5 ${cfg.badge}`}>
-                            {cfg.label}
+                            {project.status === 'pending_review' ? t('common.pendingReview') : t(`common.${project.status}`, { defaultValue: cfg.label })}
                           </Badge>
                           <span className={`inline-flex items-center gap-1 text-xs font-medium rounded-full px-2 py-0.5 transition-colors ${
                             count > 0

@@ -68,7 +68,7 @@ async function cleanupTestData(page: Page) {
   // (This avoids needing a custom cleanup API route.)
   await page.evaluate(
     async ({ projectId, responseId }) => {
-      const SUPABASE_URL = (window as Record<string, unknown>).__NEXT_DATA__
+      const SUPABASE_URL = (window as unknown as Record<string, unknown>).__NEXT_DATA__
         ? undefined
         : undefined;
       return { projectId, responseId };
