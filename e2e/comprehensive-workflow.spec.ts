@@ -621,24 +621,22 @@ test.describe('I. Negative tests & edge cases', () => {
     expect(response.status()).toBeGreaterThanOrEqual(400);
   });
 
-  test('I6. AI polish API handles empty text gracefully', async ({ page }) => {
+  test('I6. AI polish API rejects unauthenticated requests', async ({ page }) => {
     const response = await page.request.post(`${BASE}/api/ai/polish-text`, {
       data: { text: '', locale: 'de' },
       headers: { 'Content-Type': 'application/json' },
     });
-    expect(response.status()).toBe(200);
-    const data = await response.json();
-    expect(data.polished).toBeDefined();
+    // Unauthenticated requests should be rejected (auth protection)
+    expect(response.status()).toBe(401);
   });
 
-  test('I7. AI followup API handles missing fields gracefully', async ({ page }) => {
+  test('I7. AI followup API rejects unauthenticated requests', async ({ page }) => {
     const response = await page.request.post(`${BASE}/api/ai/followup`, {
       data: {},
       headers: { 'Content-Type': 'application/json' },
     });
-    expect(response.status()).toBe(200);
-    const data = await response.json();
-    expect(data.followUp).toBeNull();
+    // Unauthenticated requests should be rejected (auth protection)
+    expect(response.status()).toBe(401);
   });
 
   test('I8. Invalid locale renders gracefully', async ({ page }) => {

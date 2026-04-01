@@ -2,6 +2,7 @@ import { google } from '@ai-sdk/google';
 import { generateText } from 'ai';
 import { rateLimit, getRateLimitHeaders } from '@/lib/rate-limit';
 import { getLanguageName } from '@/lib/lang-map';
+import { verifyAuth } from '@/lib/auth-edge';
 
 // Edge runtime: fast, 30-second timeout, compatible with AI calls.
 // DB persistence is handled client-side after the summary is returned.
@@ -77,6 +78,12 @@ RULES:
 
 export async function POST(req: Request) {
   try {
+    // Auth check: only authenticated users can use AI features
+    const user = await verifyAuth(req);
+    if (!user) {
+      return Response.json({ error: 'Authentication required' }, { status: 401 });
+    }
+
     const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
     const { allowed, remaining } = rateLimit(ip);
     if (!allowed) {

@@ -397,10 +397,18 @@ export default function ResponseDetailPage() {
 
   const statusColors: Record<string, string> = {
     draft: 'bg-muted text-muted-foreground',
-    in_progress: 'bg-blue-100 text-blue-800',
-    submitted: 'bg-green-100 text-green-800',
-    reviewed: 'bg-purple-100 text-purple-800',
+    in_progress: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+    submitted: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+    reviewed: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
   };
+
+  function resolveStatusLabel(status: string): string {
+    const map: Record<string, string> = {
+      draft: t('common.draft'), in_progress: t('common.inProgress'),
+      submitted: t('common.submitted'), reviewed: t('common.reviewed'),
+    };
+    return map[status] || status;
+  }
 
   if (loading) {
     return (
@@ -452,7 +460,7 @@ export default function ResponseDetailPage() {
               {response.respondent_name || response.respondent_email}
             </h1>
             <Badge className={statusColors[response.status] || ''}>
-              {response.status.replace('_', ' ')}
+              {resolveStatusLabel(response.status)}
             </Badge>
           </div>
           <p className="text-muted-foreground mt-1 truncate">
@@ -806,7 +814,7 @@ export default function ResponseDetailPage() {
         <Link href="/responses">
           <Button variant="outline" className="gap-2 w-full sm:w-auto">
             <ArrowLeft className="h-4 w-4" />
-            Back to Responses
+            {t('admin.backToResponses')}
           </Button>
         </Link>
         {response.status === 'submitted' && (
@@ -818,12 +826,12 @@ export default function ResponseDetailPage() {
                 .from('responses')
                 .update({ status: 'reviewed' })
                 .eq('id', responseId);
-              toast.success('Response marked as reviewed');
+              toast.success(t('admin.markedAsReviewed'));
               loadData();
             }}
           >
             <CheckCircle2 className="h-4 w-4" />
-            Mark as Reviewed
+            {t('admin.markAsReviewed')}
           </Button>
         )}
       </div>

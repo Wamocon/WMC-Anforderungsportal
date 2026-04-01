@@ -2,6 +2,7 @@ import { google } from '@ai-sdk/google';
 import { streamText, type ModelMessage } from 'ai';
 import { rateLimit, getRateLimitHeaders } from '@/lib/rate-limit';
 import { getLanguageName } from '@/lib/lang-map';
+import { verifyAuth } from '@/lib/auth-edge';
 
 export const runtime = 'edge';
 
@@ -34,6 +35,12 @@ const MAX_MESSAGE_LENGTH = 4000;
 
 export async function POST(req: Request) {
   try {
+    // Auth check: only authenticated users can use AI features
+    const user = await verifyAuth(req);
+    if (!user) {
+      return new Response('Authentication required', { status: 401 });
+    }
+
     const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
     const { allowed, remaining } = rateLimit(ip);
     if (!allowed) {
@@ -75,7 +82,8 @@ export async function POST(req: Request) {
     });
 
     return result.toTextStreamResponse();
-  } catch {
+  } catch (err) {
+    console.error('[ai/chat]', err instanceof Error ? err.message : err);
     return new Response('AI service temporarily unavailable. Please try again.', { status: 500 });
   }
 }

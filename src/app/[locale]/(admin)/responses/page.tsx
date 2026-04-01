@@ -168,7 +168,7 @@ export default function ResponsesPage() {
                     : 'bg-muted text-muted-foreground hover:bg-muted/80'
                 }`}
               >
-                {s === 'all' ? 'All' : statusConfig[s]?.label ?? s}
+                {s === 'all' ? t('common.all') : t(`common.${s === 'in_progress' ? 'inProgress' : s}`, { defaultValue: statusConfig[s]?.label ?? s })}
                 <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${isActive ? 'bg-white/20' : 'bg-background'}`}>
                   {count}
                 </span>
@@ -242,7 +242,7 @@ export default function ResponsesPage() {
                       </TableCell>
                       <TableCell>
                         <Badge variant="secondary" className={cfg?.color ?? ''}>
-                          {cfg?.label ?? response.status}
+                          {t(`common.${response.status === 'in_progress' ? 'inProgress' : response.status}`, { defaultValue: cfg?.label ?? response.status })}
                         </Badge>
                       </TableCell>
                       <TableCell>

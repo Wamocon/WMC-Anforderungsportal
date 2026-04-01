@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
 function requireEnv(name: string): string {
   const value = process.env[name];
@@ -20,7 +20,7 @@ const breakpoints = [
   { name: 'desktop-1440', width: 1440, height: 960 },
 ];
 
-async function collectOverflow(page: Parameters<typeof test>[0]['page']) {
+async function collectOverflow(page: Page) {
   return page.evaluate(() => {
     const viewportWidth = window.innerWidth;
     const offenders: Array<{ tag: string; classes: string; text: string; right: number; left: number; width: number }> = [];

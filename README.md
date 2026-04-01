@@ -1,36 +1,88 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# WMC Anforderungsportal
+
+A modern, AI-powered requirements collection platform built by **WMC — Wamocon Consulting**.
+
+## Overview
+
+The Anforderungsportal helps businesses collect, organise, and review project requirements through structured digital forms, voice input, and AI-driven text improvement. It replaces chaotic email exchanges with a guided, multi-language workflow.
+
+## Key Features
+
+- **Smart Forms** — Template-based requirement forms with sections and various question types
+- **Voice Input** — Speech-to-text with real-time transcription via Web Speech API
+- **AI Polish** — Google Gemini-powered text refinement for professional requirement documents
+- **AI Interviewer** — Conversational chat mode for guided requirement collection
+- **25 Languages** — Full internationalisation with `next-intl` (default: German)
+- **Role-Based Access** — Super Admin, Staff, and Product Owner roles with row-level security
+- **Dark/Light Mode** — Theme toggle with automatic preference persistence
+- **GDPR Compliant** — EU-hosted data, encrypted transport, no training on user data
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 16 (App Router) |
+| Language | TypeScript, React 19 |
+| Database | Supabase (PostgreSQL) with RLS |
+| AI | Google Gemini via Vercel AI SDK |
+| Styling | Tailwind CSS 4, shadcn/ui |
+| State | Zustand |
+| i18n | next-intl (25 locales) |
+| Testing | Playwright (E2E) |
+| Deployment | Vercel |
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+# Install dependencies
+npm install
+
+# Set up environment variables (copy and fill in secrets)
+cp .env.example .env.local
+
+# Start development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+├── app/
+│   ├── [locale]/
+│   │   ├── (admin)/      # Admin dashboard, projects, templates, responses
+│   │   ├── (auth)/       # Login, magic link, password reset
+│   │   ├── (client)/     # Client form (fill + interview modes)
+│   │   ├── (portal)/     # My Projects, Account
+│   │   └── landing/      # Marketing landing page
+│   └── api/              # AI endpoints, form logic, auth callbacks
+├── components/           # Reusable UI + voice recorder
+├── i18n/                 # Routing and locale configuration
+└── lib/                  # Utilities, Supabase client, rate limiting
+messages/                 # Translation JSON files (25 languages)
+supabase/migrations/      # Database schema migrations
+e2e/                      # Playwright end-to-end tests
+scripts/                  # Translation sync and E2E setup utilities
+docs/                     # User manuals (EN + DE)
+```
 
-## Learn More
+## Scripts
 
-To learn more about Next.js, take a look at the following resources:
+| Command | Purpose |
+|---------|---------|
+| `npm run dev` | Start development server |
+| `npm run build` | Production build |
+| `npm run lint` | Run ESLint |
+| `npx playwright test` | Run E2E tests |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Documentation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+User manuals are available in the `docs/` directory:
+- `WMC_Anforderungsportal_User_Manual_EN.docx` — English
+- `WMC_Anforderungsportal_Benutzerhandbuch_DE.docx` — German
 
-## Deploy on Vercel
+## License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Proprietary — WMC Wamocon Consulting. All rights reserved.

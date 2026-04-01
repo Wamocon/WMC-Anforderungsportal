@@ -5,13 +5,12 @@ import { routing } from '@/i18n/routing';
 
 const intlMiddleware = createMiddleware(routing);
 
-// Admin routes that require authentication
+// Page routes that require authentication
 const PROTECTED_PATHS = ['/dashboard', '/projects', '/templates', '/responses', '/settings', '/my-projects', '/account'];
 
 function isProtectedPath(pathname: string): boolean {
   // Strip locale prefix (e.g. /en/dashboard -> /dashboard)
   const segments = pathname.split('/');
-  // segments: ['', 'en', 'dashboard', ...] or ['', 'dashboard', ...]
   const pathWithoutLocale = segments.length > 2 ? '/' + segments.slice(2).join('/') : pathname;
   return PROTECTED_PATHS.some((p) => pathWithoutLocale.startsWith(p));
 }
@@ -24,16 +23,33 @@ function getLocaleFromPath(pathname: string): string {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Skip middleware for static files and API routes
+  // Skip middleware for static files
   if (
     pathname.startsWith('/_next') ||
-    pathname.startsWith('/api') ||
-    pathname.includes('.') // static files
+    pathname.includes('.') // static files like favicon.svg
   ) {
     return NextResponse.next();
   }
 
-  // Refresh Supabase session
+  // ── Protect AI API routes: require authenticated user ──────────────
+  if (pathname.startsWith('/api/ai/')) {
+    const { user } = await updateSession(request);
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+    // User is authenticated — let the request through
+    return NextResponse.next();
+  }
+
+  // Skip middleware for other API routes (auth callbacks, form saves, etc.)
+  if (pathname.startsWith('/api')) {
+    return NextResponse.next();
+  }
+
+  // Refresh Supabase session for page routes
   const { supabaseResponse, user } = await updateSession(request);
 
   // Auth guard: redirect unauthenticated users from admin routes to login
@@ -75,7 +91,9 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Match all pathnames except static files and api routes
-    '/((?!_next|api|.*\\..*).*)',
+    // Match all pathnames except static files
+    '/((?!_next|.*\\..*).*)',
+    // Also match AI API routes for auth protection
+    '/api/ai/:path*',
   ],
 };

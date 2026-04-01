@@ -507,7 +507,7 @@ test.describe('Security Headers', () => {
 test.describe('AI Language Configuration', () => {
   test('chat API includes locale in request body', async ({ page }) => {
     // Intercept the chat API call and verify locale is sent
-    let capturedBody: string | null = null;
+    let capturedBody: string | null = null as string | null;
     await page.route('**/api/ai/chat', async (route) => {
       capturedBody = route.request().postData();
       await route.fulfill({ status: 200, body: 'OK', contentType: 'text/plain' });

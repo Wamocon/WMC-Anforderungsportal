@@ -2,6 +2,7 @@ import { google } from '@ai-sdk/google';
 import { generateText } from 'ai';
 import { rateLimit } from '@/lib/rate-limit';
 import { getLanguageName } from '@/lib/lang-map';
+import { verifyAuth } from '@/lib/auth-edge';
 
 export const runtime = 'edge';
 
@@ -21,6 +22,12 @@ RULES:
 
 export async function POST(req: Request) {
   try {
+    // Auth check: only authenticated users can use AI features
+    const user = await verifyAuth(req);
+    if (!user) {
+      return Response.json({ error: 'Authentication required' }, { status: 401 });
+    }
+
     const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
     const { allowed } = rateLimit(ip);
     if (!allowed) return Response.json({ questions: [] });
@@ -69,7 +76,8 @@ export async function POST(req: Request) {
     }
 
     return Response.json({ questions: Array.isArray(questions) ? questions.slice(0, 2) : [] });
-  } catch {
+  } catch (err) {
+    console.error('[ai/dynamic-questions]', err instanceof Error ? err.message : err);
     return Response.json({ questions: [] });
   }
 }
