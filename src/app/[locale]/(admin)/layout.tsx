@@ -21,6 +21,7 @@ import {
   ChevronLeft,
   Loader2,
   Archive,
+  ClipboardList,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
@@ -28,6 +29,7 @@ const ADMIN_ROLES = ['super_admin', 'staff'];
 
 const navItems = [
   { key: 'dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { key: 'requirements', href: '/requirements', icon: ClipboardList },
   { key: 'projects', href: '/projects', icon: FolderKanban },
   { key: 'templates', href: '/templates', icon: FileText },
   { key: 'responses', href: '/responses', icon: MessageSquareText },

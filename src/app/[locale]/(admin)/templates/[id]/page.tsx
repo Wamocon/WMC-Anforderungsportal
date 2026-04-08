@@ -96,10 +96,16 @@ function SortableQuestion({
   q,
   getLabel,
   onDelete,
+  typeLabel,
+  requiredLabel,
+  optionsLabel,
 }: {
   q: QuestionRow;
   getLabel: (obj: Record<string, string> | string | null) => string;
   onDelete: (id: string) => void;
+  typeLabel: string;
+  requiredLabel: string;
+  optionsLabel: (count: number) => string;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: q.id });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
@@ -112,12 +118,12 @@ function SortableQuestion({
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium break-words">{getLabel(q.label)}</p>
         <div className="flex flex-wrap items-center gap-2 mt-0.5">
-          <Badge variant="outline" className="text-xs">{q.type}</Badge>
+          <Badge variant="outline" className="text-xs">{typeLabel}</Badge>
           {q.is_required && (
-            <Badge variant="outline" className="text-xs text-[#FE0404] border-[#FE0404]/30">Required</Badge>
+            <Badge variant="outline" className="text-xs text-[#FE0404] border-[#FE0404]/30">{requiredLabel}</Badge>
           )}
           {q.options && Array.isArray(q.options) && q.options.length > 0 && (
-            <span className="text-xs text-muted-foreground">{q.options.length} options</span>
+            <span className="text-xs text-muted-foreground">{optionsLabel(q.options.length)}</span>
           )}
         </div>
       </div>
@@ -435,14 +441,21 @@ export default function TemplateDetailPage() {
                 >
                   <SortableContext items={sQuestions.map((q) => q.id)} strategy={verticalListSortingStrategy}>
                     <div className="divide-y">
-                      {sQuestions.map((q) => (
-                        <SortableQuestion
-                          key={q.id}
-                          q={q}
-                          getLabel={getLabel}
-                          onDelete={deleteQuestion}
-                        />
-                      ))}
+                      {sQuestions.map((q) => {
+                        const qtDef = QUESTION_TYPES.find(qt => qt.value === q.type);
+                        const tLabel = qtDef ? t(`template.${qtDef.labelKey}`) : q.type;
+                        return (
+                          <SortableQuestion
+                            key={q.id}
+                            q={q}
+                            getLabel={getLabel}
+                            onDelete={deleteQuestion}
+                            typeLabel={tLabel}
+                            requiredLabel={t('common.required')}
+                            optionsLabel={(count) => t('common.nOptions', { count: String(count) })}
+                          />
+                        );
+                      })}
                     </div>
                   </SortableContext>
                 </DndContext>
@@ -466,38 +479,38 @@ export default function TemplateDetailPage() {
       <Dialog open={sectionDialogOpen} onOpenChange={setSectionDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Section</DialogTitle>
+            <DialogTitle>{t('template.addSection')}</DialogTitle>
             <DialogDescription>
-              Sections group related questions together.
+              {t('template.sectionDescription')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label>Section Title *</Label>
+              <Label>{t('template.sectionTitle')} *</Label>
               <Input
                 value={newSectionTitle}
                 onChange={(e) => setNewSectionTitle(e.target.value)}
-                placeholder="e.g., Project Overview"
+                placeholder={t('template.sectionPlaceholder')}
               />
             </div>
             <div className="space-y-2">
-              <Label>Description</Label>
+              <Label>{t('template.descriptionLabel')}</Label>
               <Textarea
                 value={newSectionDesc}
                 onChange={(e) => setNewSectionDesc(e.target.value)}
-                placeholder="Brief description of this section..."
+                placeholder={t('template.descPlaceholder')}
                 rows={2}
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setSectionDialogOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setSectionDialogOpen(false)}>{t('common.cancel')}</Button>
             <Button
               onClick={addSection}
               disabled={!newSectionTitle.trim()}
               className="bg-[#FE0404] hover:bg-[#E00303] text-white"
             >
-              Add Section
+              {t('template.addSection')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -507,22 +520,22 @@ export default function TemplateDetailPage() {
       <Dialog open={questionDialogOpen} onOpenChange={setQuestionDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Question</DialogTitle>
+            <DialogTitle>{t('template.addQuestion')}</DialogTitle>
             <DialogDescription>
-              Define a new question for this section.
+              {t('template.defineQuestion')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label>Question *</Label>
+              <Label>{t('template.questionStar')}</Label>
               <Input
                 value={newQuestionLabel}
                 onChange={(e) => setNewQuestionLabel(e.target.value)}
-                placeholder="e.g., What is the target audience?"
+                placeholder={t('template.questionPlaceholderExample')}
               />
             </div>
             <div className="space-y-2">
-              <Label>Type</Label>
+              <Label>{t('template.typeLabel')}</Label>
               <Select value={newQuestionType} onValueChange={(v) => { if (v) setNewQuestionType(v as QuestionType); }}>
                 <SelectTrigger>
                   <SelectValue />
@@ -536,17 +549,17 @@ export default function TemplateDetailPage() {
             </div>
             {['radio', 'multi_select', 'select', 'checkbox'].includes(newQuestionType) && (
               <div className="space-y-2">
-                <Label>Options (one per line)</Label>
+                <Label>{t('template.optionsLabel')}</Label>
                 <Textarea
                   value={newQuestionOptions}
                   onChange={(e) => setNewQuestionOptions(e.target.value)}
-                  placeholder={"Option 1\nOption 2\nOption 3"}
+                  placeholder={t('template.optionsPlaceholder')}
                   rows={4}
                 />
               </div>
             )}
             <div className="flex items-center justify-between">
-              <Label>Required</Label>
+              <Label>{t('template.questionRequired')}</Label>
               <Switch
                 checked={newQuestionRequired}
                 onCheckedChange={setNewQuestionRequired}
@@ -554,13 +567,13 @@ export default function TemplateDetailPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setQuestionDialogOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setQuestionDialogOpen(false)}>{t('common.cancel')}</Button>
             <Button
               onClick={addQuestion}
               disabled={!newQuestionLabel.trim()}
               className="bg-[#FE0404] hover:bg-[#E00303] text-white"
             >
-              Add Question
+              {t('template.addQuestion')}
             </Button>
           </DialogFooter>
         </DialogContent>

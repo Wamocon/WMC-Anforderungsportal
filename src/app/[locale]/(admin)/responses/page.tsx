@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/table';
 import { createClient } from '@/lib/supabase/client';
 import { Link } from '@/i18n/navigation';
+import { statusKey } from '@/lib/utils';
 
 type ResponseRow = {
   id: string;
@@ -112,7 +113,7 @@ export default function ResponsesPage() {
             {t('response.allResponses')}
           </h1>
           <p className="text-muted-foreground mt-1">
-            {responses.length} total · {responses.filter(r => r.status === 'submitted').length} pending review
+            {t('response.totalPending', { total: responses.length, pending: responses.filter(r => r.status === 'submitted').length })}
           </p>
         </div>
         <Button variant="outline" className="gap-2 self-start sm:self-center shrink-0" onClick={() => {
@@ -143,7 +144,7 @@ export default function ResponsesPage() {
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
           <Input
-            placeholder="Search by name, email, or project…"
+            placeholder={t('response.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9 pr-9"
@@ -168,7 +169,7 @@ export default function ResponsesPage() {
                     : 'bg-muted text-muted-foreground hover:bg-muted/80'
                 }`}
               >
-                {s === 'all' ? t('common.all') : t(`common.${s === 'in_progress' ? 'inProgress' : s}`, { defaultValue: statusConfig[s]?.label ?? s })}
+                {s === 'all' ? t('common.all') : t(`common.${statusKey(s)}`)}
                 <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${isActive ? 'bg-white/20' : 'bg-background'}`}>
                   {count}
                 </span>
@@ -177,7 +178,7 @@ export default function ResponsesPage() {
           })}
           {hasActiveFilters && (
             <button onClick={() => { setSearchQuery(''); setStatusFilter('all'); }} className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground ml-1">
-              <X className="h-3 w-3" /> Clear
+              <X className="h-3 w-3" /> {t('response.clear')}
             </button>
           )}
         </div>
@@ -191,9 +192,9 @@ export default function ResponsesPage() {
             </div>
             {hasActiveFilters ? (
               <>
-                <h3 className="text-lg font-semibold mb-2">No responses match your filters</h3>
-                <p className="text-muted-foreground max-w-md mb-6">Try adjusting your search or filter criteria.</p>
-                <Button variant="outline" onClick={() => { setSearchQuery(''); setStatusFilter('all'); }}>Clear Filters</Button>
+                <h3 className="text-lg font-semibold mb-2">{t('response.noMatchTitle')}</h3>
+                <p className="text-muted-foreground max-w-md mb-6">{t('response.noMatchDesc')}</p>
+                <Button variant="outline" onClick={() => { setSearchQuery(''); setStatusFilter('all'); }}>{t('requirements.clearFilters')}</Button>
               </>
             ) : (
               <>
@@ -206,7 +207,7 @@ export default function ResponsesPage() {
       ) : (
         <>
           <p className="text-xs text-muted-foreground -mt-2">
-            Showing {filteredResponses.length} of {responses.length} responses
+            {t('response.showingOf', { filtered: filteredResponses.length, total: responses.length })}
           </p>
           <Card className="overflow-hidden border">
             <div className="overflow-x-auto">
@@ -242,7 +243,7 @@ export default function ResponsesPage() {
                       </TableCell>
                       <TableCell>
                         <Badge variant="secondary" className={cfg?.color ?? ''}>
-                          {t(`common.${response.status === 'in_progress' ? 'inProgress' : response.status}`, { defaultValue: cfg?.label ?? response.status })}
+                          {t(`common.${statusKey(response.status)}`)}
                         </Badge>
                       </TableCell>
                       <TableCell>

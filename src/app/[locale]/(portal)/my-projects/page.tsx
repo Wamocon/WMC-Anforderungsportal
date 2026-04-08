@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useLocale } from 'next-intl';
 import { Card, CardContent } from '@/components/ui/card';
@@ -33,7 +33,12 @@ import {
   Link2,
   ExternalLink,
   X,
+  Globe,
+  Smartphone,
+  Brain,
+  Check,
 } from 'lucide-react';
+import type { RequirementType } from '@/lib/supabase/types';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import { Textarea } from '@/components/ui/textarea';
@@ -103,10 +108,11 @@ export default function MyProjectsPage() {
 
   // Propose project dialog state
   const [proposeOpen, setProposeOpen] = useState(false);
-  const [proposeForm, setProposeForm] = useState({ name: '', description: '', onedriveLink: '' });
+  const [proposeForm, setProposeForm] = useState({ name: '', description: '', onedriveLink: '', requirementTypes: ['web_application'] as RequirementType[] });
   const [proposing, setProposing] = useState(false);
   const [proposeFiles, setProposeFiles] = useState<File[]>([]);
   const proposeFileRef = useRef<HTMLInputElement>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     async function load() {
@@ -249,7 +255,7 @@ export default function MyProjectsPage() {
       }
     }
     load();
-  }, []);
+  }, [reloadKey]);
 
   function toggleAttachments(projectId: string) {
     setExpandedAttachments(prev => {
@@ -321,11 +327,17 @@ export default function MyProjectsPage() {
       }
     }
 
+    // Validate at least one type selected
+    if (proposeForm.requirementTypes.length === 0) {
+      toast.error(t('requirements.typeMultiHint'));
+      return;
+    }
+
     // Validate file sizes
     const MAX_FILE_SIZE = 50 * 1024 * 1024;
     const oversized = proposeFiles.find(f => f.size > MAX_FILE_SIZE);
     if (oversized) {
-      toast.error(`"${oversized.name}" exceeds 50 MB limit.`);
+      toast.error(t('errors.fileTooLarge', { size: 50 }));
       return;
     }
 
@@ -349,6 +361,7 @@ export default function MyProjectsPage() {
         slug: slug + '-' + Date.now().toString(36),
         description: proposeForm.description.trim() || null,
         status: 'pending_review' as const,
+        requirement_type: proposeForm.requirementTypes,
         created_by: user.id,
         onedrive_link: link || null,
         deadline_days: 5,
@@ -386,9 +399,10 @@ export default function MyProjectsPage() {
 
       toast.success(t('client.proposeSuccess'));
       setProposeOpen(false);
-      setProposeForm({ name: '', description: '', onedriveLink: '' });
+      setProposeForm({ name: '', description: '', onedriveLink: '', requirementTypes: ['web_application'] as RequirementType[] });
       setProposeFiles([]);
-      window.location.reload();
+      setLoading(true);
+      setReloadKey(k => k + 1);
     } catch {
       toast.error(t('client.proposeFailed'));
     } finally {
@@ -476,6 +490,51 @@ export default function MyProjectsPage() {
                   placeholder={t('project.descPlaceholder')}
                   rows={3}
                 />
+                {proposeForm.name.trim() && !proposeForm.description.trim() && (
+                  <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                    <Bell className="h-3 w-3" />
+                    {t('common.descriptionRecommended')}
+                  </p>
+                )}
+              </div>
+
+              {/* Requirement Type – Multi-select chips */}
+              <div className="space-y-2">
+                <Label>{t('requirements.type')} *</Label>
+                <p className="text-xs text-muted-foreground">{t('requirements.typeMultiHint')}</p>
+                <div className="flex flex-wrap gap-2">
+                  {([
+                    { key: 'web_application' as RequirementType, icon: Globe, label: t('requirements.webApplication'), color: 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300' },
+                    { key: 'mobile_application' as RequirementType, icon: Smartphone, label: t('requirements.mobileApplication'), color: 'border-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300' },
+                    { key: 'ai_application' as RequirementType, icon: Brain, label: t('requirements.aiApplication'), color: 'border-purple-500 bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-300' },
+                  ]).map(({ key, icon: Icon, label, color }) => {
+                    const selected = proposeForm.requirementTypes.includes(key);
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => {
+                          setProposeForm(prev => {
+                            const types = prev.requirementTypes.includes(key)
+                              ? prev.requirementTypes.filter(t => t !== key)
+                              : [...prev.requirementTypes, key];
+                            if (types.length === 0) return prev;
+                            return { ...prev, requirementTypes: types };
+                          });
+                        }}
+                        className={`inline-flex items-center gap-2 rounded-lg border-2 px-3 py-1.5 text-sm font-medium transition-all ${
+                          selected
+                            ? `${color} border-current shadow-sm`
+                            : 'border-border bg-background text-muted-foreground hover:border-foreground/30 hover:bg-muted/50'
+                        }`}
+                      >
+                        <Icon className="h-4 w-4" />
+                        {label}
+                        {selected && <Check className="h-3.5 w-3.5" />}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               {/* OneDrive / SharePoint Link */}

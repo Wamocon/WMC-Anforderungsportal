@@ -27,7 +27,11 @@ import {
   Film,
   File as FileIcon,
   Upload,
+  Smartphone,
+  Brain,
+  Check,
 } from 'lucide-react';
+import type { RequirementType } from '@/lib/supabase/types';
 import { Link, useRouter } from '@/i18n/navigation';
 import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
@@ -87,6 +91,7 @@ export default function NewProjectPage() {
     description: '',
     slug: '',
     status: 'draft',
+    requirement_types: ['web_application'] as RequirementType[],
     deadline_days: 5,
     template_id: '',
     welcome_texts: { en: defaultWelcome } as Record<string, string>,
@@ -204,6 +209,7 @@ export default function NewProjectPage() {
           slug: form.slug,
           description: form.description || null,
           status: form.status as 'draft' | 'active' | 'archived',
+          requirement_type: form.requirement_types,
           deadline_days: form.deadline_days,
           template_id: form.template_id || null,
           welcome_text: welcomeText,
@@ -343,6 +349,45 @@ export default function NewProjectPage() {
                 placeholder={t('project.descPlaceholder')}
                 rows={3}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label>{t('requirements.type')} *</Label>
+              <p className="text-xs text-muted-foreground">{t('requirements.typeMultiHint')}</p>
+              <div className="flex flex-wrap gap-2">
+                {([
+                  { key: 'web_application' as RequirementType, icon: Globe, label: t('requirements.webApplication'), color: 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300' },
+                  { key: 'mobile_application' as RequirementType, icon: Smartphone, label: t('requirements.mobileApplication'), color: 'border-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300' },
+                  { key: 'ai_application' as RequirementType, icon: Brain, label: t('requirements.aiApplication'), color: 'border-purple-500 bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-300' },
+                ]).map(({ key, icon: Icon, label, color }) => {
+                  const selected = form.requirement_types.includes(key);
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => {
+                        setForm(prev => {
+                          const types = prev.requirement_types.includes(key)
+                            ? prev.requirement_types.filter(t => t !== key)
+                            : [...prev.requirement_types, key];
+                          // Ensure at least one is selected
+                          if (types.length === 0) return prev;
+                          return { ...prev, requirement_types: types };
+                        });
+                      }}
+                      className={`inline-flex items-center gap-2 rounded-lg border-2 px-3.5 py-2 text-sm font-medium transition-all ${
+                        selected
+                          ? `${color} border-current shadow-sm`
+                          : 'border-border bg-background text-muted-foreground hover:border-foreground/30 hover:bg-muted/50'
+                      }`}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {label}
+                      {selected && <Check className="h-3.5 w-3.5" />}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">

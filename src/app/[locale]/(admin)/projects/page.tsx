@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -25,6 +25,15 @@ import {
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import { useRouter } from '@/i18n/navigation';
+import { statusKey } from '@/lib/utils';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 type ProjectRow = {
   id: string;
@@ -32,6 +41,7 @@ type ProjectRow = {
   slug: string;
   description: string | null;
   status: string;
+  requirement_type: string[];
   onedrive_link: string | null;
   created_at: string;
   updated_at: string;
@@ -50,15 +60,22 @@ function getInitials(name: string): string {
   return name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2);
 }
 
-function relativeTime(dateStr: string): string {
+function relativeTime(dateStr: string, locale: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  const days = Math.floor(hrs / 24);
-  if (days < 30) return `${days}d ago`;
-  return new Date(dateStr).toLocaleDateString('en', { day: '2-digit', month: 'short' });
+  const secs = Math.floor(diff / 1000);
+  try {
+    const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto', style: 'narrow' });
+    if (secs < 60) return rtf.format(-secs, 'second');
+    const mins = Math.floor(secs / 60);
+    if (mins < 60) return rtf.format(-mins, 'minute');
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return rtf.format(-hrs, 'hour');
+    const days = Math.floor(hrs / 24);
+    if (days < 30) return rtf.format(-days, 'day');
+  } catch {
+    // fallback
+  }
+  return new Date(dateStr).toLocaleDateString(locale, { day: '2-digit', month: 'short' });
 }
 
 const STATUS_FILTERS = ['all', 'pending_review', 'active', 'draft', 'archived'] as const;
@@ -81,6 +98,7 @@ const statusTabColors: Record<StatusFilter, string> = {
 
 export default function ProjectsPage() {
   const t = useTranslations();
+  const locale = useLocale();
   const router = useRouter();
 
   const [projects, setProjects] = useState<ProjectRow[]>([]);
@@ -98,6 +116,7 @@ export default function ProjectsPage() {
   // Multi-select state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [deleting, setDeleting] = useState(false);
+  const [bulkArchiveDialogOpen, setBulkArchiveDialogOpen] = useState(false);
 
   function toggleSelect(id: string) {
     setSelectedIds((prev) => {
@@ -117,8 +136,7 @@ export default function ProjectsPage() {
 
   async function handleBulkDelete() {
     if (selectedIds.size === 0) return;
-    const count = selectedIds.size;
-    if (!confirm(t('admin.archiveProjectsConfirm', { count: String(count) }))) return;
+    setBulkArchiveDialogOpen(false);
     setDeleting(true);
     const supabase = createClient();
     const ids = Array.from(selectedIds);
@@ -220,6 +238,7 @@ export default function ProjectsPage() {
   }, [membersByProject]);
 
   // Filtered + sorted list
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const filteredProjects = useMemo(() => {
     let list = [...projects];
 
@@ -326,9 +345,9 @@ export default function ProjectsPage() {
   }
 
   const sortLabels: Record<SortOption, string> = {
-    newest: 'Newest first',
-    name_asc: 'Name A–Z',
-    responses: 'Most responses',
+    newest: t('common.newestFirst'),
+    name_asc: t('common.nameAZ'),
+    responses: t('common.mostResponses'),
   };
 
   return (
@@ -338,7 +357,7 @@ export default function ProjectsPage() {
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{t('admin.projects')}</h1>
           <p className="text-muted-foreground mt-1">
-            {projects.length} {t('admin.projects').toLowerCase()} · {Object.values(responseCounts).reduce((a, b) => a + b, 0)} total responses
+            {projects.length} {t('admin.projects').toLowerCase()} · {Object.values(responseCounts).reduce((a, b) => a + b, 0)} {t('common.totalResponses').toLowerCase()}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -350,7 +369,7 @@ export default function ProjectsPage() {
               className="gap-2 text-xs"
             >
               {allVisibleSelected ? <CheckSquare className="h-3.5 w-3.5" /> : <Square className="h-3.5 w-3.5" />}
-              {allVisibleSelected ? 'Deselect All' : 'Select All'}
+              {allVisibleSelected ? t('common.deselectAll') : t('common.selectAll')}
             </Button>
           )}
           <Link href="/projects/new">
@@ -369,7 +388,7 @@ export default function ProjectsPage() {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
             <Input
-              placeholder="Search by project or owner name…"
+              placeholder={t('requirements.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9 pr-9"
@@ -390,15 +409,15 @@ export default function ProjectsPage() {
               <Button variant="outline" className="gap-2 shrink-0">
                 <UserCircle2 className="h-4 w-4" />
                 {ownerFilter === 'all'
-                  ? 'All owners'
+                  ? t('requirements.allOwners')
                   : allOwners.find((o) => o.email === ownerFilter)?.name ?? ownerFilter}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-52">
-              <DropdownMenuLabel>Filter by owner</DropdownMenuLabel>
+              <DropdownMenuLabel>{t('requirements.filterByOwner')}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setOwnerFilter('all')}>
-                <span className={ownerFilter === 'all' ? 'font-semibold' : ''}>All owners</span>
+                <span className={ownerFilter === 'all' ? 'font-semibold' : ''}>{t('requirements.allOwners')}</span>
               </DropdownMenuItem>
               {allOwners.map((o) => (
                 <DropdownMenuItem key={o.email} onClick={() => setOwnerFilter(o.email)}>
@@ -417,7 +436,7 @@ export default function ProjectsPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Sort by</DropdownMenuLabel>
+              <DropdownMenuLabel>{t('requirements.sortBy')}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {(Object.keys(sortLabels) as SortOption[]).map((key) => (
                 <DropdownMenuItem key={key} onClick={() => setSortBy(key)}>
@@ -436,7 +455,7 @@ export default function ProjectsPage() {
                 ? projects.length
                 : projects.filter((p) => p.status === s).length;
             const isActive = statusFilter === s;
-            const tabLabel = s === 'all' ? t('common.all') : s === 'pending_review' ? t('common.pendingReview') : t(`common.${s}`, { defaultValue: s.charAt(0).toUpperCase() + s.slice(1) });
+            const tabLabel = s === 'all' ? t('common.all') : t(`common.${statusKey(s)}`);
             return (
               <button
                 key={s}
@@ -543,9 +562,21 @@ export default function ProjectsPage() {
                       {/* Title row */}
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold truncate leading-snug group-hover:text-[#FE0404] transition-colors">
-                            {project.name}
-                          </h3>
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-semibold truncate leading-snug group-hover:text-[#FE0404] transition-colors">
+                              {project.name}
+                            </h3>
+                            {Array.isArray(project.requirement_type) && project.requirement_type.includes('ai_application') && (
+                              <Badge variant="secondary" className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400 text-[10px] px-1.5 py-0 shrink-0">
+                                AI
+                              </Badge>
+                            )}
+                            {Array.isArray(project.requirement_type) && project.requirement_type.includes('mobile_application') && (
+                              <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 text-[10px] px-1.5 py-0 shrink-0">
+                                Mobile
+                              </Badge>
+                            )}
+                          </div>
                           <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2 leading-relaxed">
                             {project.description || t('admin.noDescription')}
                           </p>
@@ -695,7 +726,7 @@ export default function ProjectsPage() {
                       <div className="mt-4 pt-3 border-t flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
                           <Badge variant="secondary" className={`text-[11px] font-medium px-2 py-0.5 ${cfg.badge}`}>
-                            {project.status === 'pending_review' ? t('common.pendingReview') : t(`common.${project.status}`, { defaultValue: cfg.label })}
+                            {t(`common.${statusKey(project.status)}`)}
                           </Badge>
                           <span className={`inline-flex items-center gap-1 text-xs font-medium rounded-full px-2 py-0.5 transition-colors ${
                             count > 0
@@ -715,7 +746,7 @@ export default function ProjectsPage() {
                           )}
                           <span className="flex items-center gap-1 shrink-0">
                             <Clock className="h-3 w-3" />
-                            {relativeTime(project.updated_at || project.created_at)}
+                            {relativeTime(project.updated_at || project.created_at, locale)}
                           </span>
                         </div>
                       </div>
@@ -734,7 +765,7 @@ export default function ProjectsPage() {
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-slide-up">
           <div className="flex items-center gap-3 rounded-2xl border border-border/80 bg-card/95 backdrop-blur-xl shadow-2xl shadow-black/20 px-5 py-3">
             <span className="text-sm font-medium">
-              {selectedIds.size} selected
+              {selectedIds.size} {t('common.selected')}
             </span>
             <div className="h-5 w-px bg-border" />
             <Button
@@ -744,13 +775,13 @@ export default function ProjectsPage() {
               onClick={() => setSelectedIds(new Set())}
             >
               <X className="h-3.5 w-3.5 mr-1" />
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               variant="destructive"
               size="sm"
               className="gap-1.5"
-              onClick={handleBulkDelete}
+              onClick={() => setBulkArchiveDialogOpen(true)}
               disabled={deleting}
             >
               {deleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Archive className="h-3.5 w-3.5" />}
@@ -759,6 +790,27 @@ export default function ProjectsPage() {
           </div>
         </div>
       )}
+
+      {/* Bulk Archive Confirmation Dialog */}
+      <Dialog open={bulkArchiveDialogOpen} onOpenChange={setBulkArchiveDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t('common.confirmAction')}</DialogTitle>
+            <DialogDescription>
+              {t('admin.archiveProjectsConfirm', { count: String(selectedIds.size) })}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setBulkArchiveDialogOpen(false)}>
+              {t('common.cancel')}
+            </Button>
+            <Button variant="destructive" onClick={handleBulkDelete} disabled={deleting} className="gap-2">
+              {deleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Archive className="h-3.5 w-3.5" />}
+              {t('admin.archive')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

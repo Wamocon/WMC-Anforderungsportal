@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { statusKey } from '@/lib/utils';
 import {
   Archive,
   Users,
@@ -162,7 +163,7 @@ export default function ArchivePage() {
                       )}
                       <div className="flex items-center gap-3 mt-2 flex-wrap">
                         <Badge variant="secondary" className="bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400">
-                          {t(`common.${archive.status === 'pending_review' ? 'pendingReview' : archive.status === 'in_progress' ? 'inProgress' : archive.status}`, { defaultValue: archive.status })}
+                          {t(`common.${statusKey(archive.status)}`)}
                         </Badge>
                         <span className="flex items-center gap-1 text-xs text-muted-foreground">
                           <Users className="h-3 w-3" />
@@ -238,7 +239,7 @@ export default function ArchivePage() {
                             {responses.map((r, i) => (
                               <div key={i} className="flex items-center gap-3 rounded-md bg-muted/30 px-3 py-2 text-sm">
                                 <span className="font-medium truncate">{r.respondent_name || r.respondent_email}</span>
-                                <Badge variant="secondary" className="text-[10px] shrink-0">{t(`common.${r.status === 'pending_review' ? 'pendingReview' : r.status === 'in_progress' ? 'inProgress' : r.status}`, { defaultValue: r.status })}</Badge>
+                                <Badge variant="secondary" className="text-[10px] shrink-0">{t(`common.${statusKey(r.status)}`)}</Badge>
                                 <span className="text-xs text-muted-foreground shrink-0">{r.progress_percent}%</span>
                               </div>
                             ))}

@@ -60,7 +60,7 @@ export default function TemplatesPage() {
     ]);
 
     if (tmplErr) {
-      setError(`Failed to load templates: ${tmplErr.message}`);
+      setError(t('errors.loadFailed'));
       setLoading(false);
       return;
     }
@@ -114,7 +114,7 @@ export default function TemplatesPage() {
       });
 
       if (insertErr) {
-        toast.error(`Failed to create template: ${insertErr.message}`);
+        toast.error(t('errors.saveFailed'));
         return;
       }
 
