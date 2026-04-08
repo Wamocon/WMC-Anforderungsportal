@@ -16,6 +16,9 @@ import {
   Plus,
   ArrowRight,
   Users,
+  Hourglass,
+  TrendingUp,
+  AlertCircle,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
@@ -34,36 +37,50 @@ export default function DashboardPage() {
   const tResponse = useTranslations('response');
   const locale = useLocale();
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [totalProjects, setTotalProjects] = useState(0);
   const [activeProjects, setActiveProjects] = useState(0);
   const [totalResponses, setTotalResponses] = useState(0);
   const [pendingReview, setPendingReview] = useState(0);
+  const [pendingProposals, setPendingProposals] = useState(0);
+  const [completionRate, setCompletionRate] = useState(0);
   const [recentResponses, setRecentResponses] = useState<ResponseRow[]>([]);
 
   useEffect(() => {
     async function load() {
-      const supabase = createClient();
-      await supabase.auth.refreshSession();
+      try {
+        const supabase = createClient();
+        await supabase.auth.refreshSession();
 
-      const [projectsRes, responsesRes] = await Promise.all([
-        supabase.from('projects').select('id, status'),
-        supabase.from('responses').select('id, status, project_id, respondent_name, respondent_email, submitted_at, updated_at'),
-      ]);
+        const [projectsRes, responsesRes] = await Promise.all([
+          supabase.from('projects').select('id, status, requirement_type'),
+          supabase.from('responses').select('id, status, project_id, respondent_name, respondent_email, submitted_at, updated_at'),
+        ]);
 
-      const projects = projectsRes.data ?? [];
-      const responses = (responsesRes.data ?? []) as ResponseRow[];
+        const projects = projectsRes.data ?? [];
+        const responses = (responsesRes.data ?? []) as ResponseRow[];
 
-      setTotalProjects(projects.length);
-      setActiveProjects(projects.filter((p) => p.status === 'active').length);
-      setTotalResponses(responses.length);
-      setPendingReview(responses.filter((r) => r.status === 'submitted').length);
+        setTotalProjects(projects.length);
+        setActiveProjects(projects.filter((p) => p.status === 'active').length);
+        setPendingProposals(projects.filter((p) => p.status === 'pending_review').length);
+        setTotalResponses(responses.length);
+        setPendingReview(responses.filter((r) => r.status === 'submitted').length);
 
-      setRecentResponses(
-        responses
-          .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
-          .slice(0, 5)
-      );
-      setLoading(false);
+        // Completion rate: submitted or reviewed / total
+        const completedCount = responses.filter((r) => r.status === 'submitted' || r.status === 'reviewed').length;
+        setCompletionRate(responses.length > 0 ? Math.round((completedCount / responses.length) * 100) : 0);
+
+        setRecentResponses(
+          responses
+            .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+            .slice(0, 5)
+        );
+      } catch (err) {
+        console.error('Dashboard load error:', err);
+        setLoadError(t('failedLoadDashboard'));
+      } finally {
+        setLoading(false);
+      }
     }
     load();
   }, []);
@@ -80,7 +97,7 @@ export default function DashboardPage() {
       <div className="space-y-8">
         <div className="space-y-2"><Skeleton className="h-9 w-48" /><Skeleton className="h-4 w-64" /></div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {[1,2,3,4].map(i => (
+          {[1,2,3,4,5,6].map(i => (
             <Card key={i} className="border-0 shadow-md">
               <CardContent className="p-6 flex items-center justify-between">
                 <div className="space-y-2"><Skeleton className="h-4 w-24" /><Skeleton className="h-8 w-16" /></div>
@@ -93,6 +110,22 @@ export default function DashboardPage() {
           <Card className="lg:col-span-2 border-0 shadow-md"><CardContent className="p-6 space-y-3">{[1,2,3].map(i => <Skeleton key={i} className="h-16 rounded-lg" />)}</CardContent></Card>
           <Card className="border-0 shadow-md"><CardContent className="p-6 space-y-3">{[1,2,3].map(i => <Skeleton key={i} className="h-16 rounded-lg" />)}</CardContent></Card>
         </div>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="space-y-8">
+        <Card className="border-destructive/30 bg-destructive/5 shadow-md">
+          <CardContent className="flex items-center gap-3 p-6">
+            <AlertCircle className="h-5 w-5 text-destructive shrink-0" />
+            <div>
+              <p className="font-medium text-destructive">{loadError}</p>
+              <p className="text-sm text-muted-foreground mt-1">{t('tryRefreshPage')}</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -115,6 +148,14 @@ export default function DashboardPage() {
       ring: 'ring-emerald-200/50',
     },
     {
+      title: t('pendingProposals'),
+      value: String(pendingProposals),
+      icon: Hourglass,
+      color: 'text-amber-600',
+      bg: 'bg-gradient-to-br from-amber-50 to-amber-100/50',
+      ring: 'ring-amber-200/50',
+    },
+    {
       title: t('totalResponses'),
       value: String(totalResponses),
       icon: MessageSquareText,
@@ -130,6 +171,14 @@ export default function DashboardPage() {
       bg: 'bg-gradient-to-br from-red-50 to-red-100/50',
       ring: 'ring-red-200/50',
     },
+    {
+      title: t('completionRate'),
+      value: `${completionRate}%`,
+      icon: TrendingUp,
+      color: 'text-teal-600',
+      bg: 'bg-gradient-to-br from-teal-50 to-teal-100/50',
+      ring: 'ring-teal-200/50',
+    },
   ];
 
   return (
@@ -141,7 +190,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 perspective-container">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 perspective-container">
         {stats.map((stat, i) => (
           <Card key={stat.title} className={`group border-0 shadow-md shadow-black/5 card-3d spotlight-card glass-v2 ring-1 ${stat.ring} stagger-enter`}>
             <CardContent className="p-6">
@@ -262,6 +311,28 @@ export default function DashboardPage() {
                 </div>
               </Button>
             </Link>
+
+            {pendingProposals > 0 && (
+              <Link href="/projects">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start gap-3 h-auto py-4 border-amber-200 hover:border-amber-400 hover:bg-amber-50/50"
+                >
+                  <div className="rounded-lg bg-amber-50 p-2 relative">
+                    <Hourglass className="h-4 w-4 text-amber-600" />
+                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[10px] font-bold text-white">
+                      {pendingProposals}
+                    </span>
+                  </div>
+                  <div className="text-left">
+                    <p className="font-medium">{t('pendingProposals')}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {t('reviewProposalsDesc')}
+                    </p>
+                  </div>
+                </Button>
+              </Link>
+            )}
           </CardContent>
         </Card>
       </div>

@@ -42,6 +42,7 @@ import {
   File,
   Link2,
   Mic,
+  AlertTriangle,
 } from 'lucide-react';
 
 // Lazy-load VoiceRecorder — it includes Web Speech API and MediaRecorder,
@@ -133,6 +134,7 @@ export function FormFillClient({
   const [uploadedFiles, setUploadedFiles] = useState<Record<string, { name: string; size: number; type: string; path?: string; url?: string; uploading?: boolean }[]>>({});
   const [saving, setSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [saveError, setSaveError] = useState(false);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const followUpRequestedRef = useRef<Set<string>>(new Set());
   const responseIdRef = useRef<string | null>(initialResponseId ?? null);
@@ -191,6 +193,7 @@ export function FormFillClient({
           locale,
         }),
       });
+      if (!res.ok) return;
       const data = await res.json();
       if (data.questions?.length > 0) {
         const newQs: Question[] = data.questions.map((q: { label: string; type?: string; options?: string[] }, i: number) => {
@@ -212,6 +215,7 @@ export function FormFillClient({
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     saveTimeoutRef.current = setTimeout(async () => {
       setSaving(true);
+      setSaveError(false);
       try {
         // Merge OneDrive link into answers under a reserved key
         const mergedAnswers = { ...answers, ...(oneDriveLink.trim() ? { __onedrive_link: oneDriveLink.trim() } : {}) };
@@ -225,13 +229,14 @@ export function FormFillClient({
             followUps,
           }),
         });
+        if (!res.ok) { setSaveError(true); return; }
         const data = await res.json();
         if (data.responseId && !responseIdRef.current) {
           responseIdRef.current = data.responseId;
         }
         setLastSaved(new Date());
       } catch {
-        // Silent fail for auto-save
+        setSaveError(true);
       } finally {
         setSaving(false);
       }
@@ -649,6 +654,14 @@ export function FormFillClient({
               <span className="text-muted-foreground animate-pulse text-xs hidden sm:inline">
                 {t('form.saving')}
               </span>
+            ) : saveError ? (
+              <button
+                onClick={() => debouncedSave()}
+                className="text-destructive text-xs hidden sm:inline-flex items-center gap-1 hover:underline"
+              >
+                <AlertTriangle className="h-3 w-3" />
+                {t('form.saveFailed')}
+              </button>
             ) : lastSaved ? (
               <span className="text-muted-foreground text-xs hidden sm:inline">
                 {t('form.autoSaved')}

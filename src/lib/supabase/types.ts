@@ -16,6 +16,8 @@ export type ProjectStatus = 'draft' | 'active' | 'archived' | 'pending_review';
 export type ResponseStatus = 'draft' | 'in_progress' | 'submitted' | 'reviewed';
 export type MemberRole = 'super_admin' | 'product_owner' | 'client';
 export type InvitationStatus = 'sent' | 'opened' | 'in_progress' | 'submitted' | 'expired' | 'revoked';
+export type RequirementType = 'web_application' | 'mobile_application' | 'ai_application';
+export type AiProvider = 'google' | 'openai' | 'anthropic';
 
 export type Organization = {
   id: string;
@@ -32,11 +34,14 @@ export type Project = {
   slug: string;
   description: string | null;
   status: ProjectStatus;
+  requirement_type: RequirementType[];
   welcome_text: Json; // { en: "...", de: "...", tr: "..." }
   deadline_days: number;
   template_id: string | null;
   created_by: string | null;
   onedrive_link: string | null;
+  approved_at: string | null;
+  approved_by: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -192,6 +197,47 @@ export type FeedbackRequest = {
 // Helper types for multilingual content
 export type MultilingualText = Record<string, string>;
 
+// Wave review types for checklist/presentation mode
+export type WaveReview = {
+  id: string;
+  project_id: string;
+  wave_name: string;
+  reviewer_id: string | null;
+  reviewed_at: string;
+  total_requirements: number;
+  fulfilled_count: number;
+  goal_reached: boolean;
+  failure_reason: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type WaveReviewItem = {
+  id: string;
+  wave_review_id: string;
+  question_id: string | null;
+  requirement_text: string;
+  is_fulfilled: boolean;
+  notes: string | null;
+  checked_by: string | null;
+  checked_at: string | null;
+  created_at: string;
+}
+
+// AI configuration per organization
+export type AiConfig = {
+  id: string;
+  org_id: string;
+  provider: AiProvider;
+  api_key_encrypted: string | null;
+  model_name: string | null;
+  project_name: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 // Database types compatible with @supabase/supabase-js v2
 // Schema key must match the db.schema option passed to the client
 export type Database = {
@@ -224,11 +270,14 @@ export type Database = {
           slug: string;
           description?: string | null;
           status?: ProjectStatus;
+          requirement_type?: RequirementType[];
           welcome_text?: Json;
           deadline_days?: number;
           template_id?: string | null;
           created_by?: string | null;
           onedrive_link?: string | null;
+          approved_at?: string | null;
+          approved_by?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -239,11 +288,14 @@ export type Database = {
           slug?: string;
           description?: string | null;
           status?: ProjectStatus;
+          requirement_type?: RequirementType[];
           welcome_text?: Json;
           deadline_days?: number;
           template_id?: string | null;
           created_by?: string | null;
           onedrive_link?: string | null;
+          approved_at?: string | null;
+          approved_by?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -554,6 +606,90 @@ export type Database = {
           status?: FeedbackStatus;
           seen_at?: string | null;
           answered_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      wave_reviews: {
+        Row: WaveReview;
+        Insert: {
+          id?: string;
+          project_id: string;
+          wave_name: string;
+          reviewer_id?: string | null;
+          reviewed_at?: string;
+          total_requirements?: number;
+          fulfilled_count?: number;
+          goal_reached?: boolean;
+          failure_reason?: string | null;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          wave_name?: string;
+          reviewer_id?: string | null;
+          reviewed_at?: string;
+          total_requirements?: number;
+          fulfilled_count?: number;
+          goal_reached?: boolean;
+          failure_reason?: string | null;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      wave_review_items: {
+        Row: WaveReviewItem;
+        Insert: {
+          id?: string;
+          wave_review_id: string;
+          question_id?: string | null;
+          requirement_text: string;
+          is_fulfilled?: boolean;
+          notes?: string | null;
+          checked_by?: string | null;
+          checked_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          wave_review_id?: string;
+          question_id?: string | null;
+          requirement_text?: string;
+          is_fulfilled?: boolean;
+          notes?: string | null;
+          checked_by?: string | null;
+          checked_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      ai_config: {
+        Row: AiConfig;
+        Insert: {
+          id?: string;
+          org_id: string;
+          provider?: AiProvider;
+          api_key_encrypted?: string | null;
+          model_name?: string | null;
+          project_name?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          org_id?: string;
+          provider?: AiProvider;
+          api_key_encrypted?: string | null;
+          model_name?: string | null;
+          project_name?: string | null;
+          is_active?: boolean;
           created_at?: string;
           updated_at?: string;
         };

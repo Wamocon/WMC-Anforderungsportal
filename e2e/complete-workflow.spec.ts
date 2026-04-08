@@ -38,8 +38,8 @@ const TEST_PROJECT_NAME = `E2E Demo App ${TS}`;
 const TEST_PROJECT_SLUG = `e2e-demo-app-${TS}`;
 
 // State shared across tests in this file
-let testProjectId: string | null = null;
-let testResponseId: string | null = null;
+const testProjectId: string | null = null;
+const testResponseId: string | null = null;
 
 // ── Login helpers ─────────────────────────────────────────────────────────────
 

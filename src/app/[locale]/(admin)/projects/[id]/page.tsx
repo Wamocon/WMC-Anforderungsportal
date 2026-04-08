@@ -136,6 +136,7 @@ export default function ProjectDetailPage() {
   const [followUpMessage, setFollowUpMessage] = useState('');
   const [sendingFollowUp, setSendingFollowUp] = useState(false);
   const [showFollowUpForm, setShowFollowUpForm] = useState(false);
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [proposerInfo, setProposerInfo] = useState<{ email: string; full_name: string } | null>(null);
   const [proposalFeedback, setProposalFeedback] = useState<Array<{
     id: string; question: string; answer: string | null; status: string;
@@ -265,7 +266,7 @@ export default function ProjectDetailPage() {
           name: editForm.name.trim(),
           description: editForm.description.trim() || null,
           status: editForm.status,
-          deadline_days: editForm.deadline_days,
+          deadline_days: Math.max(1, Math.min(90, editForm.deadline_days)),
         })
         .eq('id', projectId);
       if (error) { toast.error(error.message); return; }
@@ -297,8 +298,8 @@ export default function ProjectDetailPage() {
 
   async function handleReject() {
     if (!project) return;
-    if (!confirm(t('admin.rejectProjectConfirm', { name: project.name }))) return;
     setRejecting(true);
+    setRejectDialogOpen(false);
     try {
       const supabase = createClient();
       await supabase.auth.refreshSession();
@@ -379,8 +380,13 @@ export default function ProjectDetailPage() {
       if (error) { toast.error(error.message); setSending(false); return; }
 
       const magicUrl = `${window.location.origin}/${locale}/magic/${tokenHash}`;
-      await navigator.clipboard.writeText(magicUrl);
-      toast.success(t('admin.magicLinkCopied', { email: inviteEmail }));
+      try {
+        await navigator.clipboard.writeText(magicUrl);
+        toast.success(t('admin.magicLinkCopied', { email: inviteEmail }));
+      } catch {
+        // Clipboard API failed (e.g. permissions) — show the link in a toast so admin can copy manually
+        toast(magicUrl, { duration: 15000, description: t('admin.magicLinkCopied', { email: inviteEmail }) });
+      }
       setInviteDialogOpen(false);
       setInviteEmail('');
       loadData();
@@ -391,8 +397,12 @@ export default function ProjectDetailPage() {
   function copyFormLink() {
     if (!project) return;
     const url = `${window.location.origin}/${locale}/form/${project.slug}`;
-    navigator.clipboard.writeText(url);
-    toast.success(t('admin.linkCopied'));
+    try {
+      navigator.clipboard.writeText(url);
+      toast.success(t('admin.linkCopied'));
+    } catch {
+      toast(url, { duration: 10000, description: t('admin.linkCopied') });
+    }
   }
 
   const statusColor: Record<string, string> = { active: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400', draft: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400', archived: 'bg-muted text-muted-foreground', pending_review: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' };
@@ -574,7 +584,7 @@ export default function ProjectDetailPage() {
                 {t('admin.approveAndActivate')}
               </Button>
               <Button
-                onClick={handleReject}
+                onClick={() => setRejectDialogOpen(true)}
                 disabled={approving || rejecting}
                 variant="outline"
                 className="border-destructive/30 text-destructive hover:bg-destructive/10 gap-2 flex-1 sm:flex-initial"
@@ -849,7 +859,7 @@ export default function ProjectDetailPage() {
                   min={1}
                   max={90}
                   value={editForm.deadline_days}
-                  onChange={(e) => setEditForm((prev) => ({ ...prev, deadline_days: Number(e.target.value) || 1 }))}
+                  onChange={(e) => setEditForm((prev) => ({ ...prev, deadline_days: Math.max(1, Math.min(90, Number(e.target.value) || 1)) }))}
                 />
               </div>
             </div>
@@ -859,6 +869,35 @@ export default function ProjectDetailPage() {
             <Button onClick={saveProjectEdit} disabled={!editForm.name.trim() || savingEdit} className="bg-[#FE0404] hover:bg-[#E00303] text-white gap-2">
               {savingEdit ? <Loader2 className="h-4 w-4 animate-spin" /> : <Pencil className="h-4 w-4" />}
               {t('common.save')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reject Confirmation Dialog */}
+      <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <XCircle className="h-5 w-5" />
+              {t('common.confirmAction')}
+            </DialogTitle>
+            <DialogDescription>
+              {t('admin.rejectProjectConfirm', { name: project?.name ?? '' })}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setRejectDialogOpen(false)}>
+              {t('common.cancel')}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleReject}
+              disabled={rejecting}
+              className="gap-2"
+            >
+              {rejecting ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
+              {t('admin.rejectAndArchive')}
             </Button>
           </DialogFooter>
         </DialogContent>

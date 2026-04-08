@@ -88,6 +88,24 @@ export default function EditProjectPage() {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Track initial form state to detect unsaved changes
+  const initialFormRef = useRef<typeof form | null>(null);
+  const isDirty = initialFormRef.current !== null && (
+    form.name !== initialFormRef.current.name ||
+    form.description !== initialFormRef.current.description ||
+    form.deadline_days !== initialFormRef.current.deadline_days ||
+    form.onedrive_link !== initialFormRef.current.onedrive_link ||
+    pendingFiles.length > 0
+  );
+
+  // Warn on navigation away with unsaved changes
+  useEffect(() => {
+    if (!isDirty) return;
+    const handler = (e: BeforeUnloadEvent) => { e.preventDefault(); };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [isDirty]);
+
   // Load project data
   useEffect(() => {
     async function load() {
@@ -124,12 +142,14 @@ export default function EditProjectPage() {
         }
 
         setIsOwner(true);
-        setForm({
+        const initialForm = {
           name: project.name,
           description: project.description || '',
           deadline_days: project.deadline_days,
           onedrive_link: project.onedrive_link || '',
-        });
+        };
+        setForm(initialForm);
+        initialFormRef.current = initialForm;
 
         // Load attachments
         const res = await fetch(`/api/project/${projectId}/upload`);
@@ -235,7 +255,7 @@ export default function EditProjectPage() {
         .update({
           name: form.name.trim(),
           description: form.description.trim() || null,
-          deadline_days: form.deadline_days,
+          deadline_days: Math.max(1, Math.min(90, form.deadline_days)),
           onedrive_link: form.onedrive_link.trim() || null,
         })
         .eq('id', projectId);
@@ -294,6 +314,8 @@ export default function EditProjectPage() {
       }
 
       setSaveSuccess(true);
+      // Reset dirty tracking to current saved state
+      initialFormRef.current = { ...form, name: form.name.trim(), description: form.description.trim(), onedrive_link: form.onedrive_link.trim() };
       toast.success(t('client.projectUpdated'));
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch {
