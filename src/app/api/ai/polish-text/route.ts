@@ -6,19 +6,24 @@ import { getAuthUser } from '@/lib/auth-edge';
 
 export const runtime = 'edge';
 
-const SYSTEM_PROMPT = `You are a multilingual text polishing assistant for requirements collection. Your ONLY job is to make the text clearer and easier to understand while preserving the original meaning, detail, and intent.
+const SYSTEM_PROMPT = `You are a minimal text correction assistant. You make the SMALLEST possible changes to fix obvious errors. You are NOT a rewriter or editor.
 
-RULES:
-1. Fix grammar, spelling, and punctuation errors
-2. Improve sentence clarity only when needed so the information is easier to understand
-3. Preserve the SAME language as the input text; treat the locale only as a hint, not an instruction to translate
-4. If the input mixes languages, keep the dominant language and preserve technical terms, names, and product terminology
-5. Keep the same meaning, detail level, and tone
-6. Do NOT summarize, shorten, or remove requirements
-7. Do NOT add new information
-8. Do NOT translate unless the input itself is already mixed and a tiny wording fix requires keeping the dominant language consistent
-9. Return ONLY the corrected text, nothing else
-10. If the text is already clear and correct, return it as-is`;
+RULES — STRICTLY FOLLOW:
+1. ONLY fix clear typos, spelling mistakes, and broken grammar
+2. Do NOT rephrase, restructure, or "improve" sentences
+3. Do NOT change word choice, tone, vocabulary level, or sentence style
+4. Do NOT add or remove words unless fixing a clear grammatical error
+5. Do NOT change punctuation style (e.g. don't add Oxford commas if the user doesn't use them)
+6. Do NOT change capitalization style unless it's a clear error
+7. PRESERVE the exact same language — never translate
+8. PRESERVE bullet points, line breaks, markdown formatting, lists, and structure exactly
+9. PRESERVE technical terms, product names, abbreviations, and slang
+10. If the text has zero errors, return it EXACTLY as-is, character for character
+11. Return ONLY the corrected text — no explanations, no comments
+12. When in doubt, DO NOT change anything — the user's original wording is sacred`;
+
+// Increase safety threshold: reject polish if the AI changed too much
+const MAX_CHANGE_RATIO = 0.85; // polished must be at least 85% of original length
 
 export async function POST(req: Request) {
   try {
@@ -33,7 +38,7 @@ export async function POST(req: Request) {
     if (!allowed) return Response.json({ polished: null });
 
     const body = await req.json();
-    const rawText = String(body.text ?? '').slice(0, 10_000);
+    const rawText = String(body.text ?? '');
     const locale = body.locale;
 
     if (!rawText || rawText.trim().length < 3) {
@@ -43,16 +48,16 @@ export async function POST(req: Request) {
     const { text: polished } = await generateText({
       model: google('gemini-2.5-flash'),
       system: SYSTEM_PROMPT,
-      prompt: `Locale hint: ${getLanguageName(locale)}\n\nPolish this text without summarizing it:\n${rawText}`,
-      maxOutputTokens: 8192,
-      temperature: 0.2,
+      prompt: `Language hint (do NOT translate): ${getLanguageName(locale)}\n\nFix ONLY typos and grammar. Do NOT rephrase or improve style:\n${rawText}`,
+      maxOutputTokens: 16384,
+      temperature: 0.1,
     });
 
     const result = polished.trim() || rawText;
 
-    // Safety: if the polished text is significantly shorter than the original,
-    // the AI likely summarized instead of polishing — return the original
-    if (result.length < rawText.length * 0.7) {
+    // Safety: if the polished text changed too much, the AI rewrote it —
+    // return the original to protect the user's intent
+    if (result.length < rawText.length * MAX_CHANGE_RATIO) {
       return Response.json({ polished: rawText });
     }
 

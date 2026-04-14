@@ -263,8 +263,6 @@ export function FormFillClient({
     const normalizedValue = currentValue.trim();
     // Only polish text that is long enough to benefit from it
     if (normalizedValue.length < 20) return normalizedValue;
-    // Skip polish for very long text — guide user to use attachment instead
-    if (normalizedValue.length > 10_000) return normalizedValue;
     if (lastPolishedAnswerRef.current[questionId] === normalizedValue) return normalizedValue;
 
     try {
@@ -272,7 +270,7 @@ export function FormFillClient({
       const polished = await polishTextClient(normalizedValue, locale);
 
       // Safety: if polished text lost significant content, keep the original
-      if (polished.length < normalizedValue.length * 0.7) {
+      if (polished.length < normalizedValue.length * 0.85) {
         lastPolishedAnswerRef.current[questionId] = normalizedValue;
         return normalizedValue;
       }
@@ -308,7 +306,7 @@ export function FormFillClient({
       const polished = await polishTextClient(normalizedValue, locale);
 
       // Safety: keep original if polished text lost content
-      if (polished.length < normalizedValue.length * 0.7) {
+      if (polished.length < normalizedValue.length * 0.85) {
         lastPolishedFollowUpRef.current[questionId] = normalizedValue;
         return normalizedValue;
       }
@@ -359,6 +357,42 @@ export function FormFillClient({
       return { ...prev, [questionId]: updated };
     });
     debouncedSave();
+  }
+
+  /** Wrap the current selection in a textarea with markdown markers (e.g. ** for bold) */
+  function wrapSelection(questionId: string, marker: string) {
+    const el = document.getElementById(`textarea-${questionId}`) as HTMLTextAreaElement | null;
+    if (!el) return;
+    const start = el.selectionStart;
+    const end = el.selectionEnd;
+    const text = (answers[questionId] as string) || '';
+    const before = text.slice(0, start);
+    const selected = text.slice(start, end);
+    const after = text.slice(end);
+    const newText = `${before}${marker}${selected || t('form.yourAnswer')}${marker}${after}`;
+    updateAnswer(questionId, newText);
+    // Re-focus and place cursor after the wrapped text
+    requestAnimationFrame(() => {
+      el.focus();
+      const cursorPos = selected ? end + marker.length * 2 : start + marker.length;
+      el.setSelectionRange(cursorPos, cursorPos);
+    });
+  }
+
+  /** Insert a prefix (bullet/number) at the start of the current line */
+  function insertPrefix(questionId: string, prefix: string) {
+    const el = document.getElementById(`textarea-${questionId}`) as HTMLTextAreaElement | null;
+    if (!el) return;
+    const pos = el.selectionStart;
+    const text = (answers[questionId] as string) || '';
+    // Find the start of the current line
+    const lineStart = text.lastIndexOf('\n', pos - 1) + 1;
+    const newText = text.slice(0, lineStart) + prefix + text.slice(lineStart);
+    updateAnswer(questionId, newText);
+    requestAnimationFrame(() => {
+      el.focus();
+      el.setSelectionRange(pos + prefix.length, pos + prefix.length);
+    });
   }
 
   // AI Follow-up: triggered on blur of text/textarea fields
@@ -792,20 +826,38 @@ export function FormFillClient({
                       )}
 
                       {question.type === 'textarea' && (() => {
-                        const textLen = ((answers[question.id] as string) || '').length;
-                        const maxChars = 10_000;
                         const isPolishing = polishingField === question.id;
                         return (
                         <div className="space-y-2">
+                          {/* Mini formatting toolbar */}
+                          <div className="flex items-center gap-1 border border-border/40 rounded-t-md px-2 py-1.5 bg-muted/30">
+                            <button type="button" title="Bold" className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors" onClick={() => wrapSelection(question.id, '**')}>
+                              <span className="text-xs font-bold">B</span>
+                            </button>
+                            <button type="button" title="Italic" className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors" onClick={() => wrapSelection(question.id, '*')}>
+                              <span className="text-xs italic">I</span>
+                            </button>
+                            <button type="button" title="Underline" className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors" onClick={() => wrapSelection(question.id, '__')}>
+                              <span className="text-xs underline">U</span>
+                            </button>
+                            <div className="w-px h-4 bg-border mx-1" />
+                            <button type="button" title="Bullet list" className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors" onClick={() => insertPrefix(question.id, '- ')}>
+                              <span className="text-xs">• List</span>
+                            </button>
+                            <button type="button" title="Numbered list" className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors" onClick={() => insertPrefix(question.id, '1. ')}>
+                              <span className="text-xs">1. List</span>
+                            </button>
+                          </div>
                           <div className="relative">
                             <Textarea
+                              id={`textarea-${question.id}`}
                               value={(answers[question.id] as string) || ''}
                               onChange={(e) => { cancelBlurTimeout(question.id); updateAnswer(question.id, e.target.value); }}
                               onFocus={() => cancelBlurTimeout(question.id)}
                               onBlur={() => void handleAnswerBlur(question.id, question.label)}
                               placeholder={t('form.yourAnswer')}
                               rows={6}
-                              className="min-h-[150px]"
+                              className="min-h-[150px] rounded-t-none border-t-0"
                             />
                             {isPolishing && (
                               <div className="absolute top-2 right-2 flex items-center gap-1.5 bg-background/90 backdrop-blur-sm rounded-md px-2 py-1 border border-border/50 shadow-sm">
@@ -814,17 +866,7 @@ export function FormFillClient({
                               </div>
                             )}
                           </div>
-                          <div className="flex items-center justify-between gap-2">
-                            <div className="flex items-center gap-3 min-w-0">
-                              <span className={`text-xs tabular-nums shrink-0 ${textLen > maxChars ? 'text-destructive font-medium' : textLen > maxChars * 0.8 ? 'text-amber-600' : 'text-muted-foreground'}`}>
-                                {textLen.toLocaleString()} / {maxChars.toLocaleString()}
-                              </span>
-                              {textLen > maxChars * 0.8 && (
-                                <p className="text-xs text-muted-foreground truncate">
-                                  {t('form.textareaHint')}
-                                </p>
-                              )}
-                            </div>
+                          <div className="flex items-center justify-end">
                             <Suspense fallback={<VoiceRecorderFallback />}>
                             <VoiceRecorder
                               locale={locale}
@@ -898,18 +940,18 @@ export function FormFillClient({
                             const inputId = `${question.id}-option-${index}`;
                             const selected = (answers[question.id] as string) === option.value;
                             return (
-                            <div
+                            <label
                               key={`${option.value}-${index}`}
-                              onClick={() => updateAnswer(question.id, option.value)}
+                              htmlFor={inputId}
                               className={`flex items-center space-x-3 rounded-lg border p-3 transition-colors cursor-pointer ${
                                 selected ? 'border-[#FE0404]/30 bg-[#FE0404]/5' : 'hover:bg-accent/50'
                               }`}
                             >
                               <RadioGroupItem value={option.value} id={inputId} />
-                              <Label htmlFor={inputId} className="cursor-pointer flex-1">
+                              <span className="flex-1">
                                 {option.label}
-                              </Label>
-                            </div>
+                              </span>
+                            </label>
                             );
                           })}
                         </RadioGroup>
@@ -928,7 +970,11 @@ export function FormFillClient({
                                     selected ? 'border-[#FE0404]/30 bg-[#FE0404]/5' : 'hover:bg-accent/50'
                                   }`}
                                 >
-                                  <Checkbox checked={selected} />
+                                  <Checkbox
+                                    checked={selected}
+                                    onCheckedChange={() => toggleMultiSelect(question.id, option.value)}
+                                    onClick={(e) => e.stopPropagation()}
+                                  />
                                   <Label className="cursor-pointer flex-1">{option.label}</Label>
                                 </div>
                               );
