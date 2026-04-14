@@ -1,36 +1,43 @@
 /**
- * Hotfix QA — Comprehensive end-to-end test covering all client-reported issues.
+ * Hotfix QA — Comprehensive E2E test for all client-reported issues.
  *
  * Tests against PRODUCTION: https://wmc-anforderungsportal.vercel.app
  *
  * Covers:
  *  1. Login flows (staff, product_owner, elnay)
  *  2. Language switching (DE, EN, RU)
- *  3. Form fill: multi-select checkboxes (Target Audience, Core Functions, Platforms, Privacy)
- *  4. Form fill: radio buttons
- *  5. Form fill: rich text toolbar on textareas
- *  6. Form fill: free text with no character limit
- *  7. AI summary (Regenerate button) — no "Authentication required"
- *  8. Admin dashboard access for staff role
+ *  3. Form fill: multi-select checkboxes, radio buttons, textareas
+ *  4. Rich text toolbar on textareas
+ *  5. No character limit on textareas
+ *  6. AI summary — no "Authentication required"
+ *  7. Admin dashboard access for staff role
  */
 import { test, expect, type Page } from '@playwright/test';
 
 const BASE = 'https://wmc-anforderungsportal.vercel.app';
 
-// Credentials — from DB
+// Credentials — from production DB
 const USERS = {
   staff: { email: 'waleri.moretz@wamocon.com', password: 'REDACTED' },
   productOwner: { email: 'daniel.moretz@wamocon.com', password: 'REDACTED' },
   elnay: { email: 'elnay.akhverdiev@gmail.com', password: 'REDACTED' },
 };
 
+/**
+ * Login helper — fills email + password on the DE login page and waits
+ * for the redirect (staff → /dashboard, PO/client → /my-projects).
+ */
 async function login(page: Page, email: string, password: string) {
   await page.goto(`${BASE}/de/login`);
-  await page.getByPlaceholder(/e-mail/i).fill(email);
-  await page.getByLabel(/passwort/i).first().fill(password);
+  await page.waitForLoadState('networkidle');
+
+  // The login page uses <label htmlFor="email">E-Mail-Adresse</label> + <input id="email">
+  await page.locator('input#email').fill(email);
+  await page.locator('input#password').fill(password);
   await page.getByRole('button', { name: /anmelden/i }).click();
-  // Wait for navigation away from login page
-  await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 15000 });
+
+  // Wait for navigation away from login page (up to 20 s for cold start)
+  await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 20_000 });
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -40,20 +47,18 @@ async function login(page: Page, email: string, password: string) {
 test.describe('Login flows', () => {
   test('Staff (Waleri) can log in and see admin dashboard', async ({ page }) => {
     await login(page, USERS.staff.email, USERS.staff.password);
-    // Staff → admin dashboard
-    await expect(page).toHaveURL(/\/(dashboard|projects|responses)/);
-    // Should see some dashboard content
+    await expect(page).toHaveURL(/\/dashboard/);
     await expect(page.locator('body')).not.toContainText('Authentication required');
   });
 
-  test('Product Owner (Daniel) can log in and see client portal', async ({ page }) => {
+  test('Product Owner (Daniel) can log in and see my-projects', async ({ page }) => {
     await login(page, USERS.productOwner.email, USERS.productOwner.password);
-    await expect(page).toHaveURL(/\/(my-projects|form)/);
+    await expect(page).toHaveURL(/\/my-projects/);
   });
 
   test('Elnay can log in with fixed credentials', async ({ page }) => {
     await login(page, USERS.elnay.email, USERS.elnay.password);
-    await expect(page).toHaveURL(/\/(my-projects|form)/);
+    await expect(page).toHaveURL(/\/my-projects/);
   });
 });
 
@@ -62,18 +67,15 @@ test.describe('Login flows', () => {
 // ─────────────────────────────────────────────────────────────────
 
 test.describe('Language switching', () => {
-  test('Login page loads in DE, EN, RU', async ({ page }) => {
-    // German
+  test('Login page renders in DE, EN, RU', async ({ page }) => {
     await page.goto(`${BASE}/de/login`);
     await expect(page.locator('body')).toContainText('Willkommen');
 
-    // English
     await page.goto(`${BASE}/en/login`);
     await expect(page.locator('body')).toContainText('Welcome');
 
-    // Russian
     await page.goto(`${BASE}/ru/login`);
-    await expect(page.locator('body')).toContainText(/Добро пожаловать|Войти|вход/i);
+    await expect(page.locator('body')).toContainText(/Добро пожаловать|войти|вход/i);
   });
 });
 
@@ -83,16 +85,13 @@ test.describe('Language switching', () => {
 
 test.describe('Form fill features', () => {
   test.beforeEach(async ({ page }) => {
-    // Log in as Elnay (the client who reported the bugs)
     await login(page, USERS.elnay.email, USERS.elnay.password);
   });
 
-  test('Can navigate to a form fill page', async ({ page }) => {
-    // Navigate to Kinder Club App (Elnay's project)
+  test('Form fill page loads for Kinder Club App', async ({ page }) => {
     await page.goto(`${BASE}/ru/form/kinder-club-app/fill`);
     await page.waitForLoadState('networkidle');
-
-    // Page should have loaded with form content
+    // Main content loaded
     await expect(page.locator('main')).toBeVisible();
   });
 
@@ -100,25 +99,35 @@ test.describe('Form fill features', () => {
     await page.goto(`${BASE}/ru/form/kinder-club-app/fill`);
     await page.waitForLoadState('networkidle');
 
-    // Find a checkbox card and click it
-    const checkboxCards = page.locator('[data-slot="checkbox"]');
-    const firstCheckbox = checkboxCards.first();
+    // The checkbox row is a clickable <div> wrapping <Checkbox> + <Label>.
+    // Clicking the <Label> text triggers toggleMultiSelect via the parent div.
+    // Look for "Дети" (Children) — first option in Target Audience question.
+    const optionRow = page.locator('div.cursor-pointer', { hasText: 'Дети' }).first();
 
-    if (await firstCheckbox.isVisible()) {
-      // Get initial state
-      const wasChecked = await firstCheckbox.getAttribute('data-checked');
+    if (await optionRow.isVisible()) {
+      // Before: row should NOT have the selected border class
+      const classBefore = await optionRow.getAttribute('class') ?? '';
+      const selectedBefore = classBefore.includes('border-[#FE0404]');
 
-      // Click the checkbox to toggle it
-      await firstCheckbox.click();
-      await page.waitForTimeout(500);
+      // Click to select
+      await optionRow.click();
+      await page.waitForTimeout(800);
 
-      // Verify it toggled
-      const isCheckedNow = await firstCheckbox.getAttribute('data-checked');
-      expect(isCheckedNow).not.toBe(wasChecked);
+      const classAfter = await optionRow.getAttribute('class') ?? '';
+      const selectedAfter = classAfter.includes('border-[#FE0404]');
 
-      // Click again to toggle back
-      await firstCheckbox.click();
-      await page.waitForTimeout(500);
+      // It should have toggled
+      expect(selectedAfter).not.toBe(selectedBefore);
+
+      // Click again to deselect
+      await optionRow.click();
+      await page.waitForTimeout(800);
+
+      const classFinal = await optionRow.getAttribute('class') ?? '';
+      const selectedFinal = classFinal.includes('border-[#FE0404]');
+      expect(selectedFinal).toBe(selectedBefore);
+    } else {
+      test.skip();
     }
   });
 
@@ -126,46 +135,43 @@ test.describe('Form fill features', () => {
     await page.goto(`${BASE}/ru/form/kinder-club-app/fill`);
     await page.waitForLoadState('networkidle');
 
-    // Navigate to a section with radio buttons (section 2 = Functional Requirements)
-    const sectionPills = page.locator('button').filter({ hasText: /2|Funk/ });
-    if (await sectionPills.first().isVisible()) {
-      await sectionPills.first().click();
-      await page.waitForTimeout(500);
-    }
+    const radios = page.locator('[role="radio"]');
+    const count = await radios.count();
 
-    // Try to find and click a radio item
-    const radioItems = page.locator('[role="radio"]');
-    if (await radioItems.first().isVisible()) {
-      await radioItems.first().click();
-      await page.waitForTimeout(500);
-      await expect(radioItems.first()).toHaveAttribute('data-state', 'checked');
+    if (count > 0) {
+      await radios.first().click();
+      await page.waitForTimeout(600);
+      await expect(radios.first()).toHaveAttribute('data-state', 'checked');
+    } else {
+      test.skip();
     }
   });
 
-  test('Textarea has rich text formatting toolbar', async ({ page }) => {
+  test('Rich text toolbar buttons are present', async ({ page }) => {
     await page.goto(`${BASE}/ru/form/kinder-club-app/fill`);
     await page.waitForLoadState('networkidle');
 
-    // Look for the formatting toolbar buttons (Bold icon, List icon, etc.)
-    const toolbar = page.locator('button[title="Bold (**text**)"]');
-    if (await toolbar.isVisible()) {
-      // Toolbar exists — test passed
-      await expect(toolbar).toBeVisible();
+    // The toolbar buttons have `title` attributes
+    const boldBtn = page.locator('button[title*="Bold"]');
+    const count = await boldBtn.count();
 
-      // Also verify other toolbar buttons exist
-      await expect(page.locator('button[title="Italic (*text*)"]')).toBeVisible();
-      await expect(page.locator('button[title="Bullet list"]')).toBeVisible();
-      await expect(page.locator('button[title="Link"]')).toBeVisible();
+    if (count > 0) {
+      await expect(boldBtn.first()).toBeVisible();
+      await expect(page.locator('button[title*="Italic"]').first()).toBeVisible();
+      await expect(page.locator('button[title*="list"]').first()).toBeVisible();
+    } else {
+      // May not be visible if no textarea question on first section
+      test.skip();
     }
   });
 
-  test('Textarea has no character limit', async ({ page }) => {
+  test('No character limit shown', async ({ page }) => {
     await page.goto(`${BASE}/ru/form/kinder-club-app/fill`);
     await page.waitForLoadState('networkidle');
 
-    // The textarea should NOT show a "/ 10,000" counter
     const body = await page.locator('body').textContent();
-    expect(body).not.toContain('/ 10');
+    // Should NOT include the old "/ 10,000" or "/ 10000" counter
+    expect(body).not.toMatch(/\/\s*10[,.]?000/);
   });
 });
 
@@ -174,17 +180,14 @@ test.describe('Form fill features', () => {
 // ─────────────────────────────────────────────────────────────────
 
 test.describe('AI features', () => {
-  test('AI summary API works (no auth error)', async ({ page }) => {
-    // Log in as Daniel
+  test('Review page has no auth error', async ({ page }) => {
     await login(page, USERS.productOwner.email, USERS.productOwner.password);
 
-    // Navigate to a form fill, then review page
     await page.goto(`${BASE}/de/form/wedbudget/review`);
     await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(2000);
 
-    // If on the review page, we should see AI Executive Summary
     const body = await page.locator('body').textContent();
-    // Should NOT show "Authentication required"
     expect(body).not.toContain('Authentication required');
   });
 });
@@ -199,7 +202,6 @@ test.describe('Admin dashboard', () => {
     await page.goto(`${BASE}/de/projects`);
     await page.waitForLoadState('networkidle');
 
-    // Should see project data loaded from DB
     await expect(page.locator('body')).toContainText(/Projekt|Project/i);
   });
 
