@@ -2,7 +2,7 @@ import { google } from '@ai-sdk/google';
 import { streamText, type ModelMessage } from 'ai';
 import { rateLimit, getRateLimitHeaders } from '@/lib/rate-limit';
 import { getLanguageName } from '@/lib/lang-map';
-import { verifyAuth } from '@/lib/auth-edge';
+import { getAuthUser } from '@/lib/auth-edge';
 
 export const runtime = 'edge';
 
@@ -36,7 +36,7 @@ const MAX_MESSAGE_LENGTH = 4000;
 export async function POST(req: Request) {
   try {
     // Auth check: only authenticated users can use AI features
-    const user = await verifyAuth(req);
+    const user = await getAuthUser(req);
     if (!user) {
       return new Response('Authentication required', { status: 401 });
     }

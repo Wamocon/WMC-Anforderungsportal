@@ -2,7 +2,7 @@ import { google } from '@ai-sdk/google';
 import { generateText } from 'ai';
 import { rateLimit } from '@/lib/rate-limit';
 import { getLanguageName } from '@/lib/lang-map';
-import { verifyAuth } from '@/lib/auth-edge';
+import { getAuthUser } from '@/lib/auth-edge';
 
 export const runtime = 'edge';
 
@@ -23,7 +23,7 @@ RULES:
 export async function POST(req: Request) {
   try {
     // Auth check: only authenticated users can use AI features
-    const user = await verifyAuth(req);
+    const user = await getAuthUser(req);
     if (!user) {
       return Response.json({ error: 'Authentication required' }, { status: 401 });
     }

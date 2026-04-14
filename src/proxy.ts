@@ -33,15 +33,31 @@ export async function proxy(request: NextRequest) {
 
   // ── Protect AI API routes: require authenticated user ──────────────
   if (pathname.startsWith('/api/ai/')) {
-    const { user } = await updateSession(request);
+    const { supabaseResponse: aiSessionResponse, user } = await updateSession(request);
     if (!user) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
       );
     }
-    // User is authenticated — let the request through
-    return NextResponse.next();
+
+    // Inject verified user info into request headers so route handlers
+    // don't need to re-parse cookies (which may be stale after a refresh).
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set('x-verified-user-id', user.id);
+    requestHeaders.set('x-verified-user-email', user.email || '');
+
+    const response = NextResponse.next({
+      request: { headers: requestHeaders },
+    });
+
+    // Propagate refreshed session cookies back to the browser so the
+    // access token stays fresh on subsequent requests.
+    aiSessionResponse.cookies.getAll().forEach((cookie) => {
+      response.cookies.set(cookie.name, cookie.value, cookie);
+    });
+
+    return response;
   }
 
   // Skip middleware for other API routes (auth callbacks, form saves, etc.)

@@ -14,7 +14,7 @@ vi.mock('@supabase/supabase-js', () => ({
 process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co';
 process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-anon-key';
 
-const { verifyAuth } = await import('../auth-edge');
+const { verifyAuth, getAuthUser } = await import('../auth-edge');
 
 describe('verifyAuth', () => {
   beforeEach(() => {
@@ -134,5 +134,52 @@ describe('verifyAuth', () => {
     expect(result).toBeNull();
 
     process.env.NEXT_PUBLIC_SUPABASE_URL = originalUrl;
+  });
+});
+
+describe('getAuthUser', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('returns user from middleware-injected headers (primary path)', async () => {
+    const req = new Request('https://example.com/api/ai/summary', {
+      method: 'POST',
+      headers: {
+        'x-verified-user-id': 'user-mid-001',
+        'x-verified-user-email': 'middleware@example.com',
+      },
+    });
+
+    const result = await getAuthUser(req);
+    expect(result).toEqual({ id: 'user-mid-001', email: 'middleware@example.com' });
+    // Should NOT call Supabase at all
+    expect(mockGetUser).not.toHaveBeenCalled();
+  });
+
+  it('falls back to verifyAuth when middleware headers are absent', async () => {
+    mockGetUser.mockResolvedValue({
+      data: { user: { id: 'user-fallback', email: 'fallback@example.com' } },
+      error: null,
+    });
+
+    const jwt = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.fake';
+    const req = new Request('https://example.com/api/ai/summary', {
+      method: 'POST',
+      headers: { cookie: `sb-test-auth-token=${jwt}` },
+    });
+
+    const result = await getAuthUser(req);
+    expect(result).toEqual({ id: 'user-fallback', email: 'fallback@example.com' });
+    expect(mockGetUser).toHaveBeenCalled();
+  });
+
+  it('returns null when no headers and no valid cookies', async () => {
+    const req = new Request('https://example.com/api/ai/summary', {
+      method: 'POST',
+    });
+
+    const result = await getAuthUser(req);
+    expect(result).toBeNull();
   });
 });

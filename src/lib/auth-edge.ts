@@ -75,3 +75,21 @@ export async function verifyAuth(req: Request): Promise<{ id: string; email?: st
     return null;
   }
 }
+
+/**
+ * Get the authenticated user from the request.
+ *
+ * Primary: reads `x-verified-user-id` / `x-verified-user-email` headers
+ * injected by the middleware (proxy.ts) after a successful session check.
+ * This avoids re-parsing (potentially stale) cookies in Edge route handlers.
+ *
+ * Fallback: calls verifyAuth() for local dev or non-middleware contexts.
+ */
+export async function getAuthUser(req: Request): Promise<{ id: string; email?: string } | null> {
+  const id = req.headers.get('x-verified-user-id');
+  if (id) {
+    return { id, email: req.headers.get('x-verified-user-email') || undefined };
+  }
+  // Fallback — direct cookie validation (e.g. local dev without middleware)
+  return verifyAuth(req);
+}
