@@ -43,6 +43,16 @@ import {
   Link2,
   Mic,
   AlertTriangle,
+  Bold,
+  Italic,
+  Underline,
+  List,
+  ListOrdered,
+  Heading2,
+  Minus,
+  Quote,
+  Code,
+  Link as LinkIcon,
 } from 'lucide-react';
 
 // Lazy-load VoiceRecorder — it includes Web Speech API and MediaRecorder,
@@ -392,6 +402,42 @@ export function FormFillClient({
     requestAnimationFrame(() => {
       el.focus();
       el.setSelectionRange(pos + prefix.length, pos + prefix.length);
+    });
+  }
+
+  /** Insert raw text at the current cursor position */
+  function insertAtCursor(questionId: string, insert: string) {
+    const el = document.getElementById(`textarea-${questionId}`) as HTMLTextAreaElement | null;
+    if (!el) return;
+    const pos = el.selectionStart;
+    const text = (answers[questionId] as string) || '';
+    const newText = text.slice(0, pos) + insert + text.slice(pos);
+    updateAnswer(questionId, newText);
+    requestAnimationFrame(() => {
+      el.focus();
+      const newPos = pos + insert.length;
+      el.setSelectionRange(newPos, newPos);
+    });
+  }
+
+  /** Insert a markdown link at cursor, wrapping selected text if any */
+  function insertLink(questionId: string) {
+    const el = document.getElementById(`textarea-${questionId}`) as HTMLTextAreaElement | null;
+    if (!el) return;
+    const start = el.selectionStart;
+    const end = el.selectionEnd;
+    const text = (answers[questionId] as string) || '';
+    const selected = text.slice(start, end);
+    const linkText = selected || 'text';
+    const insert = `[${linkText}](url)`;
+    const newText = text.slice(0, start) + insert + text.slice(end);
+    updateAnswer(questionId, newText);
+    requestAnimationFrame(() => {
+      el.focus();
+      // Select "url" so user can type the URL immediately
+      const urlStart = start + linkText.length + 3; // after "[text]("
+      const urlEnd = urlStart + 3; // "url"
+      el.setSelectionRange(urlStart, urlEnd);
     });
   }
 
@@ -828,24 +874,40 @@ export function FormFillClient({
                       {question.type === 'textarea' && (() => {
                         const isPolishing = polishingField === question.id;
                         return (
-                        <div className="space-y-2">
-                          {/* Mini formatting toolbar */}
-                          <div className="flex items-center gap-1 border border-border/40 rounded-t-md px-2 py-1.5 bg-muted/30">
-                            <button type="button" title="Bold" className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors" onClick={() => wrapSelection(question.id, '**')}>
-                              <span className="text-xs font-bold">B</span>
+                        <div className="space-y-0">
+                          {/* Rich text formatting toolbar */}
+                          <div className="flex items-center gap-0.5 flex-wrap border border-border/40 rounded-t-md px-1.5 py-1 bg-muted/30">
+                            <button type="button" title="Bold (**text**)" className="p-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors" onClick={() => wrapSelection(question.id, '**')}>
+                              <Bold className="h-3.5 w-3.5" />
                             </button>
-                            <button type="button" title="Italic" className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors" onClick={() => wrapSelection(question.id, '*')}>
-                              <span className="text-xs italic">I</span>
+                            <button type="button" title="Italic (*text*)" className="p-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors" onClick={() => wrapSelection(question.id, '*')}>
+                              <Italic className="h-3.5 w-3.5" />
                             </button>
-                            <button type="button" title="Underline" className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors" onClick={() => wrapSelection(question.id, '__')}>
-                              <span className="text-xs underline">U</span>
+                            <button type="button" title="Underline (__text__)" className="p-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors" onClick={() => wrapSelection(question.id, '__')}>
+                              <Underline className="h-3.5 w-3.5" />
                             </button>
-                            <div className="w-px h-4 bg-border mx-1" />
-                            <button type="button" title="Bullet list" className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors" onClick={() => insertPrefix(question.id, '- ')}>
-                              <span className="text-xs">• List</span>
+                            <div className="w-px h-4 bg-border mx-0.5" />
+                            <button type="button" title="Heading" className="p-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors" onClick={() => insertPrefix(question.id, '## ')}>
+                              <Heading2 className="h-3.5 w-3.5" />
                             </button>
-                            <button type="button" title="Numbered list" className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors" onClick={() => insertPrefix(question.id, '1. ')}>
-                              <span className="text-xs">1. List</span>
+                            <button type="button" title="Bullet list" className="p-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors" onClick={() => insertPrefix(question.id, '- ')}>
+                              <List className="h-3.5 w-3.5" />
+                            </button>
+                            <button type="button" title="Numbered list" className="p-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors" onClick={() => insertPrefix(question.id, '1. ')}>
+                              <ListOrdered className="h-3.5 w-3.5" />
+                            </button>
+                            <div className="w-px h-4 bg-border mx-0.5" />
+                            <button type="button" title="Quote" className="p-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors" onClick={() => insertPrefix(question.id, '> ')}>
+                              <Quote className="h-3.5 w-3.5" />
+                            </button>
+                            <button type="button" title="Code" className="p-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors" onClick={() => wrapSelection(question.id, '`')}>
+                              <Code className="h-3.5 w-3.5" />
+                            </button>
+                            <button type="button" title="Divider" className="p-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors" onClick={() => insertAtCursor(question.id, '\n---\n')}>
+                              <Minus className="h-3.5 w-3.5" />
+                            </button>
+                            <button type="button" title="Link" className="p-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors" onClick={() => insertLink(question.id)}>
+                              <LinkIcon className="h-3.5 w-3.5" />
                             </button>
                           </div>
                           <div className="relative">
