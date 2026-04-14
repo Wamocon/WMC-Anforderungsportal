@@ -70,6 +70,53 @@ describe('verifyAuth', () => {
     expect(result).toBeNull();
   });
 
+  it('returns user when token is stored in chunked cookies (.0, .1)', async () => {
+    mockGetUser.mockResolvedValue({
+      data: { user: { id: 'user-456', email: 'chunked@example.com' } },
+      error: null,
+    });
+
+    // Simulate a Supabase SSR session split across two cookie chunks
+    const sessionJson = JSON.stringify({
+      access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0NTYifQ.fake-long-token',
+      refresh_token: 'refresh-token-value',
+      expires_at: 9999999999,
+    });
+    const mid = Math.floor(sessionJson.length / 2);
+    const chunk0 = encodeURIComponent(sessionJson.slice(0, mid));
+    const chunk1 = encodeURIComponent(sessionJson.slice(mid));
+
+    const req = new Request('https://example.com/api/ai/summary', {
+      method: 'POST',
+      headers: {
+        cookie: `sb-test-auth-token.0=${chunk0}; sb-test-auth-token.1=${chunk1}`,
+      },
+    });
+
+    const result = await verifyAuth(req);
+    expect(result).toEqual({ id: 'user-456', email: 'chunked@example.com' });
+  });
+
+  it('returns user when token is stored as JSON array in .0 cookie', async () => {
+    mockGetUser.mockResolvedValue({
+      data: { user: { id: 'user-789', email: 'array@example.com' } },
+      error: null,
+    });
+
+    const jwt = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3ODkifQ.fake';
+    const arrayValue = encodeURIComponent(JSON.stringify([jwt, 'refresh-token']));
+
+    const req = new Request('https://example.com/api/ai/summary', {
+      method: 'POST',
+      headers: {
+        cookie: `sb-test-auth-token.0=${arrayValue}`,
+      },
+    });
+
+    const result = await verifyAuth(req);
+    expect(result).toEqual({ id: 'user-789', email: 'array@example.com' });
+  });
+
   it('returns null when env vars are missing', async () => {
     const originalUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     delete process.env.NEXT_PUBLIC_SUPABASE_URL;

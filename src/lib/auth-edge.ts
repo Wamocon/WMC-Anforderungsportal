@@ -5,38 +5,55 @@ import { createClient } from '@supabase/supabase-js';
  * Supabase access token from request cookies.
  *
  * Works in Edge runtime (no `cookies()` import from next/headers needed).
+ * Handles Supabase SSR chunked cookies (.0, .1, .2 …) and single cookies.
  * Returns the user object if valid, null otherwise.
  */
 export async function verifyAuth(req: Request): Promise<{ id: string; email?: string } | null> {
   try {
     const cookieHeader = req.headers.get('cookie') || '';
-    // Supabase stores the access token in a cookie like sb-<ref>-auth-token
-    const tokenMatch = cookieHeader.match(/sb-[^=]+-auth-token(?:\.0)?=([^;]+)/);
-    if (!tokenMatch) return null;
 
-    // The token cookie may be URL-encoded JSON — try to parse the access_token from it
+    // 1. Find the Supabase auth cookie prefix (e.g. "sb-acgxydrisfjbilfgatkq-auth-token")
+    const prefixMatch = cookieHeader.match(/sb-[a-zA-Z0-9]+-auth-token/);
+    if (!prefixMatch) return null;
+    const prefix = prefixMatch[0];
+
+    // 2. Collect all matching cookie chunks (.0, .1, .2 … or the non-chunked base)
+    const escapedPrefix = prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const chunkRegex = new RegExp(
+      `(?:^|;\\s*)${escapedPrefix}(?:\\.(\\d+))?=([^;]+)`,
+      'g',
+    );
+    const chunks: [number, string][] = [];
+    let m: RegExpExecArray | null;
+    while ((m = chunkRegex.exec(cookieHeader)) !== null) {
+      const index = m[1] !== undefined ? parseInt(m[1], 10) : 0;
+      chunks.push([index, decodeURIComponent(m[2])]);
+    }
+    if (chunks.length === 0) return null;
+
+    // 3. Sort by chunk index and concatenate to get the full stored value
+    chunks.sort((a, b) => a[0] - b[0]);
+    const fullValue = chunks.map(([, val]) => val).join('');
+
+    // 4. Extract the access_token from the reassembled value
     let accessToken: string | null = null;
     try {
-      const decoded = decodeURIComponent(tokenMatch[1]);
-      // Supabase SSR stores the token as a JSON string with base64url segments
-      // or as a plain JWT. Try JSON parse first.
-      if (decoded.startsWith('[') || decoded.startsWith('{') || decoded.startsWith('"')) {
-        const parsed = JSON.parse(decoded.startsWith('"') ? decoded : decoded);
+      if (fullValue.startsWith('[') || fullValue.startsWith('{') || fullValue.startsWith('"')) {
+        const parsed = JSON.parse(fullValue);
         if (typeof parsed === 'string') {
-          // It's a JWT string directly
           accessToken = parsed;
         } else if (Array.isArray(parsed)) {
-          // Chunked storage — reassemble
-          accessToken = parsed.join('');
+          // @supabase/ssr stores session as [access_token, refresh_token]
+          accessToken = parsed[0] || null;
         } else if (parsed?.access_token) {
           accessToken = parsed.access_token;
         }
       } else {
-        accessToken = decoded;
+        accessToken = fullValue;
       }
     } catch {
-      // Not JSON — use raw value as JWT
-      accessToken = decodeURIComponent(tokenMatch[1]);
+      // Not valid JSON — treat the raw value as a JWT directly
+      accessToken = fullValue;
     }
 
     if (!accessToken || accessToken.length < 10) return null;
