@@ -145,8 +145,9 @@ test.describe('Form fill features', () => {
     await page.waitForLoadState('networkidle');
 
     // Section 0 (Project Overview) has no radios.
-    // Navigate to section 2 (Functional Requirements) which has radio questions.
-    const sectionPill = page.locator('button').filter({ hasText: '2' }).first();
+    // Navigate to section "Функциональные требования" (index 1) by its title text.
+    // (The pill may show a checkmark instead of the number if already completed.)
+    const sectionPill = page.locator('button').filter({ hasText: 'Функциональные требования' }).first();
     await sectionPill.click();
     await page.waitForTimeout(1000);
 
