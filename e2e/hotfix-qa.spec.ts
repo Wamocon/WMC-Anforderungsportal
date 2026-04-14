@@ -135,15 +135,29 @@ test.describe('Form fill features', () => {
     await page.goto(`${BASE}/ru/form/kinder-club-app/fill`);
     await page.waitForLoadState('networkidle');
 
-    const radios = page.locator('[role="radio"]');
-    const count = await radios.count();
+    // Section 0 (Project Overview) has no radios.
+    // Navigate to section 2 (Functional Requirements) which has radio questions.
+    const sectionPill = page.locator('button').filter({ hasText: '2' }).first();
+    await sectionPill.click();
+    await page.waitForTimeout(1000);
 
-    if (count > 0) {
-      await radios.first().click();
+    // "Должно ли приложение работать оффлайн?" has radio options:
+    // "Да, полностью" / "Частично" / "Нет, только онлайн"
+    const radios = page.locator('[role="radio"]');
+    await expect(radios.first()).toBeVisible({ timeout: 5000 });
+
+    // Click the first radio option
+    await radios.first().click();
+    await page.waitForTimeout(600);
+    await expect(radios.first()).toHaveAttribute('aria-checked', 'true');
+
+    // Click a different option to verify switching works
+    if (await radios.nth(1).isVisible()) {
+      await radios.nth(1).click();
       await page.waitForTimeout(600);
-      await expect(radios.first()).toHaveAttribute('data-state', 'checked');
-    } else {
-      test.skip();
+      await expect(radios.nth(1)).toHaveAttribute('aria-checked', 'true');
+      // First one should now be unchecked
+      await expect(radios.first()).toHaveAttribute('aria-checked', 'false');
     }
   });
 
