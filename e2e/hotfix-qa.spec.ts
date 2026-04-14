@@ -14,13 +14,22 @@
  */
 import { test, expect, type Page } from '@playwright/test';
 
-const BASE = 'https://wmc-anforderungsportal.vercel.app';
+const BASE = process.env.E2E_BASE_URL ?? 'https://wmc-anforderungsportal.vercel.app';
 
-// Credentials — from production DB
+// Credentials loaded from .env.test.local (gitignored — NEVER hardcode here)
 const USERS = {
-  staff: { email: 'waleri.moretz@wamocon.com', password: 'REDACTED' },
-  productOwner: { email: 'daniel.moretz@wamocon.com', password: 'REDACTED' },
-  elnay: { email: 'elnay.akhverdiev@gmail.com', password: 'REDACTED' },
+  staff: {
+    email: process.env.E2E_STAFF_EMAIL ?? '',
+    password: process.env.E2E_STAFF_PASS ?? '',
+  },
+  productOwner: {
+    email: process.env.E2E_PRODUCT_OWNER_EMAIL ?? '',
+    password: process.env.E2E_PRODUCT_OWNER_PASS ?? '',
+  },
+  elnay: {
+    email: process.env.E2E_CLIENT_EMAIL ?? '',
+    password: process.env.E2E_CLIENT_PASS ?? '',
+  },
 };
 
 /**
