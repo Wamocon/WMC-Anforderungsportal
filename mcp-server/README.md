@@ -2,29 +2,35 @@
 
 MCP (Model Context Protocol) server that exposes WMC Anforderungsportal tools to AI coding assistants like GitHub Copilot, Claude Desktop, and Cursor.
 
-## Setup
-
-### 1. Install dependencies
+## Quick Start (one command)
 
 ```bash
-cd mcp-server
-npm install
-npm run build
+npm install -g anforderungsportal-mcp
 ```
 
-### 2. Configure environment
+That's it. The installer automatically configures VS Code and Cursor.
 
-Set these environment variables:
+Restart VS Code, open chat (`Ctrl+L`), and type:
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `SUPABASE_URL` | Yes | Your Supabase project URL |
-| `SUPABASE_SERVICE_ROLE_KEY` | Staff | Service role key (full access) |
-| `SUPABASE_ANON_KEY` | PO | Anon key (RLS-scoped access) |
+```
+login your-email@wamocon.com your-password
+```
 
-### 3. Add to your MCP client
+### Manual setup (if auto-setup didn't run)
 
-**VS Code (Copilot / Claude Dev)** — add to `.vscode/mcp.json`:
+```bash
+# In any project folder:
+npx anforderungsportal-mcp init
+
+# Or to enable in ALL workspaces:
+npx anforderungsportal-mcp init --global
+```
+
+> The Supabase URL and anon key are built into the package. No env vars needed.
+
+## Admin Setup (local dev, full access)
+
+For administrators who need god-mode access (bypasses RLS), add the service role key:
 
 ```json
 {
@@ -34,31 +40,63 @@ Set these environment variables:
       "args": ["./mcp-server/dist/index.js"],
       "env": {
         "SUPABASE_URL": "https://acgxydrisfjbilfgatkq.supabase.co",
-        "SUPABASE_SERVICE_ROLE_KEY": "your-service-role-key"
+        "SUPABASE_SERVICE_ROLE_KEY": "your-service-role-key",
+        "SUPABASE_ANON_KEY": "your-anon-key"
       }
     }
   }
 }
 ```
 
+## Setup from Source
+
+### 1. Install dependencies
+
+```bash
+cd mcp-server
+npm install
+npm run build
+```
+
+### 2. Add to your MCP client
+
 **Claude Desktop** — add to `claude_desktop_config.json`:
+
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+- **Mac**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 
 ```json
 {
   "mcpServers": {
     "anforderungsportal": {
-      "command": "node",
-      "args": ["/path/to/mcp-server/dist/index.js"],
-      "env": {
-        "SUPABASE_URL": "https://acgxydrisfjbilfgatkq.supabase.co",
-        "SUPABASE_SERVICE_ROLE_KEY": "your-service-role-key"
-      }
+      "command": "npx",
+      "args": ["-y", "anforderungsportal-mcp"]
+    }
+  }
+}
+```
+
+**Cursor** — add to `.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "anforderungsportal": {
+      "command": "npx",
+      "args": ["-y", "anforderungsportal-mcp"]
     }
   }
 }
 ```
 
 ## Available Tools
+
+### Authentication (v1.1.0+)
+| Tool | Description |
+|------|-------------|
+| `login` | Sign in as a user (PO, Staff, Admin). Scopes all subsequent calls to that user's RLS policies |
+| `whoami` | Check current auth status — logged-in user, role, session expiry |
+| `logout` | Sign out, return to admin mode (service-role, RLS bypassed) |
 
 ### Project Management
 | Tool | Description |
@@ -104,7 +142,17 @@ Set these environment variables:
 
 ## Security
 
-- **Staff mode**: Uses `SUPABASE_SERVICE_ROLE_KEY` — bypasses RLS, full access
-- **PO mode**: Uses `SUPABASE_ANON_KEY` — all queries scoped by RLS policies
-- Never commit keys to version control
+- **Admin mode** (default): Uses `SUPABASE_SERVICE_ROLE_KEY` — bypasses RLS, full access
+- **User mode** (after `login`): Scoped by RLS policies for the logged-in user's role
+- Use the `login` tool to switch between admin and user modes
+- Never commit keys to version control (`.vscode/mcp.json` is gitignored)
 - The server runs locally via stdio — no network exposure
+- Search queries are sanitised against PostgREST filter injection
+
+## Testing
+
+```bash
+cd mcp-server
+npm test          # Run all 91 unit tests
+npm run test:watch  # Watch mode
+```

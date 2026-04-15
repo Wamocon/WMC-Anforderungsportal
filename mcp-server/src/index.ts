@@ -10,12 +10,221 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
-import { getSupabaseClient } from './supabase.js';
+import { getSupabaseClient, getSession, signIn, signOut, hasServiceKey } from './supabase.js';
 
 const server = new McpServer({
   name: 'anforderungsportal',
-  version: '1.0.0',
+  version: '1.5.0',
 });
+
+// ═══════════════════════════════════════════════════════════════
+// AUTH TOOLS — Login as a specific role to scope all operations
+// ═══════════════════════════════════════════════════════════════
+
+const ROLE_COMMANDS: Record<string, string> = {
+  super_admin: `
+  ── You are SUPER ADMIN — full access ──
+
+  PROJECTS
+    list_projects                          → See all projects
+    get_project <id>                       → Project details
+    create_project <name>                  → New project
+    update_project <id> …                  → Edit project
+    submit_for_review <id>                 → Submit draft
+    approve_project <id>                   → Approve pending project
+    reject_project <id> <reason>           → Send back to draft
+    activate_project <id>                  → Open for client fill-in
+    archive_project <id>                   → Archive
+
+  TEMPLATES
+    list_templates                         → All templates
+    get_template <id>                      → Template + questions
+    create_template <name>                 → New template
+    add_section <template_id> <title>      → Add section
+    add_question <section_id> <label> …    → Add question
+
+  RESPONSES
+    list_responses <project_id>            → All responses
+    get_response_answers <response_id>     → Answers detail
+    submit_answer …                        → Fill in an answer
+
+  MEMBERS & FEEDBACK
+    list_project_members <project_id>      → Members + invites
+    invite_member <project_id> <email>     → Invite client
+    send_feedback <project_id> <response_id> <msg>
+
+  ANALYTICS
+    project_stats <project_id>             → Stats overview
+    search_projects <query>                → Search by name`,
+
+  staff: `
+  ── You are STAFF — manage projects & templates ──
+
+  PROJECTS
+    list_projects                          → All projects in your org
+    get_project <id>                       → Project details
+    approve_project <id>                   → Approve pending project
+    reject_project <id> <reason>           → Send back to draft
+    activate_project <id>                  → Open for client fill-in
+    archive_project <id>                   → Archive
+    search_projects <query>                → Search
+
+  TEMPLATES
+    list_templates                         → All templates
+    get_template <id>                      → Template + questions
+    create_template <name>                 → New template
+    add_section / add_question …           → Build template
+
+  RESPONSES & FEEDBACK
+    list_responses <project_id>            → All responses
+    get_response_answers <response_id>     → Answers detail
+    list_project_members <project_id>      → Members + invites
+    invite_member <project_id> <email>     → Invite client
+    send_feedback …                        → Request clarification
+    project_stats <project_id>             → Stats overview`,
+
+  product_owner: `
+  ── You are PRODUCT OWNER — your projects ──
+
+  PROJECTS
+    list_projects                          → Your projects
+    get_project <id>                       → Project details
+    create_project <name>                  → Propose new project
+    update_project <id> …                  → Edit your draft
+    submit_for_review <id>                 → Submit to staff
+
+  MEMBERS
+    list_project_members <project_id>      → See members
+    invite_member <project_id> <email>     → Invite a client
+
+  RESPONSES
+    list_responses <project_id>            → See responses
+    get_response_answers <response_id>     → Read answers
+    project_stats <project_id>             → Progress overview
+
+  TEMPLATES
+    list_templates                         → Browse templates
+    get_template <id>                      → See questions`,
+
+  client: `
+  ── You are CLIENT — fill in your project form ──
+
+  list_projects                            → Your assigned projects
+  get_project <id>                         → Project details
+  list_responses <project_id>              → Your responses
+  get_response_answers <response_id>       → Your answers
+  submit_answer <response_id> <question_id> <value>  → Answer a question`,
+
+  authenticated: `
+  ── Logged in (role unknown) ──
+
+  list_projects                            → Your projects
+  list_responses <project_id>              → Responses
+  get_response_answers <response_id>       → Answers
+  submit_answer …                          → Fill in an answer`,
+};
+
+function getRoleCommands(role: string): string {
+  const key = Object.keys(ROLE_COMMANDS).find(k => role.includes(k)) ?? 'authenticated';
+  return ROLE_COMMANDS[key];
+}
+
+server.tool(
+  'help',
+  'Show all available commands for your current role. Run this after login to see what you can do.',
+  {},
+  async () => {
+    const session = getSession();
+    if (!session) {
+      const adminNote = hasServiceKey()
+        ? '\n  🔓 Running in admin mode — all commands available.\n  Type: login <email> <password> to switch to a specific user role.'
+        : '';
+      return {
+        content: [{
+          type: 'text',
+          text: `  ── Anforderungsportal MCP v1.4.0 ──\n\n  Not logged in. Start with:\n\n  login your-email@example.com yourPassword\n\n  Then type  help  again to see your role-specific commands.${adminNote}\n\n  AUTH COMMANDS\n    login <email> <password>   → Sign in\n    whoami                     → Check your session\n    logout                     → Sign out`,
+        }],
+      };
+    }
+    return {
+      content: [{
+        type: 'text',
+        text: `  Logged in as: ${session.email}  (${session.role})\n${getRoleCommands(session.role)}\n\n  ── Always available ──\n    whoami   → Check session\n    logout   → Sign out\n    help     → Show this list`,
+      }],
+    };
+  }
+);
+
+server.tool(
+  'login',
+  'Sign in with your portal credentials. After login, type "help" to see all commands available for your role.',
+  {
+    email: z.string().email().describe('User email address'),
+    password: z.string().describe('User password'),
+  },
+  async ({ email, password }) => {
+    try {
+      const session = await signIn(email, password);
+      const commands = getRoleCommands(session.role);
+      return {
+        content: [{
+          type: 'text',
+          text: `✅ Logged in as ${session.email}\n` +
+            `   Role: ${session.role}\n` +
+            `   Session expires: ${new Date(session.expiresAt * 1000).toISOString()}\n` +
+            `\n${commands}\n\n  Type  help  anytime to see this list again.`,
+        }],
+      };
+    } catch (e) {
+      return { content: [{ type: 'text', text: `❌ ${(e as Error).message}` }] };
+    }
+  }
+);
+
+server.tool(
+  'whoami',
+  'Check current authentication status — shows logged-in user, role, and session expiry',
+  {},
+  async () => {
+    const session = getSession();
+    if (!session) {
+      const mode = hasServiceKey()
+        ? '🔓 Not logged in — running in admin mode (service-role, RLS bypassed).\nUse the `login` tool to sign in as a specific user.'
+        : '🔒 Not logged in — login required before using any tools.\nUse: login(email, password) with your portal credentials.';
+      return { content: [{ type: 'text', text: mode }] };
+    }
+    const isExpired = Date.now() / 1000 > session.expiresAt;
+    return {
+      content: [{
+        type: 'text',
+        text: `👤 Logged in as: ${session.email}\n` +
+          `   Role: ${session.role}\n` +
+          `   User ID: ${session.userId}\n` +
+          `   Expires: ${new Date(session.expiresAt * 1000).toISOString()}` +
+          (isExpired ? ' ⚠️ EXPIRED — please login again' : ' ✓ active'),
+      }],
+    };
+  }
+);
+
+server.tool(
+  'logout',
+  'Sign out and return to admin mode (service-role). All subsequent tool calls will bypass RLS.',
+  {},
+  async () => {
+    const was = getSession();
+    signOut();
+    const fallback = hasServiceKey() ? 'Now running in admin mode.' : 'You need to login again to use tools.';
+    return {
+      content: [{
+        type: 'text',
+        text: was
+          ? `Logged out from ${was.email}. ${fallback}`
+          : 'No active session.',
+      }],
+    };
+  }
+);
 
 // ═══════════════════════════════════════════════════════════════
 // PROJECT TOOLS
@@ -56,10 +265,11 @@ server.tool(
   {
     name: z.string().describe('Project name'),
     description: z.string().optional().describe('Project description'),
-    requirement_type: z.enum(['functional', 'non_functional', 'both']).optional().default('both'),
+    requirement_type: z.array(z.string()).optional().default(['web_application']).describe('e.g. ["web_application","mobile_application"]'),
     template_id: z.string().optional().describe('Template ID. Omit to use default.'),
+    org_id: z.string().optional().describe('Organization ID. Omit to use the default org.'),
   },
-  async ({ name, description, requirement_type, template_id }) => {
+  async ({ name, description, requirement_type, template_id, org_id }) => {
     const sb = getSupabaseClient();
 
     // Get default template if not specified
@@ -69,12 +279,20 @@ server.tool(
       tid = def?.id ?? undefined;
     }
 
+    // Get default org if not specified
+    let oid = org_id;
+    if (!oid) {
+      const { data: org } = await sb.from('organizations').select('id').limit(1).single();
+      oid = org?.id ?? undefined;
+    }
+
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '-' + Date.now().toString(36);
 
     const { data, error } = await sb.from('projects').insert({
       name, description: description ?? null, slug,
-      status: 'draft', requirement_type: requirement_type ?? 'both',
+      status: 'draft', requirement_type: requirement_type ?? ['web_application'],
       template_id: tid ?? null, deadline_days: 5,
+      org_id: oid ?? null,
     }).select('id, slug').single();
 
     if (error) return { content: [{ type: 'text', text: `Error: ${error.message}` }] };
@@ -218,8 +436,11 @@ server.tool(
   },
   async ({ name, description }) => {
     const sb = getSupabaseClient();
+    // Get default org
+    const { data: org } = await sb.from('organizations').select('id').limit(1).single();
     const { data, error } = await sb.from('requirement_templates').insert({
       name, description: description ?? null, is_default: false,
+      org_id: org?.id ?? null,
     }).select('id').single();
     if (error) return { content: [{ type: 'text', text: `Error: ${error.message}` }] };
     return { content: [{ type: 'text', text: `Template created: ${data.id}` }] };
@@ -290,7 +511,7 @@ server.tool(
   { project_id: z.string().describe('Project UUID') },
   async ({ project_id }) => {
     const sb = getSupabaseClient();
-    const { data, error } = await sb.from('project_responses').select('id, respondent_email, status, progress, summary, created_at, submitted_at').eq('project_id', project_id).order('created_at', { ascending: false });
+    const { data, error } = await sb.from('responses').select('id, respondent_email, status, progress_percent, summary_markdown, created_at, submitted_at').eq('project_id', project_id).order('created_at', { ascending: false });
     if (error) return { content: [{ type: 'text', text: `Error: ${error.message}` }] };
     return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
   }
@@ -302,7 +523,7 @@ server.tool(
   { response_id: z.string().describe('Response UUID') },
   async ({ response_id }) => {
     const sb = getSupabaseClient();
-    const { data, error } = await sb.from('response_answers').select('id, question_id, value, ai_polished, ai_suggestions, updated_at').eq('response_id', response_id).order('updated_at');
+    const { data, error } = await sb.from('response_answers').select('id, question_id, value, voice_transcript, ai_clarification, updated_at').eq('response_id', response_id).order('updated_at');
     if (error) return { content: [{ type: 'text', text: `Error: ${error.message}` }] };
     return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
   }
@@ -344,8 +565,8 @@ server.tool(
   async ({ project_id }) => {
     const sb = getSupabaseClient();
     const [members, invitations] = await Promise.all([
-      sb.rpc('get_project_members', { p_project_id: project_id }),
-      sb.from('project_invitations').select('*').eq('project_id', project_id).order('created_at', { ascending: false }),
+      sb.rpc('get_project_members_info', { p_project_id: project_id }),
+      sb.from('magic_links').select('*').eq('project_id', project_id).order('created_at', { ascending: false }),
     ]);
     return {
       content: [{
@@ -366,11 +587,13 @@ server.tool(
   },
   async ({ project_id, email, role }) => {
     const sb = getSupabaseClient();
-    const { error } = await sb.from('project_invitations').insert({
+    const { error } = await sb.from('magic_links').insert({
       project_id,
       email: email.toLowerCase(),
       role: role ?? 'client',
-      status: 'sent',
+      token_hash: crypto.randomUUID(),
+      status: 'pending',
+      expires_at: new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString(),
     });
     if (error) return { content: [{ type: 'text', text: `Error: ${error.message}` }] };
     return { content: [{ type: 'text', text: `Invitation sent to ${email}` }] };
@@ -387,16 +610,14 @@ server.tool(
   {
     project_id: z.string().describe('Project UUID'),
     response_id: z.string().describe('Response UUID'),
-    message: z.string().describe('Feedback message for the responder'),
-    question_ids: z.array(z.string()).optional().describe('Specific question IDs the feedback is about'),
+    message: z.string().describe('Feedback question for the responder'),
   },
-  async ({ project_id, response_id, message, question_ids }) => {
+  async ({ project_id, response_id, message }) => {
     const sb = getSupabaseClient();
     const { error } = await sb.from('feedback_requests').insert({
       project_id,
       response_id,
-      message,
-      question_ids: question_ids ?? null,
+      question: message,
       status: 'pending',
     });
     if (error) return { content: [{ type: 'text', text: `Error: ${error.message}` }] };
@@ -414,12 +635,12 @@ server.tool(
   { project_id: z.string().describe('Project UUID') },
   async ({ project_id }) => {
     const sb = getSupabaseClient();
-    const { data: responses } = await sb.from('project_responses').select('id, status, progress').eq('project_id', project_id);
+    const { data: responses } = await sb.from('responses').select('id, status, progress_percent').eq('project_id', project_id);
 
     const total = responses?.length ?? 0;
     const submitted = responses?.filter(r => r.status === 'submitted').length ?? 0;
     const inProgress = responses?.filter(r => r.status === 'in_progress').length ?? 0;
-    const avgProgress = total > 0 ? Math.round((responses!.reduce((a, r) => a + (r.progress ?? 0), 0)) / total) : 0;
+    const avgProgress = total > 0 ? Math.round((responses!.reduce((a, r) => a + (r.progress_percent ?? 0), 0)) / total) : 0;
 
     return {
       content: [{
@@ -442,9 +663,12 @@ server.tool(
   { query: z.string().describe('Search query') },
   async ({ query }) => {
     const sb = getSupabaseClient();
+    // Sanitise PostgREST special characters to prevent filter injection
+    const safe = query.replace(/[%_.*,()\\]/g, '');
+    if (!safe.trim()) return { content: [{ type: 'text', text: '[]' }] };
     const { data, error } = await sb.from('projects')
       .select('id, name, slug, status, description')
-      .or(`name.ilike.%${query}%,description.ilike.%${query}%`)
+      .or(`name.ilike.%${safe}%,description.ilike.%${safe}%`)
       .limit(20);
     if (error) return { content: [{ type: 'text', text: `Error: ${error.message}` }] };
     return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
