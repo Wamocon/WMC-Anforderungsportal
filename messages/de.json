@@ -593,7 +593,20 @@
     "allowedFileTypes": "PDF, Word, Excel, PowerPoint, Bilder, Videos — max. 50 MB pro Datei",
     "invalidLink": "Bitte geben Sie eine gültige URL ein (https://...)",
     "partialUpload": "{uploaded} von {total} Dateien erfolgreich hochgeladen",
-    "deadlineRange": "Die Frist muss zwischen {min} und {max} Tagen liegen"
+    "deadlineRange": "Die Frist muss zwischen {min} und {max} Tagen liegen",
+    "myTemplates": "Meine Vorlagen",
+    "myTemplatesDesc": "Erstellen und verwalten Sie Anforderungsvorlagen für Ihre Projekte.",
+    "myOwnTemplates": "Ihre Vorlagen",
+    "systemTemplates": "Systemvorlagen",
+    "systemTemplatesDesc": "Standardvorlagen von Mitarbeitern erstellt. Duplizieren zum Anpassen.",
+    "noTemplatesDesc": "Erstellen Sie Ihre erste Vorlage oder duplizieren Sie eine Systemvorlage.",
+    "duplicateTemplate": "Duplizieren",
+    "draftProject": "Entwurf",
+    "approvedStatus": "Genehmigt",
+    "fillRequirements": "Anforderungen ausfüllen",
+    "submitForReview": "Zur Prüfung einreichen",
+    "submittedForReview": "Projekt zur Prüfung eingereicht",
+    "templateLocked": "Gesperrt"
   },
   "settings": {
     "changePassword": "Passwort ändern",

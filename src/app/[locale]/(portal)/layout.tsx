@@ -15,6 +15,7 @@ import {
   Menu,
   LogOut,
   Loader2,
+  LayoutTemplate,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
@@ -22,6 +23,7 @@ const ADMIN_ROLES = ['super_admin', 'staff'];
 
 const clientNavItems = [
   { key: 'myProjects', href: '/my-projects', icon: FolderKanban },
+  { key: 'myTemplates', href: '/my-templates', icon: LayoutTemplate },
   { key: 'account', href: '/account', icon: Settings },
 ] as const;
 

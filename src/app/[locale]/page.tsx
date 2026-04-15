@@ -93,35 +93,49 @@ export default async function HomePage({
 
       <main className="flex-1">
         {/* Hero */}
-        <section className="relative min-h-[85vh] flex items-center overflow-hidden aurora-bg grain-overlay">
+        <section className="relative min-h-[90vh] flex items-center overflow-hidden">
+          {/* Video Background */}
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 h-full w-full object-cover"
+            poster="/hero-poster.webp"
+          >
+            <source src="/hero-bg.mp4" type="video/mp4" />
+          </video>
+          {/* Gradient overlay for readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80" />
+          {/* Aurora + grain on top */}
+          <div className="absolute inset-0 aurora-bg opacity-40" />
+          <div className="absolute inset-0 grain-overlay opacity-30" />
           {/* Mesh gradient orbs */}
-          <div className="mesh-orb mesh-orb-1 w-[500px] h-[500px] top-[10%] left-[5%]" />
-          <div className="mesh-orb mesh-orb-2 w-[400px] h-[400px] bottom-[10%] right-[10%]" />
-          <div className="mesh-orb mesh-orb-3 w-[350px] h-[350px] top-[40%] left-[50%]" />
-          {/* Dot grid pattern */}
-          <div className="absolute inset-0 dot-grid" />
+          <div className="mesh-orb mesh-orb-1 w-[500px] h-[500px] top-[10%] left-[5%] opacity-60" />
+          <div className="mesh-orb mesh-orb-2 w-[400px] h-[400px] bottom-[10%] right-[10%] opacity-60" />
+          <div className="mesh-orb mesh-orb-3 w-[350px] h-[350px] top-[40%] left-[50%] opacity-60" />
 
-          <div className="container mx-auto px-4 sm:px-6 relative">
+          <div className="container mx-auto px-4 sm:px-6 relative z-10">
             <div className="mx-auto max-w-4xl text-center">
               {/* Badge */}
-              <div className="animate-slide-up inline-flex items-center gap-2 rounded-full border border-[#FE0404]/20 glass-v2 px-4 py-2 text-sm font-medium text-[#FE0404] shadow-sm mb-8">
-                <Sparkles className="h-4 w-4" />
+              <div className="animate-slide-up inline-flex items-center gap-2 rounded-full border border-[#FE0404]/30 bg-white/10 backdrop-blur-md px-4 py-2 text-sm font-medium text-white shadow-sm mb-8">
+                <Sparkles className="h-4 w-4 text-[#FE0404]" />
                 <span>{t('common.poweredBy')}</span>
               </div>
 
               {/* Heading */}
               <h1 className="animate-slide-up stagger-1 text-3xl xs:text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1]">
-                <span className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 dark:from-gray-100 dark:via-gray-200 dark:to-gray-100 bg-clip-text text-transparent">
+                <span className="text-white drop-shadow-lg">
                   {t('landing.heroTitle1')}
                 </span>
                 <br />
-                <span className="bg-gradient-to-r from-[#FE0404] via-[#FF3333] to-[#CC0000] bg-clip-text text-transparent animate-gradient bg-[length:200%_200%]">
+                <span className="bg-gradient-to-r from-[#FE0404] via-[#FF3333] to-[#FF6B6B] bg-clip-text text-transparent animate-gradient bg-[length:200%_200%]">
                   {t('landing.heroTitle2')}
                 </span>
               </h1>
 
               {/* Subheading */}
-              <p className="animate-slide-up stagger-2 mt-6 text-lg sm:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+              <p className="animate-slide-up stagger-2 mt-6 text-lg sm:text-xl text-white/80 leading-relaxed max-w-2xl mx-auto">
                 {t('common.tagline')}
               </p>
 
@@ -134,7 +148,7 @@ export default async function HomePage({
                   </Button>
                 </Link>
                 <Link href="/login">
-                  <Button variant="outline" size="lg" className="gap-2 h-14 px-10 text-base font-semibold rounded-xl hover:bg-accent/50 transition-all duration-300">
+                  <Button variant="outline" size="lg" className="gap-2 h-14 px-10 text-base font-semibold rounded-xl text-white border-white/30 hover:bg-white/10 backdrop-blur-sm transition-all duration-300">
                     <Bot className="h-5 w-5" />
                     {t('landing.tryAiInterview')}
                   </Button>
@@ -142,17 +156,17 @@ export default async function HomePage({
               </div>
 
               {/* Trust indicators */}
-              <div className="animate-slide-up stagger-4 mt-12 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+              <div className="animate-slide-up stagger-4 mt-12 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-white/70">
                 <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  <CheckCircle2 className="h-4 w-4 text-green-400" />
                   {t('landing.noCreditCard')}
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  <CheckCircle2 className="h-4 w-4 text-green-400" />
                   {t('landing.gdprReady')}
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  <CheckCircle2 className="h-4 w-4 text-green-400" />
                   {t('landing.langCount')}
                 </span>
               </div>

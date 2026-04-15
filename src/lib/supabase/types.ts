@@ -12,7 +12,7 @@ export type QuestionType =
   | 'rating'
   | 'date';
 
-export type ProjectStatus = 'draft' | 'active' | 'archived' | 'pending_review';
+export type ProjectStatus = 'draft' | 'active' | 'archived' | 'pending_review' | 'approved';
 export type ResponseStatus = 'draft' | 'in_progress' | 'submitted' | 'reviewed';
 export type MemberRole = 'super_admin' | 'product_owner' | 'client';
 export type InvitationStatus = 'sent' | 'opened' | 'in_progress' | 'submitted' | 'expired' | 'revoked';
@@ -60,6 +60,7 @@ export type RequirementTemplate = {
   name: string;
   description: string | null;
   is_default: boolean;
+  created_by: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -327,6 +328,7 @@ export type Database = {
           name: string;
           description?: string | null;
           is_default?: boolean;
+          created_by?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -336,6 +338,7 @@ export type Database = {
           name?: string;
           description?: string | null;
           is_default?: boolean;
+          created_by?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -718,6 +721,18 @@ export type Database = {
           role: string;
           email: string;
           full_name: string | null;
+        }>;
+      };
+      submit_for_review: {
+        Args: { p_project_id: string };
+        Returns: void;
+      };
+      get_project_members: {
+        Args: { p_project_id: string };
+        Returns: Array<{
+          user_id: string;
+          email: string;
+          role: string;
         }>;
       };
     };

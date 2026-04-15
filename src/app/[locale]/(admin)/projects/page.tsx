@@ -78,7 +78,7 @@ function relativeTime(dateStr: string, locale: string): string {
   return new Date(dateStr).toLocaleDateString(locale, { day: '2-digit', month: 'short' });
 }
 
-const STATUS_FILTERS = ['all', 'pending_review', 'active', 'draft', 'archived'] as const;
+const STATUS_FILTERS = ['all', 'pending_review', 'active', 'approved', 'draft', 'archived'] as const;
 type StatusFilter = (typeof STATUS_FILTERS)[number];
 
 const statusConfig: Record<string, { label: string; bar: string; badge: string }> = {
@@ -86,12 +86,14 @@ const statusConfig: Record<string, { label: string; bar: string; badge: string }
   draft:          { label: 'Draft',          bar: 'bg-slate-400',   badge: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400' },
   archived:       { label: 'Archived',       bar: 'bg-orange-400',  badge: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400' },
   pending_review: { label: 'Pending Review', bar: 'bg-amber-500',   badge: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' },
+  approved:       { label: 'Approved',        bar: 'bg-teal-500',    badge: 'bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-400' },
 };
 
 const statusTabColors: Record<StatusFilter, string> = {
   all:            'bg-foreground text-background',
   pending_review: 'bg-amber-500 text-white',
   active:         'bg-emerald-600 text-white',
+  approved:       'bg-teal-600 text-white',
   draft:          'bg-slate-500 text-white',
   archived:       'bg-orange-500 text-white',
 };
