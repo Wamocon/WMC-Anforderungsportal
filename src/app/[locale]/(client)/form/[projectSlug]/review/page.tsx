@@ -80,7 +80,7 @@ export default async function ReviewPage({
     .eq('slug', projectSlug)
     .single();
 
-  if (!project || project.status !== 'active') {
+  if (!project || project.status !== 'active' || !project.template_id) {
     notFound();
   }
 
@@ -130,7 +130,7 @@ export default async function ReviewPage({
   const { data: sections } = await supabase
     .from('template_sections')
     .select('id, title, order_index')
-    .eq('template_id', project.template_id!)
+    .eq('template_id', project.template_id)
     .order('order_index', { ascending: true });
 
   const sectionIds = (sections ?? []).map(s => s.id);

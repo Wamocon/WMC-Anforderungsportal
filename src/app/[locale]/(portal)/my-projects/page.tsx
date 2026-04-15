@@ -348,6 +348,15 @@ export default function MyProjectsPage() {
       if (!user) return;
 
       const orgId = user.app_metadata?.org_id;
+
+      // Fetch default template so the project has a form ready on approval
+      const { data: defaultTemplate } = await supabase
+        .from('requirement_templates')
+        .select('id')
+        .eq('is_default', true)
+        .limit(1)
+        .single();
+
       const slug = proposeForm.name.trim()
         .toLowerCase()
         .replace(/[^a-z0-9\s-]/g, '')
@@ -365,6 +374,7 @@ export default function MyProjectsPage() {
         created_by: user.id,
         onedrive_link: link || null,
         deadline_days: 5,
+        template_id: defaultTemplate?.id ?? null,
       }).select('id').single();
 
       if (error || !newProject) {
