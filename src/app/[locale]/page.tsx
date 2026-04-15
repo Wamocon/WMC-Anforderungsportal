@@ -148,7 +148,7 @@ export default async function HomePage({
                   </Button>
                 </Link>
                 <Link href="/login">
-                  <Button variant="outline" size="lg" className="gap-2 h-14 px-10 text-base font-semibold rounded-xl text-white border-white/30 hover:bg-white/10 backdrop-blur-sm transition-all duration-300">
+                  <Button variant="outline" size="lg" className="gap-2 h-14 px-10 text-base font-semibold rounded-xl text-white border-white/40 bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all duration-300">
                     <Bot className="h-5 w-5" />
                     {t('landing.tryAiInterview')}
                   </Button>
@@ -176,8 +176,9 @@ export default async function HomePage({
 
         {/* Stats */}
         <RevealOnScroll>
-        <section className="relative border-y bg-gradient-to-r from-gray-50 via-white to-gray-50 dark:from-muted/50 dark:via-background dark:to-muted/50">
-          <div className="container mx-auto px-4 sm:px-6 py-12 sm:py-16">
+        <section className="relative border-y bg-gradient-to-r from-rose-50/60 via-white to-blue-50/30 dark:from-muted/50 dark:via-background dark:to-muted/50 overflow-hidden">
+          <div className="absolute inset-0 dot-grid opacity-[0.35] dark:opacity-100 pointer-events-none" />
+          <div className="container mx-auto px-4 sm:px-6 py-12 sm:py-16 relative">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
               {stats.map((stat, i) => (
                 <div key={stat.label} className="stagger-enter text-center group">
@@ -195,8 +196,9 @@ export default async function HomePage({
 
         {/* Features */}
         <RevealOnScroll delay={100}>
-        <section className="relative py-24 sm:py-32">
-          <div className="container mx-auto px-4 sm:px-6">
+        <section className="relative py-24 sm:py-32 bg-gradient-to-b from-white via-slate-50/60 to-white dark:from-background dark:via-background dark:to-background overflow-hidden">
+          <div className="absolute inset-0 dot-grid opacity-[0.25] dark:opacity-50 pointer-events-none" />
+          <div className="container mx-auto px-4 sm:px-6 relative">
             <div className="text-center mb-16">
               <div className="inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-medium text-muted-foreground mb-4">
                 <Zap className="h-3.5 w-3.5 text-[#FE0404]" />
@@ -235,8 +237,9 @@ export default async function HomePage({
 
         {/* How it works */}
         <RevealOnScroll delay={100}>
-        <section className="relative py-16 sm:py-24 bg-gradient-to-b from-gray-50 to-white dark:from-muted/30 dark:to-background">
-          <div className="container mx-auto px-4 sm:px-6">
+        <section className="relative py-16 sm:py-24 bg-gradient-to-b from-rose-50/50 via-white to-slate-50/30 dark:from-muted/30 dark:via-background dark:to-background overflow-hidden">
+          <div className="absolute inset-0 dot-grid opacity-[0.3] dark:opacity-50 pointer-events-none" />
+          <div className="container mx-auto px-4 sm:px-6 relative">
             <div className="text-center mb-16">
               <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4">
                 {t('landing.stepsTitle1')}{' '}

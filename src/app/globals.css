@@ -278,11 +278,11 @@
 .aurora-bg {
   background: linear-gradient(
     135deg,
-    oklch(0.97 0.02 28) 0%,
-    oklch(0.96 0.015 240) 25%,
-    oklch(0.975 0.01 160) 50%,
-    oklch(0.97 0.02 28) 75%,
-    oklch(0.96 0.015 300) 100%
+    oklch(0.96 0.04 28) 0%,
+    oklch(0.95 0.03 240) 25%,
+    oklch(0.965 0.025 160) 50%,
+    oklch(0.96 0.04 28) 75%,
+    oklch(0.95 0.03 300) 100%
   );
   background-size: 400% 400%;
   animation: aurora 20s ease infinite;
@@ -350,6 +350,10 @@
               box-shadow 0.5s cubic-bezier(0.23, 1, 0.32, 1);
   transform-style: preserve-3d;
   will-change: transform;
+  box-shadow: 0 1px 4px -1px oklch(0 0 0 / 8%), 0 2px 8px -2px oklch(0 0 0 / 5%);
+}
+:is(.dark) .card-3d {
+  box-shadow: 0 1px 4px -1px oklch(0 0 0 / 35%), 0 2px 8px -2px oklch(0 0 0 / 25%);
 }
 .card-3d:hover {
   transform: translateY(-6px) rotateX(2deg) rotateY(-1deg);
@@ -518,6 +522,16 @@
   overflow: hidden;
   border-radius: var(--radius-xl);
   transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  box-shadow:
+    0 0 0 1px oklch(0.89 0.006 28 / 65%),
+    0 2px 8px -2px oklch(0 0 0 / 6%),
+    0 4px 16px -4px oklch(0 0 0 / 4%);
+}
+:is(.dark) .bento-card {
+  box-shadow:
+    0 0 0 1px oklch(1 0 0 / 8%),
+    0 2px 8px -2px oklch(0 0 0 / 30%),
+    0 4px 16px -4px oklch(0 0 0 / 20%);
 }
 .bento-card::before {
   content: '';
