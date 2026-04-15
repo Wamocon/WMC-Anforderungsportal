@@ -67,6 +67,11 @@ export default async function FormFillPage({
     .eq('template_id', project.template_id)
     .order('order_index', { ascending: true });
 
+  // Empty template (no sections) — can't render a form
+  if (!dbSections || dbSections.length === 0) {
+    notFound();
+  }
+
   // Fetch all questions for these sections
   const sectionIds = (dbSections ?? []).map((s) => s.id);
   const { data: dbQuestions } = await supabase

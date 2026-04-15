@@ -282,6 +282,20 @@ export default function TemplateDetailPage() {
 
   async function deleteSection(sectionId: string) {
     const supabase = createClient();
+    // Check if any questions in this section have existing answers
+    const sectionQs = questions.filter((q) => q.section_id === sectionId);
+    if (sectionQs.length > 0) {
+      const { count } = await supabase
+        .from('response_answers')
+        .select('id', { count: 'exact', head: true })
+        .in('question_id', sectionQs.map((q) => q.id));
+      if (count && count > 0) {
+        const confirmed = window.confirm(
+          `This section has ${sectionQs.length} question(s) with ${count} existing answer(s) from respondents. Deleting will permanently remove those answers. Continue?`
+        );
+        if (!confirmed) return;
+      }
+    }
     // Delete questions first
     await supabase.from('template_questions').delete().eq('section_id', sectionId);
     await supabase.from('template_sections').delete().eq('id', sectionId);
@@ -291,6 +305,17 @@ export default function TemplateDetailPage() {
 
   async function deleteQuestion(questionId: string) {
     const supabase = createClient();
+    // Check if this question has existing answers
+    const { count } = await supabase
+      .from('response_answers')
+      .select('id', { count: 'exact', head: true })
+      .eq('question_id', questionId);
+    if (count && count > 0) {
+      const confirmed = window.confirm(
+        `This question has ${count} existing answer(s) from respondents. Deleting will permanently remove those answers. Continue?`
+      );
+      if (!confirmed) return;
+    }
     await supabase.from('template_questions').delete().eq('id', questionId);
     toast.success(t('admin.questionDeleted'));
     loadTemplate();

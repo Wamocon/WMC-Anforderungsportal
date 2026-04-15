@@ -86,10 +86,17 @@ type ProjectData = {
   description: string | null;
   status: string;
   deadline_days: number;
+  template_id: string | null;
   onedrive_link: string | null;
   welcome_text: Record<string, string> | null;
   created_at: string;
   created_by: string | null;
+};
+
+type TemplateOption = {
+  id: string;
+  name: string;
+  is_default: boolean;
 };
 
 type ResponseData = {
@@ -126,8 +133,9 @@ export default function ProjectDetailPage() {
   const [inviteEmail, setInviteEmail] = useState('');
   const [sending, setSending] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [editForm, setEditForm] = useState({ name: '', description: '', status: 'draft' as 'draft' | 'active' | 'archived', deadline_days: 5 });
+  const [editForm, setEditForm] = useState({ name: '', description: '', status: 'draft' as 'draft' | 'active' | 'archived', deadline_days: 5, template_id: '' as string });
   const [savingEdit, setSavingEdit] = useState(false);
+  const [templates, setTemplates] = useState<TemplateOption[]>([]);
 
   // Approval & follow-up state
   const [approving, setApproving] = useState(false);
@@ -154,6 +162,13 @@ export default function ProjectDetailPage() {
     setProject(projData as ProjectData | null);
     setResponses((respData ?? []) as ResponseData[]);
     setInvitations((linkData ?? []) as MagicLinkData[]);
+
+    // Load available templates
+    const { data: tmplData } = await supabase
+      .from('requirement_templates')
+      .select('id, name, is_default')
+      .order('is_default', { ascending: false });
+    setTemplates((tmplData ?? []) as TemplateOption[]);
 
     // Load attachments via API (provides signed URLs)
     try {
@@ -250,6 +265,7 @@ export default function ProjectDetailPage() {
       description: project.description || '',
       status: project.status as 'draft' | 'active' | 'archived',
       deadline_days: project.deadline_days,
+      template_id: project.template_id || '',
     });
     setEditDialogOpen(true);
   }
@@ -260,6 +276,13 @@ export default function ProjectDetailPage() {
     try {
       const supabase = createClient();
       await supabase.auth.refreshSession();
+      // Warn if changing template on a project with existing responses
+      if (editForm.template_id !== (project?.template_id || '') && responses.length > 0) {
+        const confirmed = window.confirm(
+          'This project has existing responses. Changing the template may make those answers incompatible with the new questions. Continue?'
+        );
+        if (!confirmed) { setSavingEdit(false); return; }
+      }
       const { error } = await supabase
         .from('projects')
         .update({
@@ -267,6 +290,7 @@ export default function ProjectDetailPage() {
           description: editForm.description.trim() || null,
           status: editForm.status,
           deadline_days: Math.max(1, Math.min(90, editForm.deadline_days)),
+          template_id: editForm.template_id || null,
         })
         .eq('id', projectId);
       if (error) { toast.error(error.message); return; }
@@ -862,6 +886,30 @@ export default function ProjectDetailPage() {
                   onChange={(e) => setEditForm((prev) => ({ ...prev, deadline_days: Math.max(1, Math.min(90, Number(e.target.value) || 1)) }))}
                 />
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label>{t('admin.template')}</Label>
+              <Select
+                value={editForm.template_id}
+                onValueChange={(v) => setEditForm((prev) => ({ ...prev, template_id: v ?? prev.template_id }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={t('admin.selectTemplate')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {templates.map((tmpl) => (
+                    <SelectItem key={tmpl.id} value={tmpl.id}>
+                      {tmpl.name}{tmpl.is_default ? ' (Default)' : ''}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {editForm.template_id !== (project?.template_id || '') && responses.length > 0 && (
+                <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {t('admin.templateChangeWarning')}
+                </p>
+              )}
             </div>
           </div>
           <DialogFooter>
