@@ -309,6 +309,25 @@ export default function MyProjectsPage() {
     }
   }
 
+  async function handleSubmitForReview(projectId: string) {
+    try {
+      const supabase = createClient();
+      await supabase.auth.refreshSession();
+      const { error } = await supabase.rpc('submit_for_review', { p_project_id: projectId });
+      if (error) {
+        toast.error(error.message || t('errors.generic'));
+        return;
+      }
+      toast.success(t('client.submittedForReview'));
+      // Refresh project list
+      setProjects(prev =>
+        prev.map(p => p.id === projectId ? { ...p, status: 'pending_review' } : p)
+      );
+    } catch {
+      toast.error(t('errors.generic'));
+    }
+  }
+
   async function proposeProject() {
     if (!proposeForm.name.trim()) return;
 
@@ -369,7 +388,7 @@ export default function MyProjectsPage() {
         name: proposeForm.name.trim(),
         slug: slug + '-' + Date.now().toString(36),
         description: proposeForm.description.trim() || null,
-        status: 'pending_review' as const,
+        status: 'draft' as const,
         requirement_type: proposeForm.requirementTypes,
         created_by: user.id,
         onedrive_link: link || null,
@@ -771,6 +790,8 @@ export default function MyProjectsPage() {
         <div className="grid gap-4">
           {projects.map((project) => {
             const isPendingReview = project.status === 'pending_review';
+            const isDraft = project.status === 'draft';
+            const isApproved = project.status === 'approved';
             const resp = project.response_status;
             const cfg = statusConfig[resp ?? 'draft'] ?? statusConfig.draft;
             const StatusIcon = isPendingReview ? Hourglass : cfg.icon;
@@ -781,13 +802,13 @@ export default function MyProjectsPage() {
             return (
               <Card
                 key={project.id}
-                className={`border-0 shadow-md shadow-black/5 glass-v2 spotlight-card hover:shadow-lg transition-all duration-300 ${isPendingReview ? 'border-l-4 border-l-amber-400' : ''}`}
+                className={`border-0 shadow-md shadow-black/5 glass-v2 spotlight-card hover:shadow-lg transition-all duration-300 ${isPendingReview ? 'border-l-4 border-l-amber-400' : isDraft ? 'border-l-4 border-l-blue-400' : isApproved ? 'border-l-4 border-l-green-400' : ''}`}
               >
                 <CardContent className="p-4 sm:p-6">
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                     <div className="flex items-start gap-3 sm:gap-4 min-w-0">
-                      <div className={`rounded-xl p-2.5 sm:p-3 shrink-0 ${isPendingReview ? 'bg-gradient-to-br from-amber-100 to-amber-50 dark:from-amber-900/30 dark:to-amber-950/20' : 'bg-gradient-to-br from-[#FE0404]/10 to-[#FE0404]/5'}`}>
-                        <FolderKanban className={`h-5 w-5 sm:h-6 sm:w-6 ${isPendingReview ? 'text-amber-600' : 'text-[#FE0404]'}`} />
+                      <div className={`rounded-xl p-2.5 sm:p-3 shrink-0 ${isPendingReview ? 'bg-gradient-to-br from-amber-100 to-amber-50 dark:from-amber-900/30 dark:to-amber-950/20' : isDraft ? 'bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-900/30 dark:to-blue-950/20' : isApproved ? 'bg-gradient-to-br from-green-100 to-green-50 dark:from-green-900/30 dark:to-green-950/20' : 'bg-gradient-to-br from-[#FE0404]/10 to-[#FE0404]/5'}`}>
+                        <FolderKanban className={`h-5 w-5 sm:h-6 sm:w-6 ${isPendingReview ? 'text-amber-600' : isDraft ? 'text-blue-600' : isApproved ? 'text-green-600' : 'text-[#FE0404]'}`} />
                       </div>
                       <div className="min-w-0">
                         <h3 className="text-base sm:text-lg font-semibold truncate">{project.name}</h3>
@@ -815,6 +836,16 @@ export default function MyProjectsPage() {
                             <Badge variant="outline" className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-0 gap-1">
                               <Hourglass className="h-3 w-3" />
                               {t('client.pendingReview')}
+                            </Badge>
+                          ) : isDraft ? (
+                            <Badge variant="outline" className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border-0 gap-1">
+                              <FileText className="h-3 w-3" />
+                              {t('client.draftProject')}
+                            </Badge>
+                          ) : isApproved ? (
+                            <Badge variant="outline" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-0 gap-1">
+                              <CheckCircle className="h-3 w-3" />
+                              {t('client.approvedStatus')}
                             </Badge>
                           ) : (
                             <Badge variant="outline" className={`${cfg.bg} ${cfg.color} border-0 gap-1`}>
@@ -856,7 +887,29 @@ export default function MyProjectsPage() {
                           </Button>
                         </a>
                       )}
-                      {isPendingReview ? (
+                      {isDraft ? (
+                        /* Draft: Fill Requirements + Submit for Review */
+                        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                          <a href={`/${locale}/form/${project.slug}/fill`}>
+                            <Button
+                              size="sm"
+                              className="gap-1 bg-gradient-to-r from-[#FE0404] to-[#D00303] hover:from-[#E00303] hover:to-[#BB0000] text-white shadow-sm w-full sm:w-auto"
+                            >
+                              <FileText className="h-4 w-4" />
+                              {t('client.fillRequirements')}
+                            </Button>
+                          </a>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="gap-1 w-full sm:w-auto border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-950/30"
+                            onClick={() => handleSubmitForReview(project.id)}
+                          >
+                            <Send className="h-3.5 w-3.5" />
+                            {t('client.submitForReview')}
+                          </Button>
+                        </div>
+                      ) : isPendingReview ? (
                         <Badge variant="outline" className="bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400 border-amber-200 dark:border-amber-800 gap-1 py-1.5 px-3">
                           <Hourglass className="h-3.5 w-3.5" />
                           {t('client.awaitingApproval')}

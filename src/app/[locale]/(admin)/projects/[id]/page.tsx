@@ -429,7 +429,7 @@ export default function ProjectDetailPage() {
     }
   }
 
-  const statusColor: Record<string, string> = { active: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400', draft: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400', archived: 'bg-muted text-muted-foreground', pending_review: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' };
+  const statusColor: Record<string, string> = { active: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400', draft: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400', archived: 'bg-muted text-muted-foreground', pending_review: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400', approved: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400' };
   const respStatusColor: Record<string, string> = { submitted: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400', in_progress: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400', draft: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400', reviewed: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400' };
   const invStatusColor: Record<string, string> = { sent: 'bg-yellow-100 text-yellow-800', opened: 'bg-blue-100 text-blue-800', in_progress: 'bg-blue-100 text-blue-800', submitted: 'bg-green-100 text-green-800', expired: 'bg-muted text-muted-foreground', revoked: 'bg-red-100 text-red-800' };
 
@@ -439,6 +439,7 @@ export default function ProjectDetailPage() {
       active: t('common.active'),
       archived: t('common.archived'),
       pending_review: t('common.pendingReview'),
+      approved: t('client.approvedStatus'),
       in_progress: t('common.inProgress'),
       submitted: t('common.submitted'),
       reviewed: t('common.reviewed'),

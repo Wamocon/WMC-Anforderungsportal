@@ -52,11 +52,15 @@ export default async function FormFillPage({
   // Fetch project by slug
   const { data: project } = await supabase
     .from('projects')
-    .select('id, name, template_id, slug, status')
+    .select('id, name, template_id, slug, status, created_by')
     .eq('slug', projectSlug)
     .single();
 
-  if (!project || project.status !== 'active' || !project.template_id) {
+  // Allow active projects (normal flow) or draft projects for POs who created them
+  const { data: { user: authUser } } = await supabase.auth.getUser();
+  const isDraftOwner = project?.status === 'draft' && project?.created_by === authUser?.id;
+
+  if (!project || (!isDraftOwner && project.status !== 'active') || !project.template_id) {
     notFound();
   }
 
