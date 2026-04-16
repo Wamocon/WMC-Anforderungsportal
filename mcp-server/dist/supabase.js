@@ -89,12 +89,14 @@ export async function signIn(email, password) {
         throw new Error('Login failed: no session returned');
     // Look up role from app_metadata (the authoritative source for DB RPCs)
     const role = data.user.app_metadata?.role ?? 'authenticated';
+    const fullName = data.user.user_metadata?.full_name ?? null;
     const session = {
         accessToken: data.session.access_token,
         refreshToken: data.session.refresh_token,
         email: data.user.email ?? email,
         userId: data.user.id,
         role,
+        fullName,
         expiresAt: Math.floor(Date.now() / 1000) + (data.session.expires_in ?? 3600),
     };
     setSession(session);

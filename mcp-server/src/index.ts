@@ -846,12 +846,13 @@ server.tool(
     if (!project.template_id) return { content: [{ type: 'text', text: 'Error: Project has no template. Approve or assign a template first.' }] };
 
     const email = respondent_email ?? session?.email ?? 'mcp@anforderungsportal.local';
+    const name = respondent_name ?? session?.fullName ?? email.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 
     const { data, error } = await sb.from('responses').insert({
       project_id,
       template_id: project.template_id,
       respondent_email: email,
-      respondent_name: respondent_name ?? null,
+      respondent_name: name,
       respondent_id: session?.userId ?? null,
       status: 'in_progress',
       progress_percent: 0,

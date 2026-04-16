@@ -6,6 +6,7 @@ interface Session {
     email: string;
     userId: string;
     role: string;
+    fullName: string | null;
     expiresAt: number;
 }
 export declare function getSession(): Session | null;

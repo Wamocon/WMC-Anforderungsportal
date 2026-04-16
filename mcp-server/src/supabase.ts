@@ -19,6 +19,7 @@ interface Session {
   email: string;
   userId: string;
   role: string;
+  fullName: string | null;
   expiresAt: number; // Unix epoch seconds
 }
 
@@ -109,6 +110,7 @@ export async function signIn(email: string, password: string): Promise<Session> 
 
   // Look up role from app_metadata (the authoritative source for DB RPCs)
   const role = data.user.app_metadata?.role ?? 'authenticated';
+  const fullName = (data.user.user_metadata?.full_name as string) ?? null;
 
   const session: Session = {
     accessToken: data.session.access_token,
@@ -116,6 +118,7 @@ export async function signIn(email: string, password: string): Promise<Session> 
     email: data.user.email ?? email,
     userId: data.user.id,
     role,
+    fullName,
     expiresAt: Math.floor(Date.now() / 1000) + (data.session.expires_in ?? 3600),
   };
 
