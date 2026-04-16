@@ -57,7 +57,8 @@
     "unsavedChanges": "You have unsaved changes. Are you sure you want to leave?",
     "confirmAction": "Confirm Action",
     "descriptionRecommended": "A description helps reviewers understand the project scope.",
-    "selected": "selected"
+    "selected": "selected",
+    "download": "Download"
   },
   "auth": {
     "login": "Logi sisse",
@@ -315,7 +316,18 @@
       "step3Desc": "Login and use natural language to list projects, create templates, review responses, and more.",
       "toolsAvailable": "20+ tools available",
       "viewOnNpm": "View on npm"
-    }
+    },
+    "portfolio": "Portfolio",
+    "portfolioDesc": "All organization projects at a glance",
+    "portfolioEmpty": "No projects found in your organization.",
+    "projectInfo": "Project Information",
+    "projectRole": "Role",
+    "projectCredentials": "Credentials",
+    "projectLinks": "Links",
+    "createdOn": "Created on",
+    "lastUpdated": "Last updated",
+    "requirementTypes": "Requirement Types",
+    "teamMembers": "Team Members"
   },
   "project": {
     "newProject": "Uus projekt",
@@ -645,7 +657,20 @@
       "step3Desc": "Login with your portal credentials and start asking your AI about your projects.",
       "toolsAvailable": "Available Commands",
       "viewOnNpm": "View package on npm"
-    }
+    },
+    "cannotEditArchived": "Archived projects cannot be edited.",
+    "aiExport": "AI Analysis",
+    "aiExportDesc": "Copy all form data to analyze with your AI assistant",
+    "copyForAI": "Copy for AI",
+    "copyForAITooltip": "Copies all responses as Markdown — paste into Copilot or any AI chat",
+    "copiedForAI": "Copied to clipboard — paste into your AI chat!",
+    "downloadReport": "Download Report",
+    "noResponses": "No responses yet",
+    "noResponsesDesc": "Fill the requirements form to see responses here.",
+    "noAttachments": "No attachments yet",
+    "noAttachmentsDesc": "Upload files from the edit page to see them here.",
+    "responsesCount": "{count} form responses",
+    "submittedOn": "Submitted"
   },
   "landing": {
     "heroTitle1": "Koguge nõudeid",
