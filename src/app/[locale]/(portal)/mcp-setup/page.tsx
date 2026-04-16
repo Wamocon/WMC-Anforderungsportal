@@ -89,7 +89,7 @@ export default function PortalAiSetupPage() {
         <p className="text-muted-foreground mt-1">{t('description')}</p>
       </div>
 
-      {/* Info banner — what clients can do */}
+      {/* Info banner */}
       <div className="flex items-start gap-3 rounded-xl border border-blue-200/60 dark:border-blue-500/20 bg-blue-50/60 dark:bg-blue-500/[0.05] p-4">
         <Info className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
         <div>
