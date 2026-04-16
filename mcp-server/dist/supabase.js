@@ -87,21 +87,8 @@ export async function signIn(email, password) {
         throw new Error(`Login failed: ${error.message}`);
     if (!data.session)
         throw new Error('Login failed: no session returned');
-    // Look up role — use service client if available, otherwise the user's own session
-    const lookupClient = hasServiceKey()
-        ? getServiceClient()
-        : createSupabaseClient(url, key, {
-            db: { schema: 'anforderungsportal' },
-            auth: { persistSession: false },
-            global: { headers: { Authorization: `Bearer ${data.session.access_token}` } },
-        });
-    const { data: membership } = await lookupClient
-        .from('project_members')
-        .select('role')
-        .eq('user_id', data.user.id)
-        .limit(1)
-        .single();
-    const role = membership?.role ?? 'authenticated';
+    // Look up role from app_metadata (the authoritative source for DB RPCs)
+    const role = data.user.app_metadata?.role ?? 'authenticated';
     const session = {
         accessToken: data.session.access_token,
         refreshToken: data.session.refresh_token,

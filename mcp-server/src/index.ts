@@ -14,7 +14,7 @@ import { getSupabaseClient, getSession, signIn, signOut, hasServiceKey } from '.
 
 const server = new McpServer({
   name: 'anforderungsportal',
-  version: '1.5.0',
+  version: '1.7.0',
 });
 
 // ═══════════════════════════════════════════════════════════════
@@ -43,10 +43,17 @@ const ROLE_COMMANDS: Record<string, string> = {
     add_section <template_id> <title>      → Add section
     add_question <section_id> <label> …    → Add question
 
+  FORM FILLING
+    get_form_questions <project_id>        → Get all questions for form
+    create_response <project_id>           → Start a new response
+    fill_form <response_id> <answers_json> → Bulk fill answers
+    submit_answer <resp> <q_id> <value>    → Fill one answer
+    submit_response <response_id>          → Mark response as submitted
+    upload_file <project_id> <question_id> <file_path> → Upload file
+
   RESPONSES
     list_responses <project_id>            → All responses
     get_response_answers <response_id>     → Answers detail
-    submit_answer …                        → Fill in an answer
 
   MEMBERS & FEEDBACK
     list_project_members <project_id>      → Members + invites
@@ -75,6 +82,13 @@ const ROLE_COMMANDS: Record<string, string> = {
     create_template <name>                 → New template
     add_section / add_question …           → Build template
 
+  FORM FILLING
+    get_form_questions <project_id>        → Get all questions for form
+    create_response <project_id>           → Start a new response
+    fill_form <response_id> <answers_json> → Bulk fill answers
+    submit_response <response_id>          → Mark response as submitted
+    upload_file <project_id> <question_id> <file_path> → Upload file
+
   RESPONSES & FEEDBACK
     list_responses <project_id>            → All responses
     get_response_answers <response_id>     → Answers detail
@@ -97,6 +111,14 @@ const ROLE_COMMANDS: Record<string, string> = {
     list_project_members <project_id>      → See members
     invite_member <project_id> <email>     → Invite a client
 
+  FORM FILLING
+    get_form_questions <project_id>        → Get all questions for form
+    create_response <project_id>           → Start a new response
+    fill_form <response_id> <answers_json> → Bulk fill answers
+    submit_answer <resp> <q_id> <value>    → Fill one answer
+    submit_response <response_id>          → Mark response as submitted
+    upload_file <project_id> <question_id> <file_path> → Upload file
+
   RESPONSES
     list_responses <project_id>            → See responses
     get_response_answers <response_id>     → Read answers
@@ -111,17 +133,27 @@ const ROLE_COMMANDS: Record<string, string> = {
 
   list_projects                            → Your assigned projects
   get_project <id>                         → Project details
+  get_form_questions <project_id>          → Get form questions
+  create_response <project_id>             → Start filling form
+  fill_form <response_id> <answers_json>   → Bulk fill answers
+  submit_answer <resp> <q_id> <value>      → Answer a question
+  submit_response <response_id>            → Submit your form
+  upload_file <project_id> <q_id> <path>   → Upload file
   list_responses <project_id>              → Your responses
-  get_response_answers <response_id>       → Your answers
-  submit_answer <response_id> <question_id> <value>  → Answer a question`,
+  get_response_answers <response_id>       → Your answers`,
 
   authenticated: `
   ── Logged in (role unknown) ──
 
   list_projects                            → Your projects
+  get_form_questions <project_id>          → Get form questions
+  create_response <project_id>             → Start filling form
+  fill_form <response_id> <answers_json>   → Bulk fill answers
+  submit_answer <resp> <q_id> <value>      → Answer one question
+  submit_response <response_id>            → Submit your form
+  upload_file <project_id> <q_id> <path>   → Upload file
   list_responses <project_id>              → Responses
-  get_response_answers <response_id>       → Answers
-  submit_answer …                          → Fill in an answer`,
+  get_response_answers <response_id>       → Answers`,
 };
 
 function getRoleCommands(role: string): string {
@@ -142,7 +174,7 @@ server.tool(
       return {
         content: [{
           type: 'text',
-          text: `  ── Anforderungsportal MCP v1.4.0 ──\n\n  Not logged in. Start with:\n\n  login your-email@example.com yourPassword\n\n  Then type  help  again to see your role-specific commands.${adminNote}\n\n  AUTH COMMANDS\n    login <email> <password>   → Sign in\n    whoami                     → Check your session\n    logout                     → Sign out`,
+          text: `  ── Anforderungsportal MCP v1.7.0 ──\n\n  Not logged in. Start with:\n\n  login your-email@example.com yourPassword\n\n  Then type  help  again to see your role-specific commands.${adminNote}\n\n  AUTH COMMANDS\n    login <email> <password>   → Sign in\n    whoami                     → Check your session\n    logout                     → Sign out`,
         }],
       };
     }
@@ -570,13 +602,15 @@ server.tool(
   async ({ project_id }) => {
     const sb = getSupabaseClient();
     const [members, invitations] = await Promise.all([
-      sb.rpc('get_project_members_info', { p_project_id: project_id }),
+      sb.rpc('get_project_members_info'),
       sb.from('magic_links').select('*').eq('project_id', project_id).order('created_at', { ascending: false }),
     ]);
+    // Filter members to just this project (RPC returns all)
+    const projectMembers = (members.data ?? []).filter((m: { project_id: string }) => m.project_id === project_id);
     return {
       content: [{
         type: 'text',
-        text: JSON.stringify({ members: members.data, invitations: invitations.data }, null, 2),
+        text: JSON.stringify({ members: projectMembers, invitations: invitations.data }, null, 2),
       }],
     };
   }
@@ -627,6 +661,224 @@ server.tool(
     });
     if (error) return { content: [{ type: 'text', text: `Error: ${error.message}` }] };
     return { content: [{ type: 'text', text: 'Feedback request sent.' }] };
+  }
+);
+
+// ═══════════════════════════════════════════════════════════════
+// FORM FILLING TOOLS — Complete form workflow via MCP
+// ═══════════════════════════════════════════════════════════════
+
+server.tool(
+  'get_form_questions',
+  'Get all form questions for a project (sections + questions with IDs). Use this to know what question_ids to fill.',
+  { project_id: z.string().describe('Project UUID') },
+  async ({ project_id }) => {
+    const sb = getSupabaseClient();
+    // Get project template
+    const { data: project, error: pErr } = await sb.from('projects').select('id, name, slug, status, template_id').eq('id', project_id).single();
+    if (pErr || !project) return { content: [{ type: 'text', text: `Error: ${pErr?.message ?? 'Project not found'}` }] };
+    if (!project.template_id) return { content: [{ type: 'text', text: 'Error: Project has no template assigned.' }] };
+
+    const [secs, qs] = await Promise.all([
+      sb.from('template_sections').select('*').eq('template_id', project.template_id).order('order_index'),
+      sb.from('template_questions').select('*').order('order_index'),
+    ]);
+
+    const secIds = new Set((secs.data ?? []).map(s => s.id));
+    const questions = (qs.data ?? []).filter(q => secIds.has(q.section_id));
+
+    const form = {
+      project: { id: project.id, name: project.name, slug: project.slug, status: project.status },
+      template_id: project.template_id,
+      sections: (secs.data ?? []).map(s => ({
+        id: s.id,
+        title: s.title,
+        description: s.description,
+        questions: questions.filter(q => q.section_id === s.id).map(q => ({
+          id: q.id,
+          label: q.label,
+          type: q.type,
+          is_required: q.is_required,
+          options: q.options,
+          help_text: q.help_text,
+          placeholder: q.placeholder,
+        })),
+      })),
+    };
+    return { content: [{ type: 'text', text: JSON.stringify(form, null, 2) }] };
+  }
+);
+
+server.tool(
+  'create_response',
+  'Create a new response for a project (starts form filling). Returns the response_id to use with submit_answer/fill_form.',
+  {
+    project_id: z.string().describe('Project UUID'),
+    respondent_email: z.string().email().optional().describe('Respondent email. Auto-set from session if logged in.'),
+    respondent_name: z.string().optional().describe('Respondent name'),
+  },
+  async ({ project_id, respondent_email, respondent_name }) => {
+    const sb = getSupabaseClient();
+    const session = getSession();
+
+    // Get project + template
+    const { data: project, error: pErr } = await sb.from('projects').select('id, template_id').eq('id', project_id).single();
+    if (pErr || !project) return { content: [{ type: 'text', text: `Error: ${pErr?.message ?? 'Project not found'}` }] };
+    if (!project.template_id) return { content: [{ type: 'text', text: 'Error: Project has no template. Approve or assign a template first.' }] };
+
+    const email = respondent_email ?? session?.email ?? 'mcp@anforderungsportal.local';
+
+    const { data, error } = await sb.from('responses').insert({
+      project_id,
+      template_id: project.template_id,
+      respondent_email: email,
+      respondent_name: respondent_name ?? null,
+      respondent_id: session?.userId ?? null,
+      status: 'in_progress',
+      progress_percent: 0,
+    }).select('id').single();
+
+    if (error) return { content: [{ type: 'text', text: `Error: ${error.message}` }] };
+    return { content: [{ type: 'text', text: `Response created: ${data.id}\nUse fill_form or submit_answer to add answers, then submit_response to finalize.` }] };
+  }
+);
+
+server.tool(
+  'fill_form',
+  'Bulk-fill all answers for a response at once. Provide a JSON object mapping question_id → answer value.',
+  {
+    response_id: z.string().describe('Response UUID (from create_response)'),
+    answers: z.string().describe('JSON object: { "question_uuid": "answer value", ... }. For file fields, pass the storage path from upload_file.'),
+  },
+  async ({ response_id, answers }) => {
+    const sb = getSupabaseClient();
+
+    let parsed: Record<string, unknown>;
+    try {
+      parsed = JSON.parse(answers);
+    } catch {
+      return { content: [{ type: 'text', text: 'Error: answers must be valid JSON object, e.g. {"question-id": "answer"}' }] };
+    }
+
+    const entries = Object.entries(parsed).filter(([, v]) => v !== null && v !== undefined);
+    if (entries.length === 0) return { content: [{ type: 'text', text: 'Error: No answers provided.' }] };
+
+    const rows = entries.map(([questionId, value]) => ({
+      response_id,
+      question_id: questionId,
+      value: value as unknown,
+    }));
+
+    const { error } = await sb.from('response_answers').upsert(rows, { onConflict: 'response_id,question_id' });
+    if (error) return { content: [{ type: 'text', text: `Error: ${error.message}` }] };
+
+    // Update progress
+    const { data: allQs } = await sb.from('response_answers').select('id').eq('response_id', response_id);
+    const answered = allQs?.length ?? 0;
+    // Get total questions from the response's template
+    const { data: resp } = await sb.from('responses').select('project_id').eq('id', response_id).single();
+    let totalQuestions = answered;
+    if (resp) {
+      const { data: proj } = await sb.from('projects').select('template_id').eq('id', resp.project_id).single();
+      if (proj?.template_id) {
+        const { data: secs } = await sb.from('template_sections').select('id').eq('template_id', proj.template_id);
+        const secIds = (secs ?? []).map(s => s.id);
+        if (secIds.length > 0) {
+          const { count } = await sb.from('template_questions').select('id', { count: 'exact', head: true }).in('section_id', secIds);
+          totalQuestions = count ?? answered;
+        }
+      }
+    }
+    const progress = totalQuestions > 0 ? Math.round((answered / totalQuestions) * 100) : 0;
+    await sb.from('responses').update({ progress_percent: Math.min(progress, 100), status: 'in_progress' }).eq('id', response_id);
+
+    return { content: [{ type: 'text', text: `${entries.length} answer(s) saved. Progress: ${Math.min(progress, 100)}%.\nUse submit_response to finalize.` }] };
+  }
+);
+
+server.tool(
+  'submit_response',
+  'Mark a response as submitted (finalizes the form). After this, the respondent cannot edit answers.',
+  { response_id: z.string().describe('Response UUID') },
+  async ({ response_id }) => {
+    const sb = getSupabaseClient();
+    const { error } = await sb.from('responses').update({
+      status: 'submitted',
+      progress_percent: 100,
+      submitted_at: new Date().toISOString(),
+    }).eq('id', response_id);
+    if (error) return { content: [{ type: 'text', text: `Error: ${error.message}` }] };
+    return { content: [{ type: 'text', text: 'Response submitted successfully. Staff can now review it.' }] };
+  }
+);
+
+server.tool(
+  'upload_file',
+  'Upload a file to a project for a specific question. Returns the storage path to use as the answer value in submit_answer/fill_form.',
+  {
+    project_id: z.string().describe('Project UUID'),
+    question_id: z.string().describe('Question UUID (the file upload question)'),
+    file_path: z.string().describe('Absolute local file path to upload'),
+    response_id: z.string().optional().describe('Response UUID. If omitted, creates a temp upload folder.'),
+  },
+  async ({ project_id, question_id, file_path, response_id }) => {
+    const sb = getSupabaseClient();
+    const fs = await import('fs');
+    const path = await import('path');
+
+    // Verify file exists
+    if (!fs.existsSync(file_path)) {
+      return { content: [{ type: 'text', text: `Error: File not found: ${file_path}` }] };
+    }
+
+    // Get project slug
+    const { data: project } = await sb.from('projects').select('slug').eq('id', project_id).single();
+    if (!project) return { content: [{ type: 'text', text: 'Error: Project not found' }] };
+
+    const fileBuffer = fs.readFileSync(file_path);
+    const fileName = path.basename(file_path);
+    const safeName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const folder = response_id || `temp-${Date.now()}`;
+    const storagePath = `${project.slug}/${folder}/${question_id}/${Date.now()}-${safeName}`;
+
+    // Detect MIME type from extension
+    const ext = path.extname(file_path).toLowerCase();
+    const mimeMap: Record<string, string> = {
+      '.pdf': 'application/pdf', '.doc': 'application/msword',
+      '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      '.xls': 'application/vnd.ms-excel',
+      '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
+      '.gif': 'image/gif', '.webp': 'image/webp', '.svg': 'image/svg+xml',
+      '.txt': 'text/plain', '.csv': 'text/csv', '.json': 'application/json',
+      '.zip': 'application/zip', '.gz': 'application/gzip',
+    };
+    const contentType = mimeMap[ext] || 'application/octet-stream';
+
+    const { error } = await sb.storage
+      .from('response-attachments')
+      .upload(storagePath, fileBuffer, { contentType, upsert: false });
+
+    if (error) return { content: [{ type: 'text', text: `Upload error: ${error.message}` }] };
+
+    // Also record in project_attachments for visibility
+    const session = getSession();
+    await sb.from('project_attachments').insert({
+      project_id,
+      uploaded_by: session?.userId ?? '00000000-0000-0000-0000-000000000000',
+      file_name: fileName,
+      file_size: fileBuffer.length,
+      mime_type: contentType,
+      storage_path: storagePath,
+    }).single();
+
+    return {
+      content: [{
+        type: 'text',
+        text: `File uploaded: ${fileName} (${(fileBuffer.length / 1024).toFixed(1)} KB)\nStorage path: ${storagePath}\n\nUse this path as the answer value for question ${question_id} in submit_answer or fill_form.`,
+      }],
+    };
   }
 );
 
