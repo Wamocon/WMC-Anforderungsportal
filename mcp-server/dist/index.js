@@ -237,11 +237,15 @@ server.tool('create_project', 'Create a new project (draft status). POs use this
         oid = org?.id ?? undefined;
     }
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '-' + Date.now().toString(36);
+    // Set created_by from logged-in session so submit_for_review and RLS policies work
+    const session = getSession();
+    const createdBy = session?.userId ?? null;
     const { data, error } = await sb.from('projects').insert({
         name, description: description ?? null, slug,
         status: 'draft', requirement_type: requirement_type ?? ['web_application'],
         template_id: tid ?? null, deadline_days: 5,
         org_id: oid ?? null,
+        created_by: createdBy,
     }).select('id, slug').single();
     if (error)
         return { content: [{ type: 'text', text: `Error: ${error.message}` }] };
@@ -292,10 +296,10 @@ server.tool('reject_project', 'Reject a pending project and send it back to draf
 });
 server.tool('activate_project', 'Activate an approved project for client form-filling (Staff/Admin action)', { project_id: z.string().describe('Project UUID') }, async ({ project_id }) => {
     const sb = getSupabaseClient();
-    const { error } = await sb.from('projects').update({ status: 'active' }).eq('id', project_id).eq('status', 'approved');
+    const { error } = await sb.rpc('activate_project', { p_project_id: project_id });
     if (error)
         return { content: [{ type: 'text', text: `Error: ${error.message}` }] };
-    return { content: [{ type: 'text', text: 'Project activated.' }] };
+    return { content: [{ type: 'text', text: 'Project activated — clients can now fill the form.' }] };
 });
 server.tool('archive_project', 'Archive a project', { project_id: z.string().describe('Project UUID') }, async ({ project_id }) => {
     const sb = getSupabaseClient();

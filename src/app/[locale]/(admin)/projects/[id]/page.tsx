@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/dialog';
 import {
   ArrowLeft,
+  ArrowRight,
   Copy,
   ExternalLink,
   Mail,
@@ -139,6 +140,7 @@ export default function ProjectDetailPage() {
 
   // Approval & follow-up state
   const [approving, setApproving] = useState(false);
+  const [activating, setActivating] = useState(false);
   const [rejecting, setRejecting] = useState(false);
   const [staffNote, setStaffNote] = useState('');
   const [followUpMessage, setFollowUpMessage] = useState('');
@@ -317,6 +319,23 @@ export default function ProjectDetailPage() {
       toast.error(t('admin.approveFailed'));
     } finally {
       setApproving(false);
+    }
+  }
+
+  async function handleActivate() {
+    if (!project) return;
+    setActivating(true);
+    try {
+      const supabase = createClient();
+      await supabase.auth.refreshSession();
+      const { error } = await supabase.rpc('activate_project', { p_project_id: project.id });
+      if (error) { toast.error(`Activation failed: ${error.message}`); return; }
+      toast.success(t('admin.projectActivated') ?? 'Project activated — clients can now fill the form.');
+      loadData();
+    } catch {
+      toast.error('Activation failed');
+    } finally {
+      setActivating(false);
     }
   }
 
@@ -606,7 +625,7 @@ export default function ProjectDetailPage() {
                 className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2 flex-1 sm:flex-initial"
               >
                 {approving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-                {t('admin.approveAndActivate')}
+                {t('admin.approve') ?? 'Approve'}
               </Button>
               <Button
                 onClick={() => setRejectDialogOpen(true)}
@@ -618,6 +637,30 @@ export default function ProjectDetailPage() {
                 {t('admin.rejectAndArchive')}
               </Button>
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {project.status === 'approved' && (
+        <Card className="border-emerald-500/30 bg-emerald-500/5">
+          <CardContent className="p-5 space-y-3">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+              <p className="font-semibold text-emerald-700 dark:text-emerald-400">
+                {t('admin.projectApprovedStatus') ?? 'Project Approved'}
+              </p>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {t('admin.activateDescription') ?? 'Activate this project to allow clients to fill the requirement form. All staff members will be automatically added.'}
+            </p>
+            <Button
+              onClick={handleActivate}
+              disabled={activating}
+              className="bg-[#FE0404] hover:bg-[#D00303] text-white gap-2"
+            >
+              {activating ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
+              {t('admin.activateProject') ?? 'Activate for Clients'}
+            </Button>
           </CardContent>
         </Card>
       )}

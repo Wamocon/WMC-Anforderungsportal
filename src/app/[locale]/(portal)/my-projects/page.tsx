@@ -162,19 +162,19 @@ export default function MyProjectsPage() {
         return;
       }
 
-      // Fetch project details (active + pending_review from memberships)
+      // Fetch project details (active + pending_review + approved from memberships)
       const { data: projectData } = await supabase
         .from('projects')
         .select('id, name, slug, description, status, deadline_days, created_at, created_by, onedrive_link')
         .in('id', Array.from(projectIds))
-        .in('status', ['active', 'pending_review']);
+        .in('status', ['active', 'pending_review', 'approved', 'draft']);
 
-      // Also fetch any pending_review projects created by this user (may not have membership yet)
+      // Also fetch draft/pending_review/approved projects created by this user (may not have membership yet)
       const { data: ownPending } = await supabase
         .from('projects')
         .select('id, name, slug, description, status, deadline_days, created_at, created_by, onedrive_link')
         .eq('created_by', user.id)
-        .eq('status', 'pending_review');
+        .in('status', ['draft', 'pending_review', 'approved']);
 
       // Merge, deduplicate by id
       const allProjects = [...(projectData ?? [])];
@@ -914,6 +914,16 @@ export default function MyProjectsPage() {
                           <Hourglass className="h-3.5 w-3.5" />
                           {t('client.awaitingApproval')}
                         </Badge>
+                      ) : isApproved ? (
+                        <a href={`/${locale}/form/${project.slug}/fill`}>
+                          <Button
+                            size="sm"
+                            className="gap-1 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 text-white shadow-sm w-full sm:w-auto"
+                          >
+                            <FileText className="h-4 w-4" />
+                            {t('client.fillRequirements')}
+                          </Button>
+                        </a>
                       ) : isSubmitted ? (
                         <Button variant="outline" size="sm" disabled className="gap-1 w-full sm:w-auto">
                           <CheckCircle className="h-4 w-4" />
