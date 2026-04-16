@@ -12,9 +12,54 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { z } from 'zod';
 import { getSupabaseClient, getSession, signIn, signOut, hasServiceKey } from './supabase.js';
 
+// ── Role enforcement helpers ──────────────────────────────────
+// These ensure STAFF-ONLY and LOGIN-REQUIRED operations cannot be
+// bypassed by falling through to the service-role (admin) client.
+
+type ContentResult = { content: Array<{ type: 'text'; text: string }> };
+
+/** Require explicit login. Blocks anonymous/admin-mode usage. */
+function requireLogin(): ContentResult | null {
+  const session = getSession();
+  if (!session) {
+    return {
+      content: [{
+        type: 'text',
+        text: '🔒 Authentication required. You must login first with your email and password.\n\nRun: login("<email>", "<password>")\n\nAnonymous / admin-mode access is not allowed for this operation.',
+      }],
+    };
+  }
+  // Check token expiry
+  if (Date.now() / 1000 > session.expiresAt) {
+    return {
+      content: [{
+        type: 'text',
+        text: '⚠️ Session expired. Please login again.\n\nRun: login("<email>", "<password>")',
+      }],
+    };
+  }
+  return null; // OK
+}
+
+/** Require staff or super_admin role. Always requires explicit login first. */
+function requireStaff(): ContentResult | null {
+  const loginCheck = requireLogin();
+  if (loginCheck) return loginCheck;
+  const session = getSession()!;
+  if (!['staff', 'super_admin'].includes(session.role)) {
+    return {
+      content: [{
+        type: 'text',
+        text: `🚫 Access denied. This operation requires staff or super_admin role.\n\nYou are logged in as: ${session.email} (role: ${session.role})\n\nOnly WMC staff can approve, activate, reject, or archive projects.`,
+      }],
+    };
+  }
+  return null; // OK
+}
+
 const server = new McpServer({
   name: 'anforderungsportal',
-  version: '1.7.0',
+  version: '1.7.3',
 });
 
 // ═══════════════════════════════════════════════════════════════
@@ -314,6 +359,8 @@ server.tool(
     org_id: z.string().optional().describe('Organization ID. Omit to use the default org.'),
   },
   async ({ name, description, requirement_type, template_id, org_id }) => {
+    const guard = requireLogin();
+    if (guard) return guard;
     const sb = getSupabaseClient();
 
     // Get default template if not specified
@@ -369,6 +416,8 @@ server.tool(
     template_id: z.string().optional(),
   },
   async ({ project_id, name, description, template_id }) => {
+    const guard = requireLogin();
+    if (guard) return guard;
     const sb = getSupabaseClient();
     const updates: Record<string, unknown> = {};
     if (name !== undefined) updates.name = name;
@@ -385,6 +434,8 @@ server.tool(
   'Submit YOUR draft project for staff review. PREREQUISITE: project must be in draft status and you must be the creator. After this, a staff member (Waleri) must approve then activate it before clients can be invited.',
   { project_id: z.string().describe('Project UUID') },
   async ({ project_id }) => {
+    const guard = requireLogin();
+    if (guard) return guard;
     const sb = getSupabaseClient();
     // Pre-check status for a clearer error message
     const { data: proj } = await sb.from('projects').select('status, name').eq('id', project_id).single();
@@ -402,6 +453,8 @@ server.tool(
   'Approve a pending_review project (STAFF/ADMIN only). Project must be in pending_review status. After approving, run activate_project to make it live for clients.',
   { project_id: z.string().describe('Project UUID') },
   async ({ project_id }) => {
+    const guard = requireStaff();
+    if (guard) return guard;
     const sb = getSupabaseClient();
     const { data: proj } = await sb.from('projects').select('status, name').eq('id', project_id).single();
     if (proj && proj.status !== 'pending_review') {
@@ -421,6 +474,8 @@ server.tool(
     reason: z.string().describe('Reason for rejection — visible to the Product Owner'),
   },
   async ({ project_id, reason }) => {
+    const guard = requireStaff();
+    if (guard) return guard;
     const sb = getSupabaseClient();
     const { error } = await sb.rpc('reject_project', { p_project_id: project_id, p_reason: reason });
     if (error) return { content: [{ type: 'text', text: `Error: ${error.message}` }] };
@@ -433,6 +488,8 @@ server.tool(
   'Activate an approved project for client form-filling (STAFF/ADMIN only). Project MUST be in approved status — run approve_project first if needed.',
   { project_id: z.string().describe('Project UUID') },
   async ({ project_id }) => {
+    const guard = requireStaff();
+    if (guard) return guard;
     const sb = getSupabaseClient();
     const { data: proj } = await sb.from('projects').select('status, name').eq('id', project_id).single();
     if (proj && proj.status !== 'approved') {
@@ -451,9 +508,11 @@ server.tool(
 
 server.tool(
   'archive_project',
-  'Archive a project',
+  'Archive a project (STAFF/ADMIN only)',
   { project_id: z.string().describe('Project UUID') },
   async ({ project_id }) => {
+    const guard = requireStaff();
+    if (guard) return guard;
     const sb = getSupabaseClient();
     const { error } = await sb.from('projects').update({ status: 'archived' }).eq('id', project_id);
     if (error) return { content: [{ type: 'text', text: `Error: ${error.message}` }] };
@@ -512,6 +571,8 @@ server.tool(
     description: z.string().optional().describe('Template description'),
   },
   async ({ name, description }) => {
+    const guard = requireStaff();
+    if (guard) return guard;
     const sb = getSupabaseClient();
     // Get default org
     const { data: org } = await sb.from('organizations').select('id').limit(1).single();
@@ -534,6 +595,8 @@ server.tool(
     is_required: z.boolean().optional().default(true),
   },
   async ({ template_id, title, description, is_required }) => {
+    const guard = requireStaff();
+    if (guard) return guard;
     const sb = getSupabaseClient();
     const { data: existing } = await sb.from('template_sections').select('order_index').eq('template_id', template_id).order('order_index', { ascending: false }).limit(1);
     const nextIdx = (existing?.[0]?.order_index ?? -1) + 1;
@@ -560,6 +623,8 @@ server.tool(
     placeholder: z.string().optional(),
   },
   async ({ section_id, label, type, options, is_required, help_text, placeholder }) => {
+    const guard = requireStaff();
+    if (guard) return guard;
     const sb = getSupabaseClient();
     const { data: existing } = await sb.from('template_questions').select('order_index').eq('section_id', section_id).order('order_index', { ascending: false }).limit(1);
     const nextIdx = (existing?.[0]?.order_index ?? -1) + 1;
@@ -615,6 +680,8 @@ server.tool(
     value: z.string().describe('The answer value'),
   },
   async ({ response_id, question_id, value }) => {
+    const guard = requireLogin();
+    if (guard) return guard;
     const sb = getSupabaseClient();
     // Upsert: update if exists, insert if not
     const { data: existing } = await sb.from('response_answers').select('id').eq('response_id', response_id).eq('question_id', question_id).single();
@@ -665,6 +732,8 @@ server.tool(
     role: z.enum(['client', 'product_owner']).optional().default('client'),
   },
   async ({ project_id, email, role }) => {
+    const guard = requireLogin();
+    if (guard) return guard;
     const sb = getSupabaseClient();
     // Validate project is active before inserting magic link
     const { data: proj } = await sb.from('projects').select('status, name').eq('id', project_id).single();
@@ -698,6 +767,8 @@ server.tool(
     message: z.string().describe('Feedback question for the responder'),
   },
   async ({ project_id, response_id, message }) => {
+    const guard = requireStaff();
+    if (guard) return guard;
     const sb = getSupabaseClient();
     const { error } = await sb.from('feedback_requests').insert({
       project_id,
@@ -764,6 +835,8 @@ server.tool(
     respondent_name: z.string().optional().describe('Respondent name'),
   },
   async ({ project_id, respondent_email, respondent_name }) => {
+    const guard = requireLogin();
+    if (guard) return guard;
     const sb = getSupabaseClient();
     const session = getSession();
 
@@ -797,6 +870,8 @@ server.tool(
     answers: z.string().describe('JSON object: { "question_uuid": "answer value", ... }. For file fields, pass the storage path from upload_file.'),
   },
   async ({ response_id, answers }) => {
+    const guard = requireLogin();
+    if (guard) return guard;
     const sb = getSupabaseClient();
 
     let parsed: Record<string, unknown>;
@@ -847,6 +922,8 @@ server.tool(
   'Mark a response as submitted (finalizes the form). After this, the respondent cannot edit answers.',
   { response_id: z.string().describe('Response UUID') },
   async ({ response_id }) => {
+    const guard = requireLogin();
+    if (guard) return guard;
     const sb = getSupabaseClient();
     const { error } = await sb.from('responses').update({
       status: 'submitted',
@@ -868,6 +945,8 @@ server.tool(
     response_id: z.string().optional().describe('Response UUID. If omitted, creates a temp upload folder.'),
   },
   async ({ project_id, question_id, file_path, response_id }) => {
+    const guard = requireLogin();
+    if (guard) return guard;
     const sb = getSupabaseClient();
     const fs = await import('fs');
     const path = await import('path');

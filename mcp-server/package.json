@@ -1,6 +1,6 @@
 {
   "name": "anforderungsportal-mcp",
-  "version": "1.7.3",
+  "version": "1.8.0",
   "description": "MCP Server for WMC Anforderungsportal – Requirement collection for POs and Staff",
   "type": "module",
   "main": "dist/index.js",
