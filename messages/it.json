@@ -327,7 +327,13 @@
     "createdOn": "Created on",
     "lastUpdated": "Last updated",
     "requirementTypes": "Requirement Types",
-    "teamMembers": "Team Members"
+    "teamMembers": "Team Members",
+    "exportForAnalysis": "Export for AI Analysis",
+    "exportForAnalysisDesc": "Copy all responses as Markdown for your AI assistant, or download a report.",
+    "copyForAI": "Copy for AI",
+    "copiedForAI": "Copied to clipboard — paste into your AI chat!",
+    "downloadReport": "Download Report",
+    "reportDownloaded": "Report downloaded"
   },
   "project": {
     "newProject": "Nuovo Progetto",
@@ -670,7 +676,23 @@
     "noAttachments": "No attachments yet",
     "noAttachmentsDesc": "Upload files from the edit page to see them here.",
     "responsesCount": "{count} form responses",
-    "submittedOn": "Submitted"
+    "submittedOn": "Submitted",
+    "projectTimeline": "Project Timeline",
+    "projectArchived": "This project has been archived.",
+    "draftMessage": "Your project is in draft mode",
+    "draftMessageDesc": "Edit your requirements and submit for staff review when ready.",
+    "pendingReviewMessage": "Under staff review",
+    "pendingReviewMessageDesc": "Staff is reviewing your submission. You will be notified of any follow-up questions or decisions.",
+    "approvedMessage": "Your project has been approved!",
+    "approvedMessageDesc": "Staff has approved your requirements. The project will be activated for client responses soon.",
+    "activeMessage": "Project is live",
+    "activeMessageDesc": "Clients can now fill out the requirements form. You can track responses below.",
+    "staffFollowUp": "Staff Follow-up Required",
+    "staffFollowUpDesc": "{count} question(s) from staff need your attention",
+    "replyToStaff": "Reply",
+    "feedbackHistory": "Conversation History",
+    "youReplied": "You replied",
+    "staffMessages": "Staff Messages"
   },
   "landing": {
     "heroTitle1": "Raccogli i Requisiti",

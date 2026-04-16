@@ -52,6 +52,8 @@ import {
   ShieldCheck,
   UserCircle2,
   CalendarDays,
+  ClipboardCopy,
+  Bot,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useParams } from 'next/navigation';
@@ -685,6 +687,65 @@ export default function ProjectDetailPage() {
         <Card><CardContent className="p-4 flex items-center gap-3"><div className="rounded-lg bg-green-50 p-2"><Users className="h-5 w-5 text-green-600" /></div><div><p className="text-2xl font-bold">{responses.length}</p><p className="text-xs text-muted-foreground">{t('admin.responsesReceived')}</p></div></CardContent></Card>
         <Card><CardContent className="p-4 flex items-center gap-3"><div className="rounded-lg bg-purple-50 p-2"><Clock className="h-5 w-5 text-purple-600" /></div><div><p className="text-2xl font-bold">{project.deadline_days}</p><p className="text-xs text-muted-foreground">{t('admin.daysDeadline')}</p></div></CardContent></Card>
       </div>
+
+      {/* ── Export for AI / Download Report ──────────────── */}
+      {responses.length > 0 && (
+        <Card className="border-[#FE0404]/15 bg-gradient-to-r from-violet-50/50 to-blue-50/50 dark:from-violet-950/20 dark:to-blue-950/20">
+          <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className="rounded-lg bg-violet-100 dark:bg-violet-900/30 p-2">
+                <Bot className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-medium">{t('admin.exportForAnalysis')}</p>
+                <p className="text-xs text-muted-foreground">{t('admin.exportForAnalysisDesc')}</p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2 shrink-0">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5"
+                onClick={async () => {
+                  try {
+                    const res = await fetch(`/api/project/${projectId}/export?format=markdown&locale=${locale}`);
+                    if (!res.ok) { toast.error(t('errors.generic')); return; }
+                    const text = await res.text();
+                    await navigator.clipboard.writeText(text);
+                    toast.success(t('admin.copiedForAI'));
+                  } catch { toast.error(t('errors.generic')); }
+                }}
+              >
+                <ClipboardCopy className="h-3.5 w-3.5" />
+                {t('admin.copyForAI')}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5"
+                onClick={async () => {
+                  try {
+                    const res = await fetch(`/api/project/${projectId}/export?format=markdown&locale=${locale}`);
+                    if (!res.ok) { toast.error(t('errors.generic')); return; }
+                    const text = await res.text();
+                    const blob = new Blob([text], { type: 'text/markdown' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${project.slug || project.name}-report.md`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    toast.success(t('admin.reportDownloaded'));
+                  } catch { toast.error(t('errors.generic')); }
+                }}
+              >
+                <Download className="h-3.5 w-3.5" />
+                {t('admin.downloadReport')}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Tabs defaultValue="responses">
         <TabsList>
