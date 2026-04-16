@@ -328,7 +328,7 @@ export default function ProjectDetailPage() {
     try {
       const supabase = createClient();
       await supabase.auth.refreshSession();
-      const { error } = await supabase.rpc('activate_project', { p_project_id: project.id });
+      const { error } = await supabase.rpc('activate_project' as 'approve_project', { p_project_id: project.id });
       if (error) { toast.error(`Activation failed: ${error.message}`); return; }
       toast.success(t('admin.projectActivated') ?? 'Project activated — clients can now fill the form.');
       loadData();
