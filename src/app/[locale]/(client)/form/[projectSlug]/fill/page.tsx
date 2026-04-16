@@ -56,12 +56,12 @@ export default async function FormFillPage({
     .eq('slug', projectSlug)
     .single();
 
-  // Allow active projects (normal flow) or draft/approved projects for POs who created them
+  // Allow active projects (normal client flow) or ANY status for PO who created it
   const { data: { user: authUser } } = await supabase.auth.getUser();
   const isOwner = project?.created_by === authUser?.id;
-  const isOwnerDraftOrApproved = isOwner && (project?.status === 'draft' || project?.status === 'approved');
+  const isStaff = authUser?.app_metadata?.role === 'staff' || authUser?.app_metadata?.role === 'super_admin';
 
-  if (!project || (!isOwnerDraftOrApproved && project.status !== 'active') || !project.template_id) {
+  if (!project || (!(isOwner || isStaff) && project.status !== 'active') || !project.template_id) {
     notFound();
   }
 

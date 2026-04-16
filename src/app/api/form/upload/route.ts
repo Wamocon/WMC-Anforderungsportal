@@ -23,14 +23,18 @@ export async function POST(req: NextRequest) {
 
     const supabase = await createClient();
 
-    // Verify project exists and is active
+    // Verify project exists (owner/staff can upload at any status, clients only on active)
     const { data: project } = await supabase
       .from('projects')
-      .select('id, status')
+      .select('id, status, created_by')
       .eq('slug', projectSlug)
       .single();
 
-    if (!project || project.status !== 'active') {
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    const isOwner = project?.created_by === authUser?.id;
+    const isStaff = authUser?.app_metadata?.role === 'staff' || authUser?.app_metadata?.role === 'super_admin';
+
+    if (!project || (!(isOwner || isStaff) && project.status !== 'active')) {
       return NextResponse.json({ error: 'Invalid project' }, { status: 404 });
     }
 

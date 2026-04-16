@@ -910,10 +910,22 @@ export default function MyProjectsPage() {
                           </Button>
                         </div>
                       ) : isPendingReview ? (
-                        <Badge variant="outline" className="bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400 border-amber-200 dark:border-amber-800 gap-1 py-1.5 px-3">
-                          <Hourglass className="h-3.5 w-3.5" />
-                          {t('client.awaitingApproval')}
-                        </Badge>
+                        /* Pending review: show badge BUT still let PO fill the form */
+                        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                          <a href={`/${locale}/form/${project.slug}/fill`}>
+                            <Button
+                              size="sm"
+                              className="gap-1 bg-gradient-to-r from-[#FE0404] to-[#D00303] hover:from-[#E00303] hover:to-[#BB0000] text-white shadow-sm w-full sm:w-auto"
+                            >
+                              <FileText className="h-4 w-4" />
+                              {t('client.fillRequirements')}
+                            </Button>
+                          </a>
+                          <Badge variant="outline" className="bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400 border-amber-200 dark:border-amber-800 gap-1 py-1.5 px-3">
+                            <Hourglass className="h-3.5 w-3.5" />
+                            {t('client.awaitingApproval')}
+                          </Badge>
+                        </div>
                       ) : isApproved ? (
                         <a href={`/${locale}/form/${project.slug}/fill`}>
                           <Button

@@ -24,10 +24,14 @@ export default async function FormWelcomePage({
     .from('projects')
     .select('*')
     .eq('slug', projectSlug)
-    .eq('status', 'active')
     .single();
 
-  if (!project) {
+  // Allow active projects for anyone, or any status for owner/staff
+  const { data: { user: authUser } } = await supabase.auth.getUser();
+  const isOwner = project?.created_by === authUser?.id;
+  const isStaff = authUser?.app_metadata?.role === 'staff' || authUser?.app_metadata?.role === 'super_admin';
+
+  if (!project || (!(isOwner || isStaff) && project.status !== 'active') || !project.template_id) {
     return (
       <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-gray-100" />
