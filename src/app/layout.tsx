@@ -2,16 +2,16 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "WMC Requirement Manager",
-  description: "Professional requirement collection platform by WAMOCON",
+  title: "Anforderungsportal",
+  description: "Professional requirement collection platform by WAMOCON GmbH",
   icons: {
     icon: "/favicon.svg",
     apple: "/favicon.svg",
   },
   openGraph: {
-    title: "WMC Requirement Manager",
+    title: "Anforderungsportal",
     description: "AI-powered requirement collection with voice input, smart forms, and 25 languages.",
-    siteName: "WMC Requirement Manager",
+    siteName: "Anforderungsportal",
     type: "website",
   },
 };

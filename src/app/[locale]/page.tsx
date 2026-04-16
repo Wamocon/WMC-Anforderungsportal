@@ -18,6 +18,7 @@ import {
 import { WmcLogo } from '@/components/wmc-logo';
 import { LandingHeader } from '@/components/landing-header';
 import { RevealOnScroll } from '@/components/reveal-on-scroll';
+import { PortalGateMark } from '@/components/portal-gate-mark';
 
 export default async function HomePage({
   params,
@@ -184,7 +185,7 @@ export default async function HomePage({
                     {/* Inner content */}
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 gap-3">
                       <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#FE0404] to-[#CC0000] flex items-center justify-center shadow-lg shadow-[#FE0404]/20">
-                        <ClipboardCheck className="h-10 w-10 text-white" />
+                        <PortalGateMark className="h-10 w-10" />
                       </div>
                       <p className="text-xl font-bold text-foreground">AI-Powered</p>
                       <p className="text-sm text-muted-foreground leading-relaxed">Requirements Collection<br />in 25 Languages</p>
