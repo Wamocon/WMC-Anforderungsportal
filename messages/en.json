@@ -670,7 +670,24 @@
     "ctaButton": "Start Collecting Now",
     "stepsTitle1": "Three steps to",
     "stepsTitle2": "better requirements",
-    "stepsDesc": "From project creation to analysis, we make it effortless."
+    "stepsDesc": "From project creation to analysis, we make it effortless.",
+    "trustedBy": "Trusted by top-tier companies across Europe",
+    "mcp": {
+      "badge": "AI Integration",
+      "title1": "Connect your",
+      "title2": "AI assistant",
+      "desc": "Install the MCP server in one command and manage projects, templates, and requirements directly from your AI coding assistant — GitHub Copilot, Cursor, or Claude Desktop.",
+      "step1Label": "Step 1",
+      "step1Title": "Install globally",
+      "step1Desc": "One command installs and auto-configures your editor. No env vars needed.",
+      "step2Label": "Step 2",
+      "step2Title": "Restart your editor",
+      "step2Desc": "The MCP server is auto-detected. Open the AI chat panel to verify the connection.",
+      "step3Label": "Step 3",
+      "step3Title": "Start talking to your projects",
+      "step3Desc": "Login and use natural language to list projects, create templates, review responses, and more.",
+      "toolsAvailable": "20+ tools available"
+    }
   },
   "requirements": {
     "title": "Requirements Overview",

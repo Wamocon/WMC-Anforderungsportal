@@ -704,3 +704,159 @@ html {
     box-shadow: none;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LIQUID GLASS DESIGN SYSTEM
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* --- Liquid Glass Navbar --- */
+.liquid-glass-nav {
+  background: oklch(1 0 0 / 40%);
+  backdrop-filter: blur(50px) saturate(180%);
+  -webkit-backdrop-filter: blur(50px) saturate(180%);
+  border: 1px solid oklch(0 0 0 / 10%);
+  box-shadow:
+    inset 0px 4px 4px 0px oklch(1 0 0 / 25%),
+    0 4px 24px -4px oklch(0 0 0 / 6%);
+}
+:is(.dark) .liquid-glass-nav {
+  background: oklch(0.15 0 0 / 45%);
+  border: 1px solid oklch(1 0 0 / 8%);
+  box-shadow:
+    inset 0px 4px 4px 0px oklch(1 0 0 / 5%),
+    0 4px 24px -4px oklch(0 0 0 / 20%);
+}
+
+/* --- Liquid Glass Badge (pills) --- */
+.liquid-glass-badge {
+  background: oklch(1 0 0 / 50%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid oklch(0 0 0 / 8%);
+  box-shadow: inset 0 1px 2px oklch(1 0 0 / 40%);
+}
+:is(.dark) .liquid-glass-badge {
+  background: oklch(1 0 0 / 6%);
+  border: 1px solid oklch(1 0 0 / 8%);
+  box-shadow: inset 0 1px 2px oklch(1 0 0 / 5%);
+}
+
+/* --- Liquid Glass CTA Button --- */
+.liquid-glass-cta {
+  box-shadow:
+    inset 0px 4px 4px 0px oklch(1 0 0 / 35%),
+    0 8px 32px -4px oklch(0.55 0.22 28 / 30%);
+}
+.liquid-glass-cta:hover {
+  box-shadow:
+    inset 0px 4px 4px 0px oklch(1 0 0 / 40%),
+    0 12px 40px -4px oklch(0.55 0.22 28 / 40%);
+}
+
+/* --- Liquid Glass Outline Button --- */
+.liquid-glass-btn {
+  box-shadow:
+    inset 0 1px 2px oklch(1 0 0 / 60%),
+    0 2px 8px -2px oklch(0 0 0 / 5%);
+}
+
+/* --- Liquid Glass Orb (hero sphere) --- */
+.liquid-glass-orb {
+  background: oklch(1 0 0 / 35%);
+  backdrop-filter: blur(40px) saturate(150%);
+  -webkit-backdrop-filter: blur(40px) saturate(150%);
+  border: 1px solid oklch(0 0 0 / 6%);
+  box-shadow:
+    inset 0 8px 32px oklch(1 0 0 / 40%),
+    inset 0 -4px 16px oklch(0 0 0 / 5%),
+    0 20px 60px -12px oklch(0 0 0 / 10%),
+    0 8px 24px -4px oklch(0 0 0 / 5%);
+}
+:is(.dark) .liquid-glass-orb {
+  background: oklch(0.15 0 0 / 40%);
+  border: 1px solid oklch(1 0 0 / 8%);
+  box-shadow:
+    inset 0 8px 32px oklch(1 0 0 / 5%),
+    inset 0 -4px 16px oklch(0 0 0 / 20%),
+    0 20px 60px -12px oklch(0 0 0 / 30%),
+    0 8px 24px -4px oklch(0 0 0 / 15%);
+}
+
+/* --- Liquid Glass Float Card (floating mini cards) --- */
+.liquid-glass-float-card {
+  background: oklch(1 0 0 / 55%);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid oklch(0 0 0 / 8%);
+  box-shadow:
+    inset 0 1px 2px oklch(1 0 0 / 50%),
+    0 8px 24px -4px oklch(0 0 0 / 8%);
+}
+:is(.dark) .liquid-glass-float-card {
+  background: oklch(0.18 0 0 / 60%);
+  border: 1px solid oklch(1 0 0 / 8%);
+  box-shadow:
+    inset 0 1px 2px oklch(1 0 0 / 5%),
+    0 8px 24px -4px oklch(0 0 0 / 25%);
+}
+
+/* --- Liquid Glass Card (feature cards, content cards) --- */
+.liquid-glass-card {
+  background: oklch(1 0 0 / 50%);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid oklch(0 0 0 / 6%);
+  border-radius: var(--radius-xl);
+  box-shadow:
+    inset 0 1px 2px oklch(1 0 0 / 40%),
+    0 2px 12px -4px oklch(0 0 0 / 6%);
+}
+:is(.dark) .liquid-glass-card {
+  background: oklch(0.17 0 0 / 55%);
+  border: 1px solid oklch(1 0 0 / 6%);
+  box-shadow:
+    inset 0 1px 2px oklch(1 0 0 / 4%),
+    0 2px 12px -4px oklch(0 0 0 / 20%);
+}
+
+/* --- Active/Inactive step cards --- */
+.liquid-glass-card-active {
+  background: oklch(1 0 0 / 70%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid oklch(0.55 0.22 28 / 15%);
+  box-shadow:
+    inset 0 1px 2px oklch(1 0 0 / 50%),
+    0 4px 20px -4px oklch(0 0 0 / 8%);
+}
+:is(.dark) .liquid-glass-card-active {
+  background: oklch(0.2 0.01 28 / 40%);
+  border: 1px solid oklch(0.55 0.22 28 / 20%);
+  box-shadow:
+    inset 0 1px 2px oklch(1 0 0 / 5%),
+    0 4px 20px -4px oklch(0 0 0 / 25%);
+}
+
+.liquid-glass-card-inactive {
+  background: oklch(1 0 0 / 30%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid oklch(0 0 0 / 5%);
+}
+:is(.dark) .liquid-glass-card-inactive {
+  background: oklch(1 0 0 / 3%);
+  border: 1px solid oklch(1 0 0 / 5%);
+}
+
+/* --- Typing cursor animation for terminal --- */
+@keyframes blink-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.typing-animation::after {
+  content: '▋';
+  display: inline-block;
+  margin-left: 2px;
+  color: oklch(0.7 0.15 150);
+  animation: blink-cursor 1s step-end infinite;
+}

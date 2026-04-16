@@ -47,7 +47,17 @@
     "pendingReview": "Pending Review",
     "inProgress": "In Progress",
     "submitted": "Submitted",
-    "reviewed": "Reviewed"
+    "reviewed": "Reviewed",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All",
+    "newestFirst": "Newest first",
+    "nameAZ": "Name A–Z",
+    "mostResponses": "Most responses",
+    "nOptions": "{count} options",
+    "unsavedChanges": "You have unsaved changes. Are you sure you want to leave?",
+    "confirmAction": "Confirm Action",
+    "descriptionRecommended": "A description helps reviewers understand the project scope.",
+    "selected": "selected"
   },
   "auth": {
     "login": "Prisijungti",
@@ -278,7 +288,16 @@
     "reviewActions": "Review Actions",
     "askBeforeApproving": "Ask Before Approving",
     "markAsReviewed": "Mark as Reviewed",
-    "markedAsReviewed": "Response marked as reviewed"
+    "markedAsReviewed": "Response marked as reviewed",
+    "template": "Template",
+    "selectTemplate": "Select a template",
+    "templateChangeWarning": "Changing template on a project with existing responses may affect data integrity.",
+    "pendingProposals": "Pending Proposals",
+    "completionRate": "Completion Rate",
+    "failedLoadDashboard": "Failed to load dashboard data",
+    "tryRefreshPage": "Please try refreshing the page.",
+    "reviewProposalsDesc": "Review and approve client project proposals",
+    "requirements": "Requirements"
   },
   "project": {
     "newProject": "Naujas projektas",
@@ -459,7 +478,9 @@
     "textareaHint": "Tip: For extensive details, you can also attach a document via \"Attach document\" below.",
     "fileTooLarge": "File too large (max 10 MB)",
     "fileTypeNotAllowed": "File type not allowed",
-    "polishing": "Polishing text…"
+    "polishing": "Polishing text…",
+    "saveFailed": "Save failed — click to retry",
+    "offline": "Offline — changes will save when reconnected"
   },
   "response": {
     "allResponses": "Visi atsakymai",
@@ -489,7 +510,13 @@
     "clickGenerateSummary": "Spustelėkite „Generuoti santrauką“, kad gautumėte AI pagrįstą visų atsakymų vadovų santrauką.",
     "responseReviewed": "Atsakymas pažymėtas kaip peržiūrėtas",
     "projectLink": "Project Link (Cloud Storage)",
-    "openLink": "Open Link"
+    "openLink": "Open Link",
+    "searchPlaceholder": "Search by name, email, or project…",
+    "totalPending": "{total} total · {pending} pending review",
+    "showingOf": "Showing {filtered} of {total} responses",
+    "noMatchTitle": "No responses match your filters",
+    "noMatchDesc": "Try adjusting your search or filter criteria.",
+    "clear": "Clear"
   },
   "errors": {
     "generic": "Kažkas nutiko ne taip. Prašome bandyti dar kartą.",
@@ -566,7 +593,21 @@
     "dropOrClick": "Drop files here or click to browse",
     "allowedFileTypes": "PDF, Word, Excel, PowerPoint, Images, Videos — max 50 MB each",
     "invalidLink": "Please enter a valid URL (https://...)",
-    "partialUpload": "{uploaded} of {total} files uploaded successfully"
+    "partialUpload": "{uploaded} of {total} files uploaded successfully",
+    "deadlineRange": "Deadline must be between {min} and {max} days",
+    "myTemplates": "My Templates",
+    "myTemplatesDesc": "Create and manage requirement templates for your projects.",
+    "myOwnTemplates": "Your Templates",
+    "systemTemplates": "System Templates",
+    "systemTemplatesDesc": "Default templates created by staff. Duplicate to customize.",
+    "noTemplatesDesc": "Create your first template or duplicate a system template to get started.",
+    "duplicateTemplate": "Duplicate",
+    "draftProject": "Draft",
+    "approvedStatus": "Approved",
+    "fillRequirements": "Fill Requirements",
+    "submitForReview": "Submit for Review",
+    "submittedForReview": "Project submitted for review",
+    "templateLocked": "Locked"
   },
   "landing": {
     "heroTitle1": "Rinkite reikalavimus",
@@ -609,7 +650,24 @@
     "ctaButton": "Pradėkite rinkti dabar",
     "stepsTitle1": "Trys žingsniai link",
     "stepsTitle2": "geresnių reikalavimų",
-    "stepsDesc": "Nuo projekto sukūrimo iki analizės – mes tai padarome be pastangų."
+    "stepsDesc": "Nuo projekto sukūrimo iki analizės – mes tai padarome be pastangų.",
+    "trustedBy": "Trusted by top-tier companies across Europe",
+    "mcp": {
+      "badge": "AI Integration",
+      "title1": "Connect your",
+      "title2": "AI assistant",
+      "desc": "Install the MCP server in one command and manage projects, templates, and requirements directly from your AI coding assistant — GitHub Copilot, Cursor, or Claude Desktop.",
+      "step1Label": "Step 1",
+      "step1Title": "Install globally",
+      "step1Desc": "One command installs and auto-configures your editor. No env vars needed.",
+      "step2Label": "Step 2",
+      "step2Title": "Restart your editor",
+      "step2Desc": "The MCP server is auto-detected. Open the AI chat panel to verify the connection.",
+      "step3Label": "Step 3",
+      "step3Title": "Start talking to your projects",
+      "step3Desc": "Login and use natural language to list projects, create templates, review responses, and more.",
+      "toolsAvailable": "20+ tools available"
+    }
   },
   "settings": {
     "changePassword": "Change Password",
@@ -617,6 +675,19 @@
     "currentPassword": "Current Password",
     "currentPasswordWrong": "Current password is incorrect. Please try again.",
     "passwordChanged": "Password changed successfully!",
-    "manageAccount": "Manage your account settings"
+    "manageAccount": "Manage your account settings",
+    "aiConfiguration": "AI Configuration",
+    "aiConfigurationDesc": "Configure the AI provider and API key used for AI-powered features.",
+    "aiProvider": "AI Provider",
+    "apiKey": "API Key",
+    "getKeyFrom": "Get your key from",
+    "modelName": "Model Name",
+    "modelNameHelp": "The model to use for AI features (e.g., gemini-2.0-flash, gpt-4o, claude-sonnet-4-20250514).",
+    "projectName": "Google Cloud Project Name",
+    "projectNameHelp": "Required for Google AI Studio. Find it in your Google Cloud Console.",
+    "aiActive": "AI Features Active",
+    "saveAiConfig": "Save AI Configuration",
+    "aiConfigSaved": "AI configuration saved successfully.",
+    "aiConfigFailed": "Failed to save AI configuration. Please try again."
   }
 }

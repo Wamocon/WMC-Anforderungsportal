@@ -670,7 +670,24 @@
     "ctaButton": "Jetzt starten",
     "stepsTitle1": "Drei Schritte zu",
     "stepsTitle2": "besseren Anforderungen",
-    "stepsDesc": "Von der Projekterstellung bis zur Analyse – wir machen es mühelos."
+    "stepsDesc": "Von der Projekterstellung bis zur Analyse – wir machen es mühelos.",
+    "trustedBy": "Vertraut von führenden Unternehmen in ganz Europa",
+    "mcp": {
+      "badge": "KI-Integration",
+      "title1": "Verbinden Sie Ihren",
+      "title2": "KI-Assistenten",
+      "desc": "Installieren Sie den MCP-Server mit einem Befehl und verwalten Sie Projekte, Vorlagen und Anforderungen direkt aus Ihrem KI-Coding-Assistenten — GitHub Copilot, Cursor oder Claude Desktop.",
+      "step1Label": "Schritt 1",
+      "step1Title": "Global installieren",
+      "step1Desc": "Ein Befehl installiert und konfiguriert Ihren Editor automatisch. Keine Umgebungsvariablen nötig.",
+      "step2Label": "Schritt 2",
+      "step2Title": "Editor neu starten",
+      "step2Desc": "Der MCP-Server wird automatisch erkannt. Öffnen Sie das KI-Chat-Panel, um die Verbindung zu überprüfen.",
+      "step3Label": "Schritt 3",
+      "step3Title": "Sprechen Sie mit Ihren Projekten",
+      "step3Desc": "Melden Sie sich an und nutzen Sie natürliche Sprache, um Projekte aufzulisten, Vorlagen zu erstellen, Antworten zu prüfen und mehr.",
+      "toolsAvailable": "20+ Werkzeuge verfügbar"
+    }
   },
   "requirements": {
     "title": "Anforderungsübersicht",
