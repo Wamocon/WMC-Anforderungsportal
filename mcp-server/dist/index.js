@@ -491,7 +491,7 @@ server.tool('invite_member', 'Invite a client to a project by email', {
         email: email.toLowerCase(),
         role: role ?? 'client',
         token_hash: crypto.randomUUID(),
-        status: 'pending',
+        status: 'sent',
         expires_at: new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString(),
     });
     if (error)

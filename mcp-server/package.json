@@ -1,6 +1,6 @@
 {
   "name": "anforderungsportal-mcp",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "MCP Server for WMC Anforderungsportal – Requirement collection for POs and Staff",
   "type": "module",
   "main": "dist/index.js",
@@ -12,7 +12,14 @@
     "scripts/postinstall.mjs",
     "README.md"
   ],
-  "keywords": ["mcp", "anforderungsportal", "requirements", "wmc", "supabase", "ai-tools"],
+  "keywords": [
+    "mcp",
+    "anforderungsportal",
+    "requirements",
+    "wmc",
+    "supabase",
+    "ai-tools"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
