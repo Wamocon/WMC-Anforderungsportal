@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900" role="img" aria-labelledby="title desc">
+  <title id="title">WMC Anforderungsportal - Today Summary</title>
+  <desc id="desc">Brief summary of today's production update work.</desc>
+  <rect width="1400" height="900" fill="#f7f3ea" />
+  <rect x="60" y="60" width="1280" height="780" rx="24" fill="#fffdf8" stroke="#1a1a1a" stroke-width="3" />
+  <text x="110" y="155" font-family="Georgia, 'Times New Roman', serif" font-size="52" font-weight="700" fill="#111111">
+    Today - WMC Anforderungsportal
+  </text>
+  <text x="110" y="205" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#555555">
+    Production update summary - 15 Apr 2026
+  </text>
+
+  <circle cx="120" cy="300" r="8" fill="#111111" />
+  <text x="150" y="307" font-family="Arial, Helvetica, sans-serif" font-size="32" fill="#111111">
+    Merged the release work into main and pushed it to GitHub.
+  </text>
+
+  <circle cx="120" cy="405" r="8" fill="#111111" />
+  <text x="150" y="398" font-family="Arial, Helvetica, sans-serif" font-size="32" fill="#111111">
+    Cleaned the repo by removing tracked mcp-server/node_modules files.
+  </text>
+  <text x="150" y="438" font-family="Arial, Helvetica, sans-serif" font-size="26" fill="#555555">
+    This keeps GitHub safer and avoids dependency noise.
+  </text>
+
+  <circle cx="120" cy="530" r="8" fill="#111111" />
+  <text x="150" y="523" font-family="Arial, Helvetica, sans-serif" font-size="32" fill="#111111">
+    Ran MCP tests, app tests, and the production Next.js build successfully.
+  </text>
+
+  <circle cx="120" cy="635" r="8" fill="#111111" />
+  <text x="150" y="628" font-family="Arial, Helvetica, sans-serif" font-size="32" fill="#111111">
+    Deployed main to Vercel production and updated the live alias.
+  </text>
+
+  <circle cx="120" cy="740" r="8" fill="#111111" />
+  <text x="150" y="733" font-family="Arial, Helvetica, sans-serif" font-size="32" fill="#111111">
+    Smoke check passed on the homepage and the /bg/account route.
+  </text>
+</svg>

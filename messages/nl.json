@@ -297,7 +297,25 @@
     "failedLoadDashboard": "Failed to load dashboard data",
     "tryRefreshPage": "Please try refreshing the page.",
     "reviewProposalsDesc": "Review and approve client project proposals",
-    "requirements": "Requirements"
+    "requirements": "Requirements",
+    "aiSetupNav": "AI Setup",
+    "aiSetup": {
+      "title": "AI Integration Setup",
+      "description": "Connect your AI coding assistant to manage projects, templates, and requirements directly from VS Code, Cursor, or Claude Desktop.",
+      "setupSteps": "Setup Steps",
+      "livePreview": "Live Preview",
+      "step1Label": "Step 1",
+      "step1Title": "Install globally",
+      "step1Desc": "One command installs and auto-configures your editor. No environment variables needed.",
+      "step2Label": "Step 2",
+      "step2Title": "Restart your editor",
+      "step2Desc": "The MCP server is auto-detected. Open the AI chat panel to verify the connection.",
+      "step3Label": "Step 3",
+      "step3Title": "Start talking to your projects",
+      "step3Desc": "Login and use natural language to list projects, create templates, review responses, and more.",
+      "toolsAvailable": "20+ tools available",
+      "viewOnNpm": "View on npm"
+    }
   },
   "project": {
     "newProject": "Nieuw Project",
@@ -607,7 +625,27 @@
     "fillRequirements": "Fill Requirements",
     "submitForReview": "Submit for Review",
     "submittedForReview": "Project submitted for review",
-    "templateLocked": "Locked"
+    "templateLocked": "Locked",
+    "aiSetupNav": "AI Setup",
+    "aiSetup": {
+      "title": "AI Integration Setup",
+      "description": "Connect your AI assistant directly to your projects via MCP and interact with your requirements in natural language.",
+      "infoTitle": "What you can do with AI",
+      "infoDesc": "Ask your AI assistant to list your projects, check submission status, fill in requirement answers, or get a summary — all without opening the browser.",
+      "setupSteps": "Setup Steps",
+      "livePreview": "Live Preview",
+      "step1Label": "Step 1",
+      "step1Title": "Install the MCP package",
+      "step1Desc": "Install the Anforderungsportal MCP server globally via npm.",
+      "step2Label": "Step 2",
+      "step2Title": "Restart your editor",
+      "step2Desc": "Restart your editor so the MCP server is picked up. The config file is auto-created.",
+      "step3Label": "Step 3",
+      "step3Title": "Login & use",
+      "step3Desc": "Login with your portal credentials and start asking your AI about your projects.",
+      "toolsAvailable": "Available Commands",
+      "viewOnNpm": "View package on npm"
+    }
   },
   "landing": {
     "heroTitle1": "Verzamel Vereisten",
@@ -667,7 +705,9 @@
       "step3Title": "Start talking to your projects",
       "step3Desc": "Login and use natural language to list projects, create templates, review responses, and more.",
       "toolsAvailable": "20+ tools available"
-    }
+    },
+    "mcpIntegration": "AI Integration (MCP)",
+    "mcpIntegrationDesc": "Connect GitHub Copilot, Cursor, or Claude Desktop directly to your projects via our MCP server. Manage requirements from your AI assistant."
   },
   "settings": {
     "changePassword": "Change Password",

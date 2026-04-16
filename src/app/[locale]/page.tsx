@@ -13,11 +13,11 @@ import {
   BarChart3,
   Sparkles,
   CheckCircle2,
+  Terminal,
 } from 'lucide-react';
 import { WmcLogo } from '@/components/wmc-logo';
 import { LandingHeader } from '@/components/landing-header';
 import { RevealOnScroll } from '@/components/reveal-on-scroll';
-import { McpSetupSection } from '@/components/mcp-setup-section';
 
 export default async function HomePage({
   params,
@@ -72,6 +72,13 @@ export default async function HomePage({
       gradient: 'from-pink-500 to-rose-500',
       bg: 'bg-pink-500/10',
     },
+    {
+      icon: Terminal,
+      title: t('landing.mcpIntegration'),
+      description: t('landing.mcpIntegrationDesc'),
+      gradient: 'from-indigo-500 to-violet-500',
+      bg: 'bg-indigo-500/10',
+    },
   ];
 
   const stats = [
@@ -93,18 +100,20 @@ export default async function HomePage({
       <LandingHeader />
 
       <main className="flex-1">
-        {/* ══════════ LIQUID GLASS HERO ══════════ */}
+        {/* ══════════ HERO ══════════ */}
         <section className="relative min-h-[92vh] flex items-center overflow-hidden">
           {/* White base with gradient glow orbs */}
           <div className="absolute inset-0 bg-white dark:bg-background" />
+          {/* Grid pattern */}
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)_1px,transparent_1px)] bg-[size:64px_64px] dark:bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] pointer-events-none" />
+          {/* Radial fade mask for grid */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,white_70%)] dark:bg-[radial-gradient(ellipse_at_center,transparent_30%,hsl(var(--background))_70%)] pointer-events-none" />
           {/* Top-left warm glow */}
           <div className="absolute -top-32 -left-32 w-[700px] h-[700px] rounded-full bg-[#FE0404]/[0.07] blur-[120px] dark:bg-[#FE0404]/[0.04]" />
           {/* Top-right blue accent */}
           <div className="absolute -top-20 right-0 w-[500px] h-[500px] rounded-full bg-blue-400/[0.06] blur-[100px] dark:bg-blue-500/[0.03]" />
           {/* Bottom ambient */}
           <div className="absolute bottom-0 left-1/3 w-[600px] h-[400px] rounded-full bg-rose-200/[0.08] blur-[100px] dark:bg-rose-500/[0.03]" />
-          {/* Subtle dot grid */}
-          <div className="absolute inset-0 dot-grid opacity-[0.3] dark:opacity-40 pointer-events-none" />
 
           <div className="container mx-auto px-4 sm:px-6 relative z-10">
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
@@ -214,20 +223,8 @@ export default async function HomePage({
           </div>
         </section>
 
-        {/* ══════════ TRUSTED BY ══════════ */}
-        <RevealOnScroll>
-        <section className="relative border-y border-black/[0.04] dark:border-white/[0.06] bg-gradient-to-r from-slate-50/80 via-white to-slate-50/80 dark:from-muted/30 dark:via-background dark:to-muted/30">
-          <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-10">
-            <p className="text-center text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground/60 mb-6">{t('landing.trustedBy')}</p>
-            <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-14 opacity-40 dark:opacity-30">
-              {/* Placeholder company logos */}
-              {['SAP', 'Bosch', 'Siemens', 'Deutsche Telekom', 'BMW'].map((name) => (
-                <span key={name} className="text-lg sm:text-xl font-bold tracking-tight text-foreground/50 select-none">{name}</span>
-              ))}
-            </div>
-          </div>
-        </section>
-        </RevealOnScroll>
+        {/* Gradient divider */}
+        <div className="h-px bg-gradient-to-r from-transparent via-border/60 to-transparent" />
 
         {/* ══════════ STATS ══════════ */}
         <RevealOnScroll>
@@ -268,8 +265,8 @@ export default async function HomePage({
                 {t('landing.everythingYouNeedDesc')}
               </p>
             </div>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 perspective-container">
-              {features.map((feature) => (
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 perspective-container">
+              {features.slice(0, 6).map((feature) => (
                 <Card
                   key={feature.title}
                   className="stagger-enter group relative overflow-hidden liquid-glass-card card-3d spotlight-card transition-all duration-500 hover:shadow-xl"
@@ -284,6 +281,33 @@ export default async function HomePage({
                   </CardContent>
                 </Card>
               ))}
+              {/* MCP / AI Integration — full-width highlight card */}
+              {features.length > 6 && (() => {
+                const mcpFeature = features[6];
+                return (
+                  <Card className="stagger-enter group relative overflow-hidden sm:col-span-2 lg:col-span-3 liquid-glass-card card-3d spotlight-card transition-all duration-500 hover:shadow-xl border-indigo-500/10">
+                    <CardContent className="p-8 sm:p-10 relative z-10">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                        <div className={`shrink-0 inline-flex h-16 w-16 items-center justify-center rounded-2xl ${mcpFeature.bg} group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
+                          <mcpFeature.icon className="h-8 w-8 text-indigo-500" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="mb-2 font-bold text-xl tracking-tight">{mcpFeature.title}</h3>
+                          <p className="text-muted-foreground leading-relaxed max-w-2xl">{mcpFeature.description}</p>
+                        </div>
+                        <div className="hidden sm:flex items-center gap-2">
+                          {['VS Code', 'Cursor', 'Claude'].map((platform) => (
+                            <span key={platform} className="inline-flex items-center rounded-lg bg-indigo-500/[0.06] dark:bg-indigo-500/10 px-3 py-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+                              {platform}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${mcpFeature.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                    </CardContent>
+                  </Card>
+                );
+              })()}
             </div>
           </div>
         </section>
@@ -322,9 +346,6 @@ export default async function HomePage({
           </div>
         </section>
         </RevealOnScroll>
-
-        {/* ══════════ MCP SETUP SECTION ══════════ */}
-        <McpSetupSection />
 
         {/* ══════════ CTA ══════════ */}
         <RevealOnScroll delay={150}>

@@ -105,6 +105,7 @@
     "responses": "Antworten",
     "users": "Benutzer",
     "settings": "Einstellungen",
+    "aiSetupNav": "KI-Setup",
     "overview": "Übersicht",
     "totalProjects": "Gesamtprojekte",
     "activeProjects": "Aktive Projekte",
@@ -297,7 +298,24 @@
     "failedLoadDashboard": "Dashboard-Daten konnten nicht geladen werden",
     "tryRefreshPage": "Bitte versuchen Sie, die Seite zu aktualisieren.",
     "reviewProposalsDesc": "Projektvorschläge von Kunden prüfen und genehmigen",
-    "requirements": "Anforderungen"
+    "requirements": "Anforderungen",
+    "aiSetup": {
+      "title": "KI-Integration einrichten",
+      "description": "Verbinden Sie Ihren KI-Coding-Assistenten, um Projekte, Vorlagen und Anforderungen direkt aus VS Code, Cursor oder Claude Desktop zu verwalten.",
+      "setupSteps": "Einrichtungsschritte",
+      "livePreview": "Live-Vorschau",
+      "step1Label": "Schritt 1",
+      "step1Title": "Global installieren",
+      "step1Desc": "Ein Befehl installiert und konfiguriert Ihren Editor automatisch. Keine Umgebungsvariablen nötig.",
+      "step2Label": "Schritt 2",
+      "step2Title": "Editor neu starten",
+      "step2Desc": "Der MCP-Server wird automatisch erkannt. Öffnen Sie das KI-Chat-Panel, um die Verbindung zu überprüfen.",
+      "step3Label": "Schritt 3",
+      "step3Title": "Sprechen Sie mit Ihren Projekten",
+      "step3Desc": "Melden Sie sich an und nutzen Sie natürliche Sprache, um Projekte aufzulisten, Vorlagen zu erstellen, Antworten zu prüfen und mehr.",
+      "toolsAvailable": "20+ Werkzeuge verfügbar",
+      "viewOnNpm": "Auf npm ansehen"
+    }
   },
   "project": {
     "newProject": "Neues Projekt",
@@ -606,7 +624,27 @@
     "fillRequirements": "Anforderungen ausfüllen",
     "submitForReview": "Zur Prüfung einreichen",
     "submittedForReview": "Projekt zur Prüfung eingereicht",
-    "templateLocked": "Gesperrt"
+    "templateLocked": "Gesperrt",
+    "aiSetupNav": "KI-Setup",
+    "aiSetup": {
+      "title": "KI-Integration einrichten",
+      "description": "Verbinden Sie Ihren KI-Assistenten direkt mit Ihren Projekten über MCP und interagieren Sie in natürlicher Sprache mit Ihren Anforderungen.",
+      "infoTitle": "Was Sie mit KI tun können",
+      "infoDesc": "Bitten Sie Ihren KI-Assistenten, Ihre Projekte aufzulisten, den Einreichungsstatus zu prüfen, Anforderungsantworten auszufüllen oder eine Zusammenfassung zu erhalten – ganz ohne den Browser zu öffnen.",
+      "setupSteps": "Einrichtungsschritte",
+      "livePreview": "Live-Vorschau",
+      "step1Label": "Schritt 1",
+      "step1Title": "MCP-Paket installieren",
+      "step1Desc": "Installieren Sie den Anforderungsportal MCP-Server global über npm.",
+      "step2Label": "Schritt 2",
+      "step2Title": "Editor neu starten",
+      "step2Desc": "Starten Sie Ihren Editor neu, damit der MCP-Server erkannt wird. Die Konfigurationsdatei wird automatisch erstellt.",
+      "step3Label": "Schritt 3",
+      "step3Title": "Einloggen & verwenden",
+      "step3Desc": "Melden Sie sich mit Ihren Portaldaten an und fragen Sie Ihre KI nach Ihren Projekten.",
+      "toolsAvailable": "Verfügbare Befehle",
+      "viewOnNpm": "Paket auf npm anzeigen"
+    }
   },
   "settings": {
     "changePassword": "Passwort ändern",
@@ -672,6 +710,8 @@
     "stepsTitle2": "besseren Anforderungen",
     "stepsDesc": "Von der Projekterstellung bis zur Analyse – wir machen es mühelos.",
     "trustedBy": "Vertraut von führenden Unternehmen in ganz Europa",
+    "mcpIntegration": "KI-Integration (MCP)",
+    "mcpIntegrationDesc": "Verbinden Sie GitHub Copilot, Cursor oder Claude Desktop direkt mit Ihren Projekten über unseren MCP-Server. Anforderungen direkt aus Ihrem KI-Assistenten verwalten.",
     "mcp": {
       "badge": "KI-Integration",
       "title1": "Verbinden Sie Ihren",

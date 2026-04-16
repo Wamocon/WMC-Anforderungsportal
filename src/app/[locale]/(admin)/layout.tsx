@@ -22,6 +22,7 @@ import {
   Loader2,
   Archive,
   ClipboardList,
+  Terminal,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
@@ -34,6 +35,7 @@ const navItems = [
   { key: 'templates', href: '/templates', icon: FileText },
   { key: 'responses', href: '/responses', icon: MessageSquareText },
   { key: 'archive', href: '/archive', icon: Archive },
+  { key: 'aiSetupNav', href: '/ai-setup', icon: Terminal },
   { key: 'settings', href: '/settings', icon: Settings },
 ] as const;
 
