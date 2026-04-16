@@ -134,9 +134,9 @@ export default function EditProjectPage() {
           return;
         }
 
-        // Only draft/pending_review projects can be edited by PO
-        if (!['draft', 'pending_review'].includes(project.status)) {
-          setError(t('client.cannotEditActive'));
+        // Archived projects cannot be edited
+        if (project.status === 'archived') {
+          setError(t('client.cannotEditArchived'));
           setLoading(false);
           return;
         }

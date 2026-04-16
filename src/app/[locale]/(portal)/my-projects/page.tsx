@@ -885,8 +885,15 @@ export default function MyProjectsPage() {
                     </div>
 
                     <div className="shrink-0 self-start sm:self-center w-full sm:w-auto flex flex-col sm:flex-row gap-2">
-                      {/* Edit button — only for projects the user created and that are draft/pending_review */}
-                      {project.created_by === currentUserId && ['draft', 'pending_review'].includes(project.status) && (
+                      {/* View details button */}
+                      <a href={`/${locale}/my-projects/${project.id}`}>
+                        <Button variant="ghost" size="sm" className="gap-1 w-full sm:w-auto text-muted-foreground hover:text-foreground">
+                          <FileText className="h-3.5 w-3.5" />
+                          {t('common.view')}
+                        </Button>
+                      </a>
+                      {/* Edit button — only for projects the user created (not archived) */}
+                      {project.created_by === currentUserId && project.status !== 'archived' && (
                         <a href={`/${locale}/my-projects/${project.id}/edit`}>
                           <Button variant="outline" size="sm" className="gap-1 w-full sm:w-auto">
                             <Pencil className="h-3.5 w-3.5" />

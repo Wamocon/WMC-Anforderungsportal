@@ -57,7 +57,8 @@
     "unsavedChanges": "You have unsaved changes. Are you sure you want to leave?",
     "confirmAction": "Confirm Action",
     "descriptionRecommended": "A description helps reviewers understand the project scope.",
-    "selected": "selected"
+    "selected": "selected",
+    "download": "Download"
   },
   "auth": {
     "login": "Log in",
@@ -635,6 +636,19 @@
     "fillRequirements": "Fill Requirements",
     "submitForReview": "Submit for Review",
     "submittedForReview": "Project submitted for review",
+    "cannotEditArchived": "Archived projects cannot be edited.",
+    "aiExport": "AI Analysis",
+    "aiExportDesc": "Copy all form data to analyze with your AI assistant",
+    "copyForAI": "Copy for AI",
+    "copyForAITooltip": "Copies all responses as Markdown — paste into Copilot or any AI chat",
+    "copiedForAI": "Copied to clipboard — paste into your AI chat!",
+    "downloadReport": "Download Report",
+    "noResponses": "No responses yet",
+    "noResponsesDesc": "Fill the requirements form to see responses here.",
+    "noAttachments": "No attachments yet",
+    "noAttachmentsDesc": "Upload files from the edit page to see them here.",
+    "responsesCount": "{count} form responses",
+    "submittedOn": "Submitted",
     "templateLocked": "Locked",
     "aiSetupNav": "AI Setup",
     "aiSetup": {

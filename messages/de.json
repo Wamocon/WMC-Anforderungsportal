@@ -57,7 +57,8 @@
     "unsavedChanges": "Sie haben ungespeicherte Änderungen. Möchten Sie die Seite wirklich verlassen?",
     "confirmAction": "Aktion bestätigen",
     "descriptionRecommended": "Eine Beschreibung hilft Pr\u00fcfern, den Projektumfang zu verstehen.",
-    "selected": "ausgew\u00e4hlt"
+    "selected": "ausgew\u00e4hlt",
+    "download": "Herunterladen"
   },
   "auth": {
     "login": "Anmelden",
@@ -635,6 +636,19 @@
     "fillRequirements": "Anforderungen ausfüllen",
     "submitForReview": "Zur Prüfung einreichen",
     "submittedForReview": "Projekt zur Prüfung eingereicht",
+    "cannotEditArchived": "Archivierte Projekte können nicht bearbeitet werden.",
+    "aiExport": "KI-Analyse",
+    "aiExportDesc": "Alle Formulardaten kopieren und mit KI-Assistent analysieren",
+    "copyForAI": "Für KI kopieren",
+    "copyForAITooltip": "Kopiert alle Antworten als Markdown — in Copilot oder einen anderen KI-Chat einfügen",
+    "copiedForAI": "In die Zwischenablage kopiert — in Ihren KI-Chat einfügen!",
+    "downloadReport": "Bericht herunterladen",
+    "noResponses": "Noch keine Antworten",
+    "noResponsesDesc": "Füllen Sie das Anforderungsformular aus, um hier Antworten zu sehen.",
+    "noAttachments": "Noch keine Anhänge",
+    "noAttachmentsDesc": "Laden Sie Dateien über die Bearbeitungsseite hoch.",
+    "responsesCount": "{count} Formularantworten",
+    "submittedOn": "Eingereicht",
     "templateLocked": "Gesperrt",
     "aiSetupNav": "KI-Setup",
     "aiSetup": {
