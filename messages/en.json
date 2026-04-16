@@ -2,7 +2,7 @@
   "common": {
     "appName": "Anforderungsportal",
     "tagline": "by WAMOCON",
-    "requirementManager": "by WAMOCON",
+    "requirementManager": "by WAMOCON GmbH",
     "switchToLightMode": "Switch to light mode",
     "switchToDarkMode": "Switch to dark mode",
     "loading": "Loading...",
