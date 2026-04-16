@@ -25,99 +25,112 @@ const ROLE_COMMANDS: Record<string, string> = {
   super_admin: `
   ── You are SUPER ADMIN — full access ──
 
-  PROJECTS
+  ★ COMPLETE PROJECT WORKFLOW (5 steps):
+    1. create_project <name>               → Create draft (any PO or you)
+    2. submit_for_review <project_id>      → PO submits draft for review
+    3. approve_project <project_id>        → YOU: approve the project
+    4. activate_project <project_id>       → YOU: make it live for clients
+    5. invite_member <project_id> <email>  → Send magic link to client
+
+  PROJECT MANAGEMENT
     list_projects                          → See all projects
-    get_project <id>                       → Project details
-    create_project <name>                  → New project
+    get_project <id>                       → Project details + current status
     update_project <id> …                  → Edit project
-    submit_for_review <id>                 → Submit draft
-    approve_project <id>                   → Approve pending project
     reject_project <id> <reason>           → Send back to draft
-    activate_project <id>                  → Open for client fill-in
     archive_project <id>                   → Archive
+    search_projects <query>                → Search by name
 
-  TEMPLATES
-    list_templates                         → All templates
-    get_template <id>                      → Template + questions
-    create_template <name>                 → New template
-    add_section <template_id> <title>      → Add section
-    add_question <section_id> <label> …    → Add question
-
-  FORM FILLING
-    get_form_questions <project_id>        → Get all questions for form
+  FORM FILLING (after project is active)
+    get_form_questions <project_id>        → See all questions with IDs
     create_response <project_id>           → Start a new response
-    fill_form <response_id> <answers_json> → Bulk fill answers
-    submit_answer <resp> <q_id> <value>    → Fill one answer
-    submit_response <response_id>          → Mark response as submitted
-    upload_file <project_id> <question_id> <file_path> → Upload file
+    fill_form <response_id> <answers_json> → Fill all answers at once (JSON)
+    submit_answer <resp_id> <q_id> <value> → Fill one answer
+    submit_response <response_id>          → Mark as submitted
+    upload_file <project_id> <q_id> <path> → Upload a file
 
-  RESPONSES
+  RESPONSES & MEMBERS
     list_responses <project_id>            → All responses
     get_response_answers <response_id>     → Answers detail
-
-  MEMBERS & FEEDBACK
     list_project_members <project_id>      → Members + invites
-    invite_member <project_id> <email>     → Invite client
-    send_feedback <project_id> <response_id> <msg>
-
-  ANALYTICS
+    send_feedback <project_id> <resp_id> <msg>
     project_stats <project_id>             → Stats overview
-    search_projects <query>                → Search by name`,
+
+  TEMPLATES
+    list_templates / get_template / create_template
+    add_section / add_question`,
 
   staff: `
   ── You are STAFF — manage projects & templates ──
 
-  PROJECTS
-    list_projects                          → All projects in your org
-    get_project <id>                       → Project details
-    approve_project <id>                   → Approve pending project
-    reject_project <id> <reason>           → Send back to draft
-    activate_project <id>                  → Open for client fill-in
-    archive_project <id>                   → Archive
-    search_projects <query>                → Search
+  ★ YOUR ROLE IN THE WORKFLOW:
+    POs create projects and submit them. YOU approve and activate.
+    Step 3: approve_project <project_id>   → approve a pending_review project
+    Step 4: activate_project <project_id>  → make approved project live
+    Step 5: invite_member <project_id> <email> → invite clients (ONLY after active)
 
-  TEMPLATES
-    list_templates                         → All templates
-    get_template <id>                      → Template + questions
-    create_template <name>                 → New template
-    add_section / add_question …           → Build template
+  ⚠ IMPORTANT: activate_project ONLY works on 'approved' projects.
+    If status is 'pending_review' → approve first, then activate.
+    If status is 'draft' → PO must submit_for_review first.
+    Check status with: get_project <id>
 
-  FORM FILLING
-    get_form_questions <project_id>        → Get all questions for form
+  PROJECT MANAGEMENT
+    list_projects                          → All org projects (any status)
+    get_project <id>                       → Project details + current status
+    reject_project <id> <reason>           → Send back to draft with reason
+    archive_project <id>                   → Archive a project
+    search_projects <query>                → Search by name
+
+  FORM FILLING (after project is active)
+    get_form_questions <project_id>        → See all questions with IDs
     create_response <project_id>           → Start a new response
-    fill_form <response_id> <answers_json> → Bulk fill answers
-    submit_response <response_id>          → Mark response as submitted
-    upload_file <project_id> <question_id> <file_path> → Upload file
+    fill_form <response_id> <answers_json> → Fill all answers at once (JSON)
+    submit_answer <resp_id> <q_id> <value> → Fill one answer
+    submit_response <response_id>          → Mark as submitted
+    upload_file <project_id> <q_id> <path> → Upload a file
 
-  RESPONSES & FEEDBACK
+  RESPONSES & MEMBERS
     list_responses <project_id>            → All responses
     get_response_answers <response_id>     → Answers detail
-    list_project_members <project_id>      → Members + invites
-    invite_member <project_id> <email>     → Invite client
-    send_feedback …                        → Request clarification
-    project_stats <project_id>             → Stats overview`,
+    list_project_members <project_id>      → Members
+    send_feedback <project_id> <resp_id> <msg>
+    project_stats <project_id>             → Stats overview
+
+  TEMPLATES
+    list_templates / get_template / create_template / add_section / add_question`,
 
   product_owner: `
   ── You are PRODUCT OWNER — your projects ──
 
-  PROJECTS
+  ★ YOUR STEPS IN THE WORKFLOW:
+    Step 1: create_project <name>          → Create a new draft project
+    Step 2: submit_for_review <project_id> → Submit to staff for review
+    (Staff approves + activates — you cannot approve/activate yourself)
+    Step 5: invite_member <project_id> <email> → Invite clients (ONLY after staff activates)
+
+  ⚠ IMPORTANT RULES:
+    - You CANNOT approve or activate your own project (staff does this)
+    - invite_member only works after the project is 'active'
+    - submit_for_review only works on 'draft' projects you created
+    - Check project status with: get_project <id>
+
+  PROJECT MANAGEMENT
     list_projects                          → Your projects
-    get_project <id>                       → Project details
+    get_project <id>                       → Project details + current status
     create_project <name>                  → Propose new project
-    update_project <id> …                  → Edit your draft
-    submit_for_review <id>                 → Submit to staff
+    update_project <id> …                  → Edit your draft project
+    submit_for_review <id>                 → Submit draft to staff for review
 
-  MEMBERS
-    list_project_members <project_id>      → See members
-    invite_member <project_id> <email>     → Invite a client
+  INVITATIONS (only works on active projects)
+    invite_member <project_id> <email>     → Send magic link to client
+    list_project_members <project_id>      → See members and invites
 
-  FORM FILLING
-    get_form_questions <project_id>        → Get all questions for form
+  FORM FILLING (after project is active)
+    get_form_questions <project_id>        → See all questions with IDs
     create_response <project_id>           → Start a new response
-    fill_form <response_id> <answers_json> → Bulk fill answers
-    submit_answer <resp> <q_id> <value>    → Fill one answer
-    submit_response <response_id>          → Mark response as submitted
-    upload_file <project_id> <question_id> <file_path> → Upload file
+    fill_form <response_id> <answers_json> → Fill all answers at once (JSON)
+    submit_answer <resp_id> <q_id> <value> → Fill one answer
+    submit_response <response_id>          → Mark as submitted
+    upload_file <project_id> <q_id> <path> → Upload a file
 
   RESPONSES
     list_responses <project_id>            → See responses
@@ -125,8 +138,7 @@ const ROLE_COMMANDS: Record<string, string> = {
     project_stats <project_id>             → Progress overview
 
   TEMPLATES
-    list_templates                         → Browse templates
-    get_template <id>                      → See questions`,
+    list_templates / get_template          → Browse templates and questions`,
 
   client: `
   ── You are CLIENT — fill in your project form ──
@@ -333,7 +345,7 @@ server.tool(
     }).select('id, slug').single();
 
     if (error) return { content: [{ type: 'text', text: `Error: ${error.message}` }] };
-    return { content: [{ type: 'text', text: `Project created: ${JSON.stringify(data)}` }] };
+    return { content: [{ type: 'text', text: `Project created: ${JSON.stringify(data)}\n\nNext step: Run submit_for_review ${data?.id} to send it to staff for review.` }] };
   }
 );
 
@@ -360,34 +372,43 @@ server.tool(
 
 server.tool(
   'submit_for_review',
-  'Submit a draft project for staff review (PO action)',
+  'Submit YOUR draft project for staff review. PREREQUISITE: project must be in draft status and you must be the creator. After this, a staff member (Waleri) must approve then activate it before clients can be invited.',
   { project_id: z.string().describe('Project UUID') },
   async ({ project_id }) => {
     const sb = getSupabaseClient();
+    // Pre-check status for a clearer error message
+    const { data: proj } = await sb.from('projects').select('status, name').eq('id', project_id).single();
+    if (proj && proj.status !== 'draft') {
+      return { content: [{ type: 'text', text: `Cannot submit: project "${proj.name}" is currently '${proj.status}'. submit_for_review only works on 'draft' projects.\n\nStatus flow: draft → submit_for_review → pending_review → approve_project (staff) → activate_project (staff) → invite_member` }] };
+    }
     const { error } = await sb.rpc('submit_for_review', { p_project_id: project_id });
-    if (error) return { content: [{ type: 'text', text: `Error: ${error.message}` }] };
-    return { content: [{ type: 'text', text: 'Project submitted for review.' }] };
+    if (error) return { content: [{ type: 'text', text: `Error: ${error.message}\n\nMake sure you are logged in as the project creator.` }] };
+    return { content: [{ type: 'text', text: `Project submitted for review. ✓\n\nNext step: A staff member (e.g. Waleri) must now log in and run:\n  approve_project ${project_id}\n  activate_project ${project_id}\n\nThen you can run invite_member to send magic links to clients.` }] };
   }
 );
 
 server.tool(
   'approve_project',
-  'Approve a pending project (Staff/Admin action)',
+  'Approve a pending_review project (STAFF/ADMIN only). Project must be in pending_review status. After approving, run activate_project to make it live for clients.',
   { project_id: z.string().describe('Project UUID') },
   async ({ project_id }) => {
     const sb = getSupabaseClient();
+    const { data: proj } = await sb.from('projects').select('status, name').eq('id', project_id).single();
+    if (proj && proj.status !== 'pending_review') {
+      return { content: [{ type: 'text', text: `Cannot approve: project "${proj.name}" is currently '${proj.status}'.\n\nStatus flow:\n  draft → submit_for_review (PO) → pending_review → approve_project (staff) → approved → activate_project (staff) → active → invite_member` }] };
+    }
     const { error } = await sb.rpc('approve_project', { p_project_id: project_id });
-    if (error) return { content: [{ type: 'text', text: `Error: ${error.message}` }] };
-    return { content: [{ type: 'text', text: 'Project approved.' }] };
+    if (error) return { content: [{ type: 'text', text: `Error: ${error.message}\n\nOnly staff or super_admin can approve projects.` }] };
+    return { content: [{ type: 'text', text: `Project approved. ✓\n\nNext step: Run activate_project ${project_id} to make it live for clients.` }] };
   }
 );
 
 server.tool(
   'reject_project',
-  'Reject a pending project and send it back to draft (Staff/Admin action)',
+  'Reject a pending_review project and send it back to draft (STAFF/ADMIN only). Include a reason so the PO knows what to fix.',
   {
     project_id: z.string().describe('Project UUID'),
-    reason: z.string().describe('Reason for rejection'),
+    reason: z.string().describe('Reason for rejection — visible to the Product Owner'),
   },
   async ({ project_id, reason }) => {
     const sb = getSupabaseClient();
@@ -399,13 +420,22 @@ server.tool(
 
 server.tool(
   'activate_project',
-  'Activate an approved project for client form-filling (Staff/Admin action)',
+  'Activate an approved project for client form-filling (STAFF/ADMIN only). Project MUST be in approved status — run approve_project first if needed.',
   { project_id: z.string().describe('Project UUID') },
   async ({ project_id }) => {
     const sb = getSupabaseClient();
+    const { data: proj } = await sb.from('projects').select('status, name').eq('id', project_id).single();
+    if (proj && proj.status !== 'approved') {
+      const hint = proj.status === 'pending_review'
+        ? `Run approve_project ${project_id} first, then activate_project.`
+        : proj.status === 'draft'
+        ? `PO must run submit_for_review ${project_id} first, then staff approves, then activates.`
+        : `Project is '${proj.status}' — no activation needed.`;
+      return { content: [{ type: 'text', text: `Cannot activate: project "${proj.name}" is currently '${proj.status}'.\n${hint}\n\nFull flow: draft → submit_for_review (PO) → pending_review → approve_project (staff) → approved → activate_project (staff) → active` }] };
+    }
     const { error } = await sb.rpc('activate_project', { p_project_id: project_id });
-    if (error) return { content: [{ type: 'text', text: `Error: ${error.message}` }] };
-    return { content: [{ type: 'text', text: 'Project activated — clients can now fill the form.' }] };
+    if (error) return { content: [{ type: 'text', text: `Error: ${error.message}\n\nOnly staff or super_admin can activate projects.` }] };
+    return { content: [{ type: 'text', text: `Project activated — clients can now fill the form. ✓\n\nNext step: Run invite_member ${project_id} <email> to send magic links to clients.` }] };
   }
 );
 
@@ -618,7 +648,7 @@ server.tool(
 
 server.tool(
   'invite_member',
-  'Invite a client to a project by email',
+  'Invite a client to a project by sending a magic link email. PREREQUISITE: project must be in active status. The magic link gives the client access to fill the form.',
   {
     project_id: z.string().describe('Project UUID'),
     email: z.string().email().describe('Client email address'),
@@ -626,6 +656,12 @@ server.tool(
   },
   async ({ project_id, email, role }) => {
     const sb = getSupabaseClient();
+    // Validate project is active before inserting magic link
+    const { data: proj } = await sb.from('projects').select('status, name').eq('id', project_id).single();
+    if (!proj) return { content: [{ type: 'text', text: `Error: Project not found: ${project_id}` }] };
+    if (proj.status !== 'active') {
+      return { content: [{ type: 'text', text: `Cannot invite: project "${proj.name}" is '${proj.status}', not 'active'.\n\nInvitations only work on active projects.\nFull flow: draft → submit_for_review (PO) → approve_project (staff) → activate_project (staff) → active → invite_member` }] };
+    }
     const { error } = await sb.from('magic_links').insert({
       project_id,
       email: email.toLowerCase(),
@@ -635,7 +671,7 @@ server.tool(
       expires_at: new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString(),
     });
     if (error) return { content: [{ type: 'text', text: `Error: ${error.message}` }] };
-    return { content: [{ type: 'text', text: `Invitation sent to ${email}` }] };
+    return { content: [{ type: 'text', text: `Invitation sent to ${email} for project "${proj.name}". ✓\n\nThe client will receive a magic link valid for 7 days to fill the requirement form.` }] };
   }
 );
 
