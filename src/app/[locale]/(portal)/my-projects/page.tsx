@@ -402,6 +402,13 @@ export default function MyProjectsPage() {
         return;
       }
 
+      // Immediately add PO as a project member so they can view their own attachments
+      await supabase.from('project_members').insert({
+        project_id: newProject.id,
+        user_id: user.id,
+        role: 'product_owner',
+      });
+
       // Upload attachments to the newly created project
       let uploadCount = 0;
       for (const file of proposeFiles) {

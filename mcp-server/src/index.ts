@@ -345,6 +345,16 @@ server.tool(
     }).select('id, slug').single();
 
     if (error) return { content: [{ type: 'text', text: `Error: ${error.message}` }] };
+
+    // Immediately add the PO as a project member so they can see their own project/attachments
+    if (data?.id && createdBy) {
+      await sb.from('project_members').insert({
+        project_id: data.id,
+        user_id: createdBy,
+        role: 'product_owner',
+      });
+    }
+
     return { content: [{ type: 'text', text: `Project created: ${JSON.stringify(data)}\n\nNext step: Run submit_for_review ${data?.id} to send it to staff for review.` }] };
   }
 );
