@@ -151,12 +151,6 @@ export default async function HomePage({
                       </span>
                     </Button>
                   </Link>
-                  <Link href="/login">
-                    <Button variant="outline" size="lg" className="liquid-glass-btn gap-2 h-14 px-10 text-base font-semibold rounded-2xl border-black/[0.08] dark:border-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-xl text-foreground hover:bg-white/60 dark:hover:bg-white/10 transition-all duration-300 shadow-sm">
-                      <Bot className="h-5 w-5 text-[#FE0404]" />
-                      {t('landing.tryAiInterview')}
-                    </Button>
-                  </Link>
                 </div>
 
                 {/* Trust indicators */}

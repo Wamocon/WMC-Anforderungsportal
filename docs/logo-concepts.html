@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WAMOCON GmbH – Logo Concepts 2026</title>
+<style>
+  :root {
+    --red: #FE0404;
+    --red-dark: #C80000;
+    --red-light: #FF4444;
+    --black: #0A0A0A;
+    --white: #FFFFFF;
+    --gray: #6B7280;
+    --light: #F9FAFB;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    background: #F1F5F9;
+    color: var(--black);
+    padding: 48px 24px;
+  }
+  h1 {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gray);
+    margin-bottom: 8px;
+  }
+  .page-title {
+    text-align: center;
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 4px;
+  }
+  .page-sub {
+    text-align: center;
+    color: var(--gray);
+    font-size: 15px;
+    margin-bottom: 56px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 28px;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+  .card {
+    background: white;
+    border-radius: 20px;
+    padding: 40px 36px 28px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.04);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .card.dark-bg { background: var(--black); }
+  .card.red-bg { background: var(--red); }
+  .card.gradient-bg { background: linear-gradient(135deg, #0A0A0A 0%, #1A1A2E 100%); }
+  .logo-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 120px;
+    padding: 16px 0;
+  }
+  .concept-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gray);
+  }
+  .card.dark-bg .concept-label,
+  .card.red-bg .concept-label,
+  .card.gradient-bg .concept-label { color: rgba(255,255,255,0.4); }
+  .concept-name {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-top: 2px;
+  }
+  .card.dark-bg .concept-name,
+  .card.red-bg .concept-name,
+  .card.gradient-bg .concept-name { color: white; }
+  .concept-desc {
+    font-size: 13px;
+    color: var(--gray);
+    line-height: 1.5;
+    border-top: 1px solid #F1F5F9;
+    padding-top: 14px;
+    margin-top: 4px;
+  }
+  .card.dark-bg .concept-desc,
+  .card.gradient-bg .concept-desc { color: rgba(255,255,255,0.45); border-color: rgba(255,255,255,0.08); }
+  .card.red-bg .concept-desc { color: rgba(255,255,255,0.65); border-color: rgba(255,255,255,0.2); }
+  svg text { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; }
+  .variants-row {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 8px 0 0;
+    border-top: 1px solid #F1F5F9;
+    margin-top: 4px;
+  }
+  .card.dark-bg .variants-row { border-color: rgba(255,255,255,0.08); }
+  .card.red-bg .variants-row { border-color: rgba(255,255,255,0.2); }
+  .variant-pill {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    padding: 4px 10px;
+    border-radius: 99px;
+    background: #F1F5F9;
+    color: var(--gray);
+  }
+  .card.dark-bg .variant-pill,
+  .card.gradient-bg .variant-pill { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); }
+  .card.red-bg .variant-pill { background: rgba(255,255,255,0.2); color: white; }
+</style>
+</head>
+<body>
+
+<h1>Brand Identity</h1>
+<p class="page-title">WAMOCON GmbH</p>
+<p class="page-sub">Logo Concepts · April 2026 · Anforderungsportal</p>
+
+<div class="grid">
+
+  <!-- ─────────────────────────────────────────
+  CONCEPT 1: The Requirement Node
+  Mark = interconnected diamond nodes (requirements graph)
+  Wordmark = geometric sans, W = nodes
+  ──────────────────────────────────────────── -->
+  <div class="card">
+    <div>
+      <div class="concept-label">Concept 01</div>
+      <div class="concept-name">The Requirement Node</div>
+    </div>
+    <div class="logo-area">
+      <svg width="280" height="80" viewBox="0 0 280 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Mark: connected diamond structure -->
+        <circle cx="20" cy="40" r="7" fill="#FE0404"/>
+        <circle cx="44" cy="20" r="5" fill="#FE0404" opacity="0.7"/>
+        <circle cx="44" cy="60" r="5" fill="#FE0404" opacity="0.7"/>
+        <circle cx="68" cy="40" r="7" fill="#FE0404"/>
+        <line x1="27" y1="40" x2="37" y2="40" stroke="#FE0404" stroke-width="1.5" opacity="0.3"/>
+        <line x1="20" y1="33" x2="40" y2="23" stroke="#FE0404" stroke-width="1.5" opacity="0.3"/>
+        <line x1="20" y1="47" x2="40" y2="57" stroke="#FE0404" stroke-width="1.5" opacity="0.3"/>
+        <line x1="49" y1="20" x2="61" y2="35" stroke="#FE0404" stroke-width="1.5" opacity="0.3"/>
+        <line x1="49" y1="60" x2="61" y2="45" stroke="#FE0404" stroke-width="1.5" opacity="0.3"/>
+        <!-- Wordmark -->
+        <text x="88" y="47" font-size="28" font-weight="800" letter-spacing="-1" fill="#0A0A0A">WAMOCON</text>
+        <text x="90" y="64" font-size="10" font-weight="500" letter-spacing="3" fill="#6B7280">GmbH</text>
+      </svg>
+    </div>
+    <div class="concept-desc">Nodes represent requirements — interconnected, structured, and resolved. Clean minimalist mark that works at any size from favicon to billboard.</div>
+    <div class="variants-row">
+      <span class="variant-pill">Primary</span>
+      <span class="variant-pill">Enterprise</span>
+      <span class="variant-pill">German B2B</span>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────
+  CONCEPT 2: The W-Bracket
+  Mark = stylised W formed by two checkmarks / angles
+  Clean, bold, instantly recognisable
+  ──────────────────────────────────────────── -->
+  <div class="card dark-bg">
+    <div>
+      <div class="concept-label">Concept 02</div>
+      <div class="concept-name">The W-Bracket</div>
+    </div>
+    <div class="logo-area">
+      <svg width="260" height="80" viewBox="0 0 260 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- W mark made of two angular brackets / chevrons -->
+        <path d="M8 16 L22 56 L36 30 L50 56 L64 16" stroke="#FE0404" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <!-- Thin horizontal cap line -->
+        <line x1="8" y1="16" x2="64" y2="16" stroke="white" stroke-width="1.5" opacity="0.15"/>
+        <!-- Wordmark light on dark -->
+        <text x="82" y="46" font-size="26" font-weight="800" letter-spacing="-0.5" fill="white">WAMOCON</text>
+        <text x="84" y="63" font-size="9.5" font-weight="500" letter-spacing="3.5" fill="rgba(255,255,255,0.4)">GmbH</text>
+      </svg>
+    </div>
+    <div class="concept-desc">Bold W-mark doubles as the brand's structural metaphor: gathering inputs from multiple sources into one coherent output. Powerful on dark backgrounds.</div>
+    <div class="variants-row">
+      <span class="variant-pill">Dark Mode</span>
+      <span class="variant-pill">Premium</span>
+      <span class="variant-pill">Versatile</span>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────
+  CONCEPT 3: The Red Pulse
+  Mark = layered concentric arcs (like a signal / heartbeat)
+  Signals: AI is always listening and processing
+  ──────────────────────────────────────────── -->
+  <div class="card">
+    <div>
+      <div class="concept-label">Concept 03</div>
+      <div class="concept-name">The Red Pulse</div>
+    </div>
+    <div class="logo-area">
+      <svg width="260" height="80" viewBox="0 0 260 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Concentric arcs expanding rightward -->
+        <circle cx="40" cy="40" r="8" fill="#FE0404"/>
+        <path d="M40 18 A22 22 0 0 1 62 40 A22 22 0 0 1 40 62" stroke="#FE0404" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.55"/>
+        <path d="M40 10 A30 30 0 0 1 70 40 A30 30 0 0 1 40 70" stroke="#FE0404" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.25"/>
+        <!-- Wordmark -->
+        <text x="84" y="46" font-size="26" font-weight="800" letter-spacing="-0.5" fill="#0A0A0A">WAMOCON</text>
+        <text x="86" y="63" font-size="9.5" font-weight="500" letter-spacing="3.5" fill="#9CA3AF">GmbH</text>
+      </svg>
+    </div>
+    <div class="concept-desc">The pulse mark conveys real-time AI activity and voice input — central to the product. Half-circle arcs give a sense of active scanning and live intelligence.</div>
+    <div class="variants-row">
+      <span class="variant-pill">SaaS</span>
+      <span class="variant-pill">AI-First</span>
+      <span class="variant-pill">Modern</span>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────
+  CONCEPT 4: The Hexagon Stack
+  Mark = stacked hexagons (structured data layers)
+  Conveys: systematic, structured, layered requirements
+  ──────────────────────────────────────────── -->
+  <div class="card red-bg">
+    <div>
+      <div class="concept-label">Concept 04</div>
+      <div class="concept-name">The Hexagon Stack</div>
+    </div>
+    <div class="logo-area">
+      <svg width="260" height="80" viewBox="0 0 260 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Three offset hexagons stacked -->
+        <polygon points="32,6 52,17 52,39 32,50 12,39 12,17" fill="white" opacity="0.9"/>
+        <polygon points="42,16 62,27 62,49 42,60 22,49 22,27" fill="white" opacity="0.55"/>
+        <polygon points="52,26 72,37 72,59 52,70 32,59 32,37" fill="white" opacity="0.25"/>
+        <!-- Wordmark on red -->
+        <text x="88" y="46" font-size="26" font-weight="800" letter-spacing="-0.5" fill="white">WAMOCON</text>
+        <text x="90" y="63" font-size="9.5" font-weight="500" letter-spacing="3.5" fill="rgba(255,255,255,0.65)">GmbH</text>
+      </svg>
+    </div>
+    <div class="concept-desc">Layered hexagons represent structured requirement tiers, phases, and collections. Works exceptionally well on the brand red for prints, swag, and marketing.</div>
+    <div class="variants-row">
+      <span class="variant-pill">Inverted</span>
+      <span class="variant-pill">Print</span>
+      <span class="variant-pill">Bold</span>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────
+  CONCEPT 5: The Collect Arrow
+  Mark = upward-opening bracket collecting into a single line
+  Inline / long-form layout
+  ──────────────────────────────────────────── -->
+  <div class="card">
+    <div>
+      <div class="concept-label">Concept 05</div>
+      <div class="concept-name">The Collect Arrow</div>
+    </div>
+    <div class="logo-area">
+      <svg width="280" height="90" viewBox="0 0 280 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Funnel-like collection shape -->
+        <path d="M10 18 L36 45 L62 18" stroke="#FE0404" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M36 45 L36 68" stroke="#FE0404" stroke-width="3.5" stroke-linecap="round"/>
+        <!-- Arrow head -->
+        <polygon points="36,76 30,62 42,62" fill="#FE0404"/>
+        <!-- Wordmark stacked -->
+        <text x="75" y="42" font-size="26" font-weight="800" letter-spacing="-0.5" fill="#0A0A0A">WAMOCON</text>
+        <text x="77" y="60" font-size="10" font-weight="400" letter-spacing="1.5" fill="#6B7280">Anforderungsportal</text>
+        <text x="77" y="75" font-size="9" font-weight="600" letter-spacing="3" fill="#9CA3AF">GmbH</text>
+      </svg>
+    </div>
+    <div class="concept-desc">The mark is a metaphor for the core product action: collecting diverse inputs and funnelling them into one clear deliverable. Great with the product sub-brand.</div>
+    <div class="variants-row">
+      <span class="variant-pill">With Tagline</span>
+      <span class="variant-pill">Product Sub-brand</span>
+      <span class="variant-pill">Horizontal</span>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────
+  CONCEPT 6: The Diamond Checkmark
+  Mark = diamond + embedded check = requirements delivered
+  Wordmark: ultra-heavy, modern
+  ──────────────────────────────────────────── -->
+  <div class="card gradient-bg">
+    <div>
+      <div class="concept-label">Concept 06</div>
+      <div class="concept-name">The Diamond Checkmark</div>
+    </div>
+    <div class="logo-area">
+      <svg width="260" height="80" viewBox="0 0 260 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Diamond outline -->
+        <path d="M40 6 L68 40 L40 74 L12 40 Z" fill="#FE0404"/>
+        <!-- Embedded check  -->
+        <path d="M26 40 L36 52 L56 28" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <!-- Wordmark -->
+        <text x="84" y="46" font-size="26" font-weight="800" letter-spacing="-0.5" fill="white">WAMOCON</text>
+        <text x="86" y="63" font-size="9.5" font-weight="500" letter-spacing="3.5" fill="rgba(255,255,255,0.4)">GmbH</text>
+      </svg>
+    </div>
+    <div class="concept-desc">Diamond = precision and value. Check = delivered requirements. The combination is immediately understood across languages and cultures. Extremely versatile mark.</div>
+    <div class="variants-row">
+      <span class="variant-pill">Iconic</span>
+      <span class="variant-pill">App Icon</span>
+      <span class="variant-pill">Cross-cultural</span>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────
+  CONCEPT 7: The Wordmark Only — Typographic
+  No mark. The W is engineered from two arrows
+  Super modern, 2026 SaaS aesthetic
+  ──────────────────────────────────────────── -->
+  <div class="card">
+    <div>
+      <div class="concept-label">Concept 07</div>
+      <div class="concept-name">Engineered Wordmark</div>
+    </div>
+    <div class="logo-area">
+      <svg width="290" height="70" viewBox="0 0 290 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Custom W glyph: two downward triangles pointing to a shared midpoint -->
+        <path d="M0 12 L13 50 L26 26 L39 50 L52 12" stroke="#FE0404" stroke-width="7" stroke-linecap="square" stroke-linejoin="miter" fill="none"/>
+        <!-- Rest of letters using text (approximation for concept) -->
+        <text x="62" y="51" font-size="38" font-weight="900" letter-spacing="-2" fill="#0A0A0A">AMOCON</text>
+        <!-- Underline accent under A -->
+        <line x1="62" y1="58" x2="96" y2="58" stroke="#FE0404" stroke-width="3"/>
+        <!-- GmbH small -->
+        <text x="65" y="68" font-size="9" font-weight="600" letter-spacing="4" fill="#9CA3AF">GmbH</text>
+      </svg>
+    </div>
+    <div class="concept-desc">The W is custom-engineered from angular strokes that echo arrow-up thinking. The red W + neutral letterforms creates a clear focal point. Pure typographic intelligence.</div>
+    <div class="variants-row">
+      <span class="variant-pill">Typographic</span>
+      <span class="variant-pill">2026 SaaS</span>
+      <span class="variant-pill">No-icon variant</span>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────
+  CONCEPT 8: The Circuit W
+  Mark = W formed by circuit-board style paths
+  Tech / AI forward positioning
+  ──────────────────────────────────────────── -->
+  <div class="card dark-bg">
+    <div>
+      <div class="concept-label">Concept 08</div>
+      <div class="concept-name">The Circuit W</div>
+    </div>
+    <div class="logo-area">
+      <svg width="270" height="80" viewBox="0 0 270 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Circuit-board W: horizontal base with vertical traces and nodes -->
+        <!-- Base line -->
+        <line x1="6" y1="62" x2="70" y2="62" stroke="#FE0404" stroke-width="2"/>
+        <!-- Five vertical traces with dots (W silhouette) -->
+        <line x1="6" y1="62" x2="6" y2="20" stroke="#FE0404" stroke-width="2"/>
+        <line x1="24" y1="62" x2="24" y2="40" stroke="#FE0404" stroke-width="2"/>
+        <line x1="38" y1="62" x2="38" y2="20" stroke="#FE0404" stroke-width="2"/>
+        <line x1="52" y1="62" x2="52" y2="40" stroke="#FE0404" stroke-width="2"/>
+        <line x1="70" y1="62" x2="70" y2="20" stroke="#FE0404" stroke-width="2"/>
+        <!-- Connection horizontals -->
+        <line x1="6" y1="20" x2="38" y2="20" stroke="#FE0404" stroke-width="2"/>
+        <line x1="38" y1="20" x2="70" y2="20" stroke="#FE0404" stroke-width="2"/>
+        <line x1="24" y1="40" x2="52" y2="40" stroke="#FE0404" stroke-width="2"/>
+        <!-- Circuit nodes -->
+        <circle cx="6" cy="20" r="3.5" fill="#FE0404"/>
+        <circle cx="38" cy="20" r="3.5" fill="#FE0404"/>
+        <circle cx="70" cy="20" r="3.5" fill="#FE0404"/>
+        <circle cx="24" cy="40" r="3" fill="white" stroke="#FE0404" stroke-width="2"/>
+        <circle cx="52" cy="40" r="3" fill="white" stroke="#FE0404" stroke-width="2"/>
+        <!-- Wordmark -->
+        <text x="86" y="46" font-size="24" font-weight="800" letter-spacing="-0.5" fill="white">WAMOCON</text>
+        <text x="88" y="63" font-size="9" font-weight="500" letter-spacing="3.5" fill="rgba(255,255,255,0.35)">GmbH</text>
+      </svg>
+    </div>
+    <div class="concept-desc">PCB-inspired W signals deep technical precision and AI infrastructure. Nodes represent connection points between clients, consultants, and requirements data.</div>
+    <div class="variants-row">
+      <span class="variant-pill">Tech / AI</span>
+      <span class="variant-pill">B2B Enterprise</span>
+      <span class="variant-pill">Developer-facing</span>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────
+  CONCEPT 9: The Micro W — Icon-only / App Icon
+  Works as standalone favicon, app icon, avatar
+  Shown in multiple scale contexts
+  ──────────────────────────────────────────── -->
+  <div class="card" style="grid-column: span 1;">
+    <div>
+      <div class="concept-label">Concept 09</div>
+      <div class="concept-name">Micro W — App Icon System</div>
+    </div>
+    <div class="logo-area" style="gap: 20px; flex-wrap: wrap;">
+      <!-- 80px version -->
+      <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="80" height="80" rx="20" fill="#FE0404"/>
+        <path d="M14 22 L28 56 L40 34 L52 56 L66 22" stroke="white" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <!-- 48px version -->
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="48" height="48" rx="12" fill="#FE0404"/>
+        <path d="M8 13 L17 33 L24 20 L31 33 L40 13" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <!-- 32px version -->
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="32" height="32" rx="8" fill="#FE0404"/>
+        <path d="M5 9 L11 22 L16 13 L21 22 L27 9" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <!-- 20px version -->
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="20" height="20" rx="5" fill="#FE0404"/>
+        <path d="M3 6 L7 14 L10 8 L13 14 L17 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="concept-desc">The W in a rounded red square scales perfectly from 20px favicon to 512px app store icon. All corners, weights, and proportions are pixel-calibrated per size tier.</div>
+    <div class="variants-row">
+      <span class="variant-pill">Favicon</span>
+      <span class="variant-pill">App Store</span>
+      <span class="variant-pill">Browser Tab</span>
+      <span class="variant-pill">Avatar</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- Usage note -->
+<p style="text-align:center; color:#9CA3AF; font-size:13px; margin-top:48px; margin-bottom:8px;">
+  Open this file in any browser to preview. Share your preferred concept and it will be built into the app.
+</p>
+<p style="text-align:center; color:#CBD5E1; font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase;">
+  WAMOCON GmbH · Anforderungsportal · 2026
+</p>
+
+</body>
+</html>
