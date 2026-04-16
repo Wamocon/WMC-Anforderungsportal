@@ -23,6 +23,7 @@ import {
   Archive,
   ClipboardList,
   Terminal,
+  Layers,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
@@ -32,6 +33,7 @@ const navItems = [
   { key: 'dashboard', href: '/dashboard', icon: LayoutDashboard },
   { key: 'requirements', href: '/requirements', icon: ClipboardList },
   { key: 'projects', href: '/projects', icon: FolderKanban },
+  { key: 'portfolio', href: '/portfolio', icon: Layers },
   { key: 'templates', href: '/templates', icon: FileText },
   { key: 'responses', href: '/responses', icon: MessageSquareText },
   { key: 'archive', href: '/archive', icon: Archive },
