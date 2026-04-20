@@ -46,6 +46,7 @@ type ProjectData = {
   id: string; name: string; slug: string; description: string | null;
   status: string; deadline_days: number; template_id: string | null;
   onedrive_link: string | null; created_at: string; created_by: string | null;
+  welle: number | null; welle_notes: string | null;
 };
 type ResponseData = {
   id: string; respondent_name: string | null; respondent_email: string;
@@ -127,7 +128,7 @@ export default function ProjectDetailPage() {
 
         const { data: proj, error: projErr } = await supabase
           .from('projects')
-          .select('id, name, slug, description, status, deadline_days, template_id, onedrive_link, created_at, created_by')
+          .select('id, name, slug, description, status, deadline_days, template_id, onedrive_link, created_at, created_by, welle, welle_notes')
           .eq('id', projectId)
           .single();
 
@@ -283,8 +284,14 @@ export default function ProjectDetailPage() {
             <Button variant="ghost" size="icon" className="mt-0.5"><ArrowLeft className="h-4 w-4" /></Button>
           </a>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{project.name}</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{project.name}</h1>
+              {project.welle != null && (
+                <span className="inline-flex items-center rounded-md bg-primary/10 text-primary px-2 py-0.5 text-xs font-semibold">Welle {project.welle}</span>
+              )}
+            </div>
             {project.description && <p className="text-muted-foreground mt-1 text-sm line-clamp-2">{project.description}</p>}
+            {project.welle_notes && <p className="text-xs text-muted-foreground mt-1 italic">{project.welle_notes}</p>}
             <div className="flex items-center gap-3 mt-2 flex-wrap">
               <span className="text-xs text-muted-foreground">
                 {new Date(project.created_at).toLocaleDateString(locale, { day: '2-digit', month: 'short', year: 'numeric' })}

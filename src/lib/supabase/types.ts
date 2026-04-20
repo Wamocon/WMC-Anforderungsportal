@@ -42,6 +42,9 @@ export type Project = {
   onedrive_link: string | null;
   approved_at: string | null;
   approved_by: string | null;
+  /** Development wave number (1=MVP, 2=Extension, 3=Integration, 4+=Scale). Set by PO at creation. */
+  welle: number | null;
+  welle_notes: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -279,6 +282,8 @@ export type Database = {
           onedrive_link?: string | null;
           approved_at?: string | null;
           approved_by?: string | null;
+          welle?: number | null;
+          welle_notes?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -297,6 +302,8 @@ export type Database = {
           onedrive_link?: string | null;
           approved_at?: string | null;
           approved_by?: string | null;
+          welle?: number | null;
+          welle_notes?: string | null;
           created_at?: string;
           updated_at?: string;
         };

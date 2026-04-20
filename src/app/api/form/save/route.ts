@@ -31,14 +31,34 @@ export async function POST(req: NextRequest) {
 
     let currentResponseId = responseId;
 
+    // Calculate accurate progress against the ACTUAL template question count,
+    // not just the keys in the answers object (which only reflects touched questions).
+    const { data: templateSections } = await supabase
+      .from('template_sections')
+      .select('id')
+      .eq('template_id', project.template_id);
+
+    const sectionIds = (templateSections ?? []).map((s) => s.id);
+    let totalTemplateQuestions = 1;
+    if (sectionIds.length > 0) {
+      const { count } = await supabase
+        .from('template_questions')
+        .select('id', { count: 'exact', head: true })
+        .in('section_id', sectionIds);
+      if (count && count > 0) totalTemplateQuestions = count;
+    }
+
+    // Exclude internal reserved keys (e.g. __onedrive_link) from answered count
+    const answeredCount = Object.entries(answers).filter(([key, value]) => {
+      if (key.startsWith('__')) return false;
+      return value !== null && value !== '' && (!Array.isArray(value) || (value as unknown[]).length > 0);
+    }).length;
+
+    // Cap at 99% until explicitly submitted — prevents premature 100% display
+    const progress = Math.min(99, Math.round((answeredCount / totalTemplateQuestions) * 100));
+
     // Create response if it doesn't exist
     if (!currentResponseId) {
-      const totalQuestions = Object.keys(answers).length;
-      const answeredCount = Object.values(answers).filter(
-        (a) => a !== null && a !== '' && (!Array.isArray(a) || (a as unknown[]).length > 0)
-      ).length;
-      const progress = totalQuestions > 0 ? Math.round((answeredCount / totalQuestions) * 100) : 0;
-
       const { data: resp, error: respErr } = await supabase
         .from('responses')
         .insert({
@@ -58,13 +78,7 @@ export async function POST(req: NextRequest) {
       }
       currentResponseId = resp.id;
     } else {
-      // Update progress
-      const totalQuestions = Object.keys(answers).length;
-      const answeredCount = Object.values(answers).filter(
-        (a) => a !== null && a !== '' && (!Array.isArray(a) || (a as unknown[]).length > 0)
-      ).length;
-      const progress = totalQuestions > 0 ? Math.round((answeredCount / totalQuestions) * 100) : 0;
-
+      // Update progress against real template question count
       await supabase
         .from('responses')
         .update({ progress_percent: progress, status: 'in_progress' })

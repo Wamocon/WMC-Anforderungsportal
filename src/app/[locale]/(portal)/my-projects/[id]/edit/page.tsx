@@ -77,6 +77,8 @@ export default function EditProjectPage() {
     description: '',
     deadline_days: 5,
     onedrive_link: '',
+    welle: 1,
+    welle_notes: '',
   });
 
   // Existing attachments from DB
@@ -95,6 +97,8 @@ export default function EditProjectPage() {
     form.description !== initialFormRef.current.description ||
     form.deadline_days !== initialFormRef.current.deadline_days ||
     form.onedrive_link !== initialFormRef.current.onedrive_link ||
+    form.welle !== initialFormRef.current.welle ||
+    form.welle_notes !== initialFormRef.current.welle_notes ||
     pendingFiles.length > 0
   );
 
@@ -117,7 +121,7 @@ export default function EditProjectPage() {
         // Fetch project
         const { data: project, error: projErr } = await supabase
           .from('projects')
-          .select('id, name, description, status, deadline_days, created_by, onedrive_link')
+          .select('id, name, description, status, deadline_days, created_by, onedrive_link, welle, welle_notes')
           .eq('id', projectId)
           .single();
 
@@ -147,6 +151,8 @@ export default function EditProjectPage() {
           description: project.description || '',
           deadline_days: project.deadline_days,
           onedrive_link: project.onedrive_link || '',
+          welle: (project as { welle?: number | null }).welle || 1,
+          welle_notes: (project as { welle_notes?: string | null }).welle_notes || '',
         };
         setForm(initialForm);
         initialFormRef.current = initialForm;
@@ -257,6 +263,8 @@ export default function EditProjectPage() {
           description: form.description.trim() || null,
           deadline_days: Math.max(1, Math.min(90, form.deadline_days)),
           onedrive_link: form.onedrive_link.trim() || null,
+          welle: form.welle || null,
+          welle_notes: form.welle_notes.trim() || null,
         })
         .eq('id', projectId);
 
@@ -315,7 +323,7 @@ export default function EditProjectPage() {
 
       setSaveSuccess(true);
       // Reset dirty tracking to current saved state
-      initialFormRef.current = { ...form, name: form.name.trim(), description: form.description.trim(), onedrive_link: form.onedrive_link.trim() };
+      initialFormRef.current = { ...form, name: form.name.trim(), description: form.description.trim(), onedrive_link: form.onedrive_link.trim(), welle_notes: form.welle_notes.trim() };
       toast.success(t('client.projectUpdated'));
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch {
@@ -443,6 +451,40 @@ export default function EditProjectPage() {
               <p className="text-xs text-muted-foreground">
                 {t('form.projectLinkDescription')}
               </p>
+            </div>
+
+            {/* Welle (Sprint) */}
+            <div className="space-y-2">
+              <Label htmlFor="welle">Welle (Sprint)</Label>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1 rounded-lg border border-border overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => setForm(prev => ({ ...prev, welle: Math.max(1, prev.welle - 1) }))}
+                    className="px-3 py-1.5 text-sm font-bold text-muted-foreground hover:bg-muted/50 transition-colors"
+                    disabled={form.welle <= 1}
+                  >
+                    −
+                  </button>
+                  <span className="px-3 py-1.5 text-sm font-semibold tabular-nums min-w-[70px] text-center">
+                    Welle {form.welle}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setForm(prev => ({ ...prev, welle: prev.welle + 1 }))}
+                    className="px-3 py-1.5 text-sm font-bold text-muted-foreground hover:bg-muted/50 transition-colors"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+              <Input
+                id="welle_notes"
+                value={form.welle_notes}
+                onChange={(e) => setForm((prev) => ({ ...prev, welle_notes: e.target.value }))}
+                placeholder="Optionale Notizen zu dieser Welle"
+                className="text-sm"
+              />
             </div>
           </CardContent>
         </Card>

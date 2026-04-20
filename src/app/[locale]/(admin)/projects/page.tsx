@@ -43,6 +43,7 @@ type ProjectRow = {
   status: string;
   requirement_type: string[];
   onedrive_link: string | null;
+  welle: number | null;
   created_at: string;
   updated_at: string;
 };
@@ -576,6 +577,11 @@ export default function ProjectsPage() {
                             {Array.isArray(project.requirement_type) && project.requirement_type.includes('mobile_application') && (
                               <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 text-[10px] px-1.5 py-0 shrink-0">
                                 Mobile
+                              </Badge>
+                            )}
+                            {project.welle != null && (
+                              <Badge variant="secondary" className="bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400 text-[10px] px-1.5 py-0 shrink-0">
+                                W{project.welle}
                               </Badge>
                             )}
                           </div>

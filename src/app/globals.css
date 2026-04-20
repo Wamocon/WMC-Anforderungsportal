@@ -124,6 +124,10 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Prevent GPU compositing from degrading font rasterisation */
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   html {
     font-size: 16px;
@@ -322,7 +326,11 @@
   border-radius: 50%;
   filter: blur(80px);
   opacity: 0.5;
-  will-change: transform;
+  /* will-change: transform removed — it promotes blurred decorative elements to their own
+     GPU compositing layer which causes adjacent/parent text to rasterize as bitmaps,
+     producing the "text pixelates after a few seconds" rendering artefact. */
+  transform: translateZ(0);
+  contain: strict;
 }
 .mesh-orb-1 {
   animation: orb-float-1 12s ease-in-out infinite;
@@ -348,15 +356,17 @@
 .card-3d {
   transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1),
               box-shadow 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-  transform-style: preserve-3d;
-  will-change: transform;
+  /* transform-style: preserve-3d removed — 3D stacking context causes the browser to
+     rasterize text on the GPU which aliases/pixelates after a few seconds.
+     will-change: transform removed for same reason. 2D transforms are used on hover. */
   box-shadow: 0 1px 4px -1px oklch(0 0 0 / 8%), 0 2px 8px -2px oklch(0 0 0 / 5%);
 }
 :is(.dark) .card-3d {
   box-shadow: 0 1px 4px -1px oklch(0 0 0 / 35%), 0 2px 8px -2px oklch(0 0 0 / 25%);
 }
 .card-3d:hover {
-  transform: translateY(-6px) rotateX(2deg) rotateY(-1deg);
+  /* Simplified to 2D-only lift — rotateX/Y caused sub-pixel font rendering issues */
+  transform: translateY(-6px);
   box-shadow:
     0 25px 50px -12px rgba(0, 0, 0, 0.08),
     0 12px 24px -8px rgba(0, 0, 0, 0.04);
@@ -458,13 +468,18 @@
 /* --- Enhanced Glassmorphism (v2) --- */
 .glass-v2 {
   background: oklch(1 0 0 / 60%);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  /* Reduced saturate from 180% → 130%: very high saturation values can cause
+     color-channel aliasing artefacts on text rendered over the blurred layer */
+  backdrop-filter: blur(20px) saturate(130%);
+  -webkit-backdrop-filter: blur(20px) saturate(130%);
   border: 1px solid oklch(0 0 0 / 6%);
+  /* isolate keeps GPU compositing effects from bleeding into sibling text layers */
+  isolation: isolate;
 }
 :is(.dark) .glass-v2 {
   background: oklch(0.15 0 0 / 65%);
   border: 1px solid oklch(1 0 0 / 8%);
+  isolation: isolate;
 }
 
 /* --- Smooth Page View Transition --- */

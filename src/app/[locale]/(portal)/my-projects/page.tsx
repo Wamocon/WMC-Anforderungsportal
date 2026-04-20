@@ -63,6 +63,8 @@ type ClientProject = {
   created_at: string;
   created_by: string | null;
   onedrive_link: string | null;
+  welle: number | null;
+  welle_notes: string | null;
   response_status: string | null;
   response_progress: number | null;
   response_id: string | null;
@@ -108,7 +110,7 @@ export default function MyProjectsPage() {
 
   // Propose project dialog state
   const [proposeOpen, setProposeOpen] = useState(false);
-  const [proposeForm, setProposeForm] = useState({ name: '', description: '', onedriveLink: '', requirementTypes: ['web_application'] as RequirementType[] });
+  const [proposeForm, setProposeForm] = useState({ name: '', description: '', onedriveLink: '', requirementTypes: ['web_application'] as RequirementType[], welle: 1 as number, welleNotes: '' });
   const [proposing, setProposing] = useState(false);
   const [proposeFiles, setProposeFiles] = useState<File[]>([]);
   const proposeFileRef = useRef<HTMLInputElement>(null);
@@ -165,14 +167,14 @@ export default function MyProjectsPage() {
       // Fetch project details (active + pending_review + approved from memberships)
       const { data: projectData } = await supabase
         .from('projects')
-        .select('id, name, slug, description, status, deadline_days, created_at, created_by, onedrive_link')
+        .select('id, name, slug, description, status, deadline_days, created_at, created_by, onedrive_link, welle, welle_notes')
         .in('id', Array.from(projectIds))
         .in('status', ['active', 'pending_review', 'approved', 'draft']);
 
       // Also fetch draft/pending_review/approved projects created by this user (may not have membership yet)
       const { data: ownPending } = await supabase
         .from('projects')
-        .select('id, name, slug, description, status, deadline_days, created_at, created_by, onedrive_link')
+        .select('id, name, slug, description, status, deadline_days, created_at, created_by, onedrive_link, welle, welle_notes')
         .eq('created_by', user.id)
         .in('status', ['draft', 'pending_review', 'approved']);
 
@@ -189,6 +191,8 @@ export default function MyProjectsPage() {
           response_status: resp?.status ?? null,
           response_progress: resp?.progress_percent ?? null,
           response_id: resp?.id ?? null,
+          welle: (p as { welle?: number | null }).welle ?? null,
+          welle_notes: (p as { welle_notes?: string | null }).welle_notes ?? null,
         };
       });
 
@@ -394,6 +398,8 @@ export default function MyProjectsPage() {
         onedrive_link: link || null,
         deadline_days: 5,
         template_id: defaultTemplate?.id ?? null,
+        welle: proposeForm.welle || null,
+        welle_notes: proposeForm.welleNotes.trim() || null,
       }).select('id').single();
 
       if (error || !newProject) {
@@ -435,7 +441,7 @@ export default function MyProjectsPage() {
 
       toast.success(t('client.proposeSuccess'));
       setProposeOpen(false);
-      setProposeForm({ name: '', description: '', onedriveLink: '', requirementTypes: ['web_application'] as RequirementType[] });
+      setProposeForm({ name: '', description: '', onedriveLink: '', requirementTypes: ['web_application'] as RequirementType[], welle: 1, welleNotes: '' });
       setProposeFiles([]);
       setLoading(true);
       setReloadKey(k => k + 1);
@@ -571,6 +577,46 @@ export default function MyProjectsPage() {
                     );
                   })}
                 </div>
+              </div>
+
+              {/* Welle (Sprint/Wave) */}
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1.5 font-semibold">
+                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-primary text-primary-foreground text-[10px] font-bold">W</span>
+                  Welle (Sprint) *
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  In welcher Welle (Sprint/Woche) wird dieses Projekt eingereicht? Jede Welle ist ein wöchentlicher Zyklus.
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1.5 rounded-lg border-2 border-border bg-background overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => setProposeForm(prev => ({ ...prev, welle: Math.max(1, prev.welle - 1) }))}
+                      className="px-3 py-2 text-lg font-bold text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors"
+                      disabled={proposeForm.welle <= 1}
+                    >
+                      −
+                    </button>
+                    <span className="px-4 py-2 text-base font-bold text-center min-w-[80px] tabular-nums">
+                      Welle {proposeForm.welle}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setProposeForm(prev => ({ ...prev, welle: prev.welle + 1 }))}
+                      className="px-3 py-2 text-lg font-bold text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors"
+                    >
+                      +
+                    </button>
+                  </div>
+                  <span className="text-xs text-muted-foreground">= Sprint {proposeForm.welle}</span>
+                </div>
+                <Input
+                  placeholder="Optionale Notizen zu dieser Welle (z.B. Fokus, Ziele, Deadline)"
+                  value={proposeForm.welleNotes}
+                  onChange={(e) => setProposeForm(prev => ({ ...prev, welleNotes: e.target.value }))}
+                  className="text-sm"
+                />
               </div>
 
               {/* OneDrive / SharePoint Link */}
@@ -818,7 +864,14 @@ export default function MyProjectsPage() {
                         <FolderKanban className={`h-5 w-5 sm:h-6 sm:w-6 ${isPendingReview ? 'text-amber-600' : isDraft ? 'text-blue-600' : isApproved ? 'text-green-600' : 'text-[#FE0404]'}`} />
                       </div>
                       <div className="min-w-0">
-                        <h3 className="text-base sm:text-lg font-semibold truncate">{project.name}</h3>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="text-base sm:text-lg font-semibold truncate">{project.name}</h3>
+                          {project.welle != null && (
+                            <Badge variant="outline" className="shrink-0 text-[10px] border-primary/40 text-primary bg-primary/5 font-semibold">
+                              W{project.welle}
+                            </Badge>
+                          )}
+                        </div>
                         {project.description && (
                           <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
                             {project.description}
