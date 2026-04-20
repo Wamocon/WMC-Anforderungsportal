@@ -76,17 +76,18 @@ export default async function ReviewPage({
   // Get project
   const { data: project } = await supabase
     .from('projects')
-    .select('id, name, status, template_id')
+    .select('id, name, status, template_id, created_by')
     .eq('slug', projectSlug)
     .single();
 
-  if (!project || project.status !== 'active' || !project.template_id) {
+  // Allow active projects for clients, or any status for owner/staff
+  const { data: { user } } = await supabase.auth.getUser();
+  const isOwner = project?.created_by === user?.id;
+  const isStaff = user?.app_metadata?.role === 'staff' || user?.app_metadata?.role === 'super_admin';
+
+  if (!project || (!(isOwner || isStaff) && project.status !== 'active') || !project.template_id) {
     notFound();
   }
-
-  // Find the latest in_progress response for this project
-  // Try authenticated user first, then fallback to latest
-  const { data: { user } } = await supabase.auth.getUser();
 
   let response;
   if (user) {
@@ -121,9 +122,11 @@ export default async function ReviewPage({
     redirect(`/${locale}/form/${projectSlug}/fill`);
   }
 
-  // If already submitted, redirect to done
+  // If already submitted, redirect to done (unless owner/staff who can re-edit)
   if (response.status === 'submitted' || response.status === 'reviewed') {
-    redirect(`/${locale}/form/${projectSlug}/done`);
+    if (!(isOwner || isStaff)) {
+      redirect(`/${locale}/form/${projectSlug}/done`);
+    }
   }
 
   // Get template sections and questions

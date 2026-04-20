@@ -1,0 +1,31 @@
+-- Migration 030: Fix Welle concept + add 3 missing template sections
+-- Applied via MCP on 2026-04-20
+--
+-- Changes:
+-- 1. Welle constraint: removed max-10 limit, now just CHECK (welle >= 1)
+--    Welle = weekly sprint number (1,2,3... sequential)
+-- 2. Added 3 new sections from ARIA document analysis:
+--    - c0...012: Problemdefinition & Kontext (4 questions, 2 required)
+--    - c0...013: Lösungsbeschreibung (3 questions, 2 required)
+--    - c0...014: Bewusste Ausschlüsse & Risiken (3 questions, 2 required)
+-- 3. Reordered all 14 sections into logical flow
+--
+-- Final template: 14 sections, 60 questions total
+-- Section order:
+--  0: Projektübersicht (8q, 5 required)
+--  1: Problemdefinition & Kontext (4q, 2 required)
+--  2: Lösungsbeschreibung (3q, 2 required)
+--  3: Bewusste Ausschlüsse & Risiken (3q, 2 required)
+--  4: Funktionale Anforderungen (7q, 3 required)
+--  5: Design & UX (4q, 0 required)
+--  6: Technische Anforderungen (5q, 3 required)
+--  7: Zeitplan & Budget (5q, 1 required)
+--  8: Markt- & Wettbewerbsanalyse (4q, 1 required)
+--  9: Business Case & Potenzial (4q, 1 required)
+-- 10: Rollen- & Berechtigungskonzept (3q, 1 required)
+-- 11: Datenschutz & Compliance (3q, 0 required)
+-- 12: Quellen & Referenzen (3q, 0 required)
+-- 13: Zusätzliche Informationen (4q, 1 required)
+
+-- See MCP migration log for full SQL
+SELECT 'Applied via Supabase MCP - see conversation log for full DDL' AS note;

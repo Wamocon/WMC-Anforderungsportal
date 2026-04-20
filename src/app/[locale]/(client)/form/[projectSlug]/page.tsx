@@ -64,8 +64,12 @@ export default async function FormWelcomePage({
 
     if (existingResponse) {
       if (existingResponse.status === 'submitted' || existingResponse.status === 'reviewed') {
-        // Already submitted — go to done page
-        redirect(`/${locale}/form/${projectSlug}/done`);
+        // For owners/staff, go to fill (they can edit); others go to done page
+        if (isOwner || isStaff) {
+          redirect(`/${locale}/form/${projectSlug}/fill`);
+        } else {
+          redirect(`/${locale}/form/${projectSlug}/done`);
+        }
       }
       if (existingResponse.status === 'in_progress' || existingResponse.status === 'draft') {
         // Has in-progress work — skip welcome, go directly to fill

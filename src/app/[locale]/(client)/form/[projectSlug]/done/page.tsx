@@ -4,20 +4,34 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { WmcLogo } from '@/components/wmc-logo';
 import { Link } from '@/i18n/navigation';
-import { CheckCircle2, Home, FolderKanban } from 'lucide-react';
+import { CheckCircle2, Home, FolderKanban, Pencil } from 'lucide-react';
+import { createClient } from '@/lib/supabase/server';
 
 export default async function DonePage({
   params,
 }: {
-  params: Promise<{ locale: string }>;
+  params: Promise<{ locale: string; projectSlug: string }>;
 }) {
-  const { locale } = await params;
+  const { locale, projectSlug } = await params;
   setRequestLocale(locale);
 
-  return <DoneContent />;
+  // Check if user is owner/staff to show edit option
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data: project } = await supabase
+    .from('projects')
+    .select('created_by')
+    .eq('slug', projectSlug)
+    .single();
+
+  const isOwner = project?.created_by === user?.id;
+  const isStaff = user?.app_metadata?.role === 'staff' || user?.app_metadata?.role === 'super_admin';
+  const canEdit = isOwner || isStaff;
+
+  return <DoneContent projectSlug={projectSlug} canEdit={canEdit} />;
 }
 
-function DoneContent() {
+function DoneContent({ projectSlug, canEdit }: { projectSlug: string; canEdit: boolean }) {
   const t = useTranslations();
 
   return (
@@ -37,6 +51,14 @@ function DoneContent() {
           </p>
 
           <div className="mt-6 flex flex-col gap-3">
+            {canEdit && (
+              <Link href={`/form/${projectSlug}/fill`}>
+                <Button variant="outline" className="w-full gap-2 border-[#FE0404]/30 text-[#FE0404] hover:bg-[#FE0404]/5">
+                  <Pencil className="h-4 w-4" />
+                  {t('client.editRequirements')}
+                </Button>
+              </Link>
+            )}
             <Link href="/my-projects">
               <Button className="w-full gap-2 bg-gradient-to-r from-[#FE0404] to-[#D00303] hover:from-[#E00303] hover:to-[#BB0000] text-white">
                 <FolderKanban className="h-4 w-4" />

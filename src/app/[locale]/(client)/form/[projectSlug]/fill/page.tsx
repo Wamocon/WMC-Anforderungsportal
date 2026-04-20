@@ -112,8 +112,12 @@ export default async function FormFillPage({
   let existingAnswers: Record<string, Json> = {};
 
   if (user) {
-    // Find the user's latest non-submitted response for this project
+    // Find the user's latest response for this project.
+    // For owners/staff, also include submitted responses so they can edit.
     let existingResponse = null;
+    const allowedStatuses = (isOwner || isStaff)
+      ? ['draft', 'in_progress', 'submitted', 'reviewed'] as const
+      : ['draft', 'in_progress'] as const;
 
     // Try by respondent_id first
     const { data: byId } = await supabase
@@ -121,7 +125,7 @@ export default async function FormFillPage({
       .select('id')
       .eq('project_id', project.id)
       .eq('respondent_id', user.id)
-      .in('status', ['draft', 'in_progress'])
+      .in('status', allowedStatuses)
       .order('created_at', { ascending: false })
       .limit(1)
       .single();
@@ -135,7 +139,7 @@ export default async function FormFillPage({
         .select('id')
         .eq('project_id', project.id)
         .eq('respondent_email', user.email)
-        .in('status', ['draft', 'in_progress'])
+        .in('status', allowedStatuses)
         .order('created_at', { ascending: false })
         .limit(1)
         .single();

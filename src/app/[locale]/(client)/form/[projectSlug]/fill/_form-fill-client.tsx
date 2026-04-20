@@ -1032,12 +1032,17 @@ export function FormFillClient({
                                     selected ? 'border-[#FE0404]/30 bg-[#FE0404]/5' : 'hover:bg-accent/50'
                                   }`}
                                 >
-                                  <Checkbox
-                                    checked={selected}
-                                    onCheckedChange={() => toggleMultiSelect(question.id, option.value)}
-                                    onClick={(e) => e.stopPropagation()}
-                                  />
-                                  <Label className="cursor-pointer flex-1">{option.label}</Label>
+                                  {/* Wrapper span catches the PointerEvent that Base UI's
+                                      Checkbox dispatches on its hidden <input> (bubbles:true).
+                                      Without it, that second event reaches the div's onClick
+                                      causing a double-toggle that cancels the selection. */}
+                                  <span className="flex shrink-0" onClick={(e) => e.stopPropagation()}>
+                                    <Checkbox
+                                      checked={selected}
+                                      onCheckedChange={() => toggleMultiSelect(question.id, option.value)}
+                                    />
+                                  </span>
+                                  <span className="cursor-pointer flex-1 text-sm">{option.label}</span>
                                 </div>
                               );
                             })}

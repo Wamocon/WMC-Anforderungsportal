@@ -25,6 +25,7 @@ import {
   Download,
   Trash2,
   CheckCircle,
+  Send,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
@@ -71,6 +72,9 @@ export default function EditProjectPage() {
   const [error, setError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
+  const [projectStatus, setProjectStatus] = useState<string>('');
+  const [projectSlug, setProjectSlug] = useState<string>('');
+  const [submittingForReview, setSubmittingForReview] = useState(false);
 
   const [form, setForm] = useState({
     name: '',
@@ -121,7 +125,7 @@ export default function EditProjectPage() {
         // Fetch project
         const { data: project, error: projErr } = await supabase
           .from('projects')
-          .select('id, name, description, status, deadline_days, created_by, onedrive_link, welle, welle_notes')
+          .select('id, name, description, status, deadline_days, created_by, onedrive_link, welle, welle_notes, slug')
           .eq('id', projectId)
           .single();
 
@@ -146,6 +150,8 @@ export default function EditProjectPage() {
         }
 
         setIsOwner(true);
+        setProjectStatus(project.status);
+        setProjectSlug((project as { slug?: string }).slug || '');
         const initialForm = {
           name: project.name,
           description: project.description || '',
@@ -617,26 +623,83 @@ export default function EditProjectPage() {
           </CardContent>
         </Card>
 
-        {/* Save Button */}
-        <div className="flex items-center justify-between gap-4 pt-2">
-          <Link href="/my-projects">
-            <Button type="button" variant="outline" className="gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              {t('common.back')}
-            </Button>
-          </Link>
-          <Button
-            type="submit"
-            disabled={saving || !form.name.trim()}
-            className="gap-2 bg-[#FE0404] hover:bg-[#E00303] text-white"
-          >
-            {saving ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Save className="h-4 w-4" />
-            )}
-            {t('common.save')}
-          </Button>
+        {/* Save Button + Actions */}
+        <div className="flex flex-col gap-3 pt-2">
+          {/* Primary action row */}
+          <div className="flex items-center justify-between gap-4">
+            <Link href="/my-projects">
+              <Button type="button" variant="outline" className="gap-2">
+                <ArrowLeft className="h-4 w-4" />
+                {t('common.back')}
+              </Button>
+            </Link>
+            <div className="flex items-center gap-2">
+              {/* Submit for Review — only for draft projects */}
+              {projectStatus === 'draft' && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={submittingForReview || saving || !form.name.trim()}
+                  className="gap-2 border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-950/30"
+                  onClick={async () => {
+                    // Save first, then submit for review
+                    setSubmittingForReview(true);
+                    try {
+                      const supabase = createClient();
+                      // Save current form state
+                      await supabase.from('projects').update({
+                        name: form.name.trim(),
+                        description: form.description.trim() || null,
+                        deadline_days: Math.max(1, Math.min(90, form.deadline_days)),
+                        onedrive_link: form.onedrive_link.trim() || null,
+                        welle: form.welle || null,
+                        welle_notes: form.welle_notes.trim() || null,
+                      }).eq('id', projectId);
+
+                      await supabase.auth.refreshSession();
+                      const { error: rpcErr } = await supabase.rpc('submit_for_review', { p_project_id: projectId });
+                      if (rpcErr) {
+                        toast.error(rpcErr.message || t('errors.generic'));
+                        return;
+                      }
+                      toast.success(t('client.submittedForReview'));
+                      setProjectStatus('pending_review');
+                    } catch {
+                      toast.error(t('errors.generic'));
+                    } finally {
+                      setSubmittingForReview(false);
+                    }
+                  }}
+                >
+                  {submittingForReview ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                  {t('client.submitForReview')}
+                </Button>
+              )}
+              <Button
+                type="submit"
+                disabled={saving || !form.name.trim()}
+                className="gap-2 bg-[#FE0404] hover:bg-[#E00303] text-white"
+              >
+                {saving ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4" />
+                )}
+                {t('common.save')}
+              </Button>
+            </div>
+          </div>
+          {/* Fill Requirements shortcut */}
+          {projectSlug && (
+            <div className="flex justify-end">
+              <a href={`/${locale}/form/${projectSlug}/fill`}>
+                <Button type="button" variant="outline" size="sm" className="gap-2 text-xs">
+                  <FileText className="h-3.5 w-3.5" />
+                  {t('client.fillRequirements')}
+                </Button>
+              </a>
+            </div>
+          )}
         </div>
       </form>
     </div>

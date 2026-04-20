@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useLocale } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -48,6 +49,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -92,6 +94,7 @@ function formatBytes(bytes: number | null) {
 export default function MyProjectsPage() {
   const t = useTranslations();
   const locale = useLocale();
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [projects, setProjects] = useState<ClientProject[]>([]);
@@ -115,6 +118,11 @@ export default function MyProjectsPage() {
   const [proposeFiles, setProposeFiles] = useState<File[]>([]);
   const proposeFileRef = useRef<HTMLInputElement>(null);
   const [reloadKey, setReloadKey] = useState(0);
+
+  // Delete project dialog state
+  const [deleteProjectId, setDeleteProjectId] = useState<string | null>(null);
+  const [deleteProjectName, setDeleteProjectName] = useState('');
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -313,6 +321,30 @@ export default function MyProjectsPage() {
     }
   }
 
+  async function handleDeleteProject() {
+    if (!deleteProjectId) return;
+    setDeleting(true);
+    try {
+      const supabase = createClient();
+      await supabase.auth.refreshSession();
+      const { error } = await supabase.rpc('archive_project', {
+        p_project_id: deleteProjectId,
+        p_reason: 'Deleted by project owner',
+      });
+      if (error) {
+        toast.error(error.message || t('errors.generic'));
+        return;
+      }
+      toast.success(t('client.projectDeleted'));
+      setProjects(prev => prev.filter(p => p.id !== deleteProjectId));
+      setDeleteProjectId(null);
+    } catch {
+      toast.error(t('errors.generic'));
+    } finally {
+      setDeleting(false);
+    }
+  }
+
   async function handleSubmitForReview(projectId: string) {
     try {
       const supabase = createClient();
@@ -443,8 +475,8 @@ export default function MyProjectsPage() {
       setProposeOpen(false);
       setProposeForm({ name: '', description: '', onedriveLink: '', requirementTypes: ['web_application'] as RequirementType[], welle: 1, welleNotes: '' });
       setProposeFiles([]);
-      setLoading(true);
-      setReloadKey(k => k + 1);
+      // Navigate directly to edit page so PO can continue refining the project
+      router.push(`/${locale}/my-projects/${newProject.id}/edit`);
     } catch {
       toast.error(t('client.proposeFailed'));
     } finally {
@@ -954,6 +986,17 @@ export default function MyProjectsPage() {
                           </Button>
                         </a>
                       )}
+                      {/* Delete — only for own draft/pending_review projects */}
+                      {project.created_by === currentUserId && (project.status === 'draft' || project.status === 'pending_review') && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="gap-1 w-full sm:w-auto text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                          onClick={() => { setDeleteProjectId(project.id); setDeleteProjectName(project.name); }}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
                       {isDraft ? (
                         /* Draft: Fill Requirements + Submit for Review */
                         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
@@ -1004,10 +1047,18 @@ export default function MyProjectsPage() {
                           </Button>
                         </a>
                       ) : isSubmitted ? (
-                        <Button variant="outline" size="sm" disabled className="gap-1 w-full sm:w-auto">
-                          <CheckCircle className="h-4 w-4" />
-                          {t('client.submitted')}
-                        </Button>
+                        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                          <a href={`/${locale}/form/${project.slug}/fill`}>
+                            <Button variant="outline" size="sm" className="gap-1 w-full sm:w-auto border-[#FE0404]/30 text-[#FE0404] hover:bg-[#FE0404]/5">
+                              <Pencil className="h-3.5 w-3.5" />
+                              {t('client.editRequirements')}
+                            </Button>
+                          </a>
+                          <Badge variant="outline" className="bg-green-50 text-green-600 dark:bg-green-950/30 dark:text-green-400 border-green-200 dark:border-green-800 gap-1 py-1.5 px-3">
+                            <CheckCircle className="h-3.5 w-3.5" />
+                            {t('client.submitted')}
+                          </Badge>
+                        </div>
                       ) : (
                         <a href={`/${locale}/form/${project.slug}${resp === 'in_progress' || resp === 'draft' ? '/fill' : ''}`}>
                           <Button
@@ -1074,6 +1125,39 @@ export default function MyProjectsPage() {
           })}
         </div>
       )}
+
+      {/* Delete Project Confirmation Dialog */}
+      <Dialog open={!!deleteProjectId} onOpenChange={(open) => { if (!open) { setDeleteProjectId(null); setDeleteProjectName(''); } }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <Trash2 className="h-5 w-5" />
+              {t('client.deleteProject')}
+            </DialogTitle>
+            <DialogDescription className="pt-2">
+              {t('client.deleteProjectConfirm', { name: deleteProjectName })}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="ghost"
+              onClick={() => { setDeleteProjectId(null); setDeleteProjectName(''); }}
+              disabled={deleting}
+            >
+              {t('common.cancel')}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteProject}
+              disabled={deleting}
+              className="gap-2"
+            >
+              {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+              {t('client.deleteConfirm')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -78,10 +78,20 @@ export async function POST(req: NextRequest) {
       }
       currentResponseId = resp.id;
     } else {
-      // Update progress against real template question count
+      // Re-open submitted/reviewed responses back to in_progress when edited by owner
+      const { data: existingResp } = await supabase
+        .from('responses')
+        .select('status')
+        .eq('id', currentResponseId)
+        .single();
+
+      const newStatus = (existingResp?.status === 'submitted' || existingResp?.status === 'reviewed')
+        ? 'in_progress'
+        : 'in_progress';
+
       await supabase
         .from('responses')
-        .update({ progress_percent: progress, status: 'in_progress' })
+        .update({ progress_percent: progress, status: newStatus })
         .eq('id', currentResponseId);
     }
 

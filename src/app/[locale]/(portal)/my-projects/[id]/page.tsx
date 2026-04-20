@@ -34,11 +34,20 @@ import {
   Bell,
   Shield,
   Sparkles,
+  Trash2,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { statusKey } from '@/lib/utils';
 import { toast } from 'sonner';
 import type { ProjectAttachment } from '@/lib/supabase/types';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 /* ── Types ─────────────────────────────────────────────────── */
 type Json = string | number | boolean | null | Json[] | { [key: string]: Json | undefined };
@@ -117,6 +126,8 @@ export default function ProjectDetailPage() {
   const [answerText, setAnswerText] = useState('');
   const [submittingAnswer, setSubmittingAnswer] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   /* ── Load data ────────────────────────────────────────────── */
   useEffect(() => {
@@ -250,6 +261,24 @@ export default function ProjectDetailPage() {
     finally { setSubmitting(false); }
   }
 
+  /* ── Delete (archive) own project ─────────────────────────── */
+  async function handleDeleteProject() {
+    if (!project || deleting) return;
+    setDeleting(true);
+    try {
+      const supabase = createClient();
+      await supabase.auth.refreshSession();
+      const { error: err } = await supabase.rpc('archive_project', {
+        p_project_id: project.id,
+        p_reason: 'Deleted by project owner',
+      });
+      if (err) { toast.error(err.message || t('errors.generic')); return; }
+      toast.success(t('client.projectDeleted'));
+      router.push(`/${locale}/my-projects`);
+    } catch { toast.error(t('errors.generic')); }
+    finally { setDeleting(false); setDeleteDialogOpen(false); }
+  }
+
   /* ── Loading / Error states ───────────────────────────────── */
   if (loading) return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -317,6 +346,17 @@ export default function ProjectDetailPage() {
                 <FileText className="h-3.5 w-3.5" />{t('client.fillRequirements')}
               </Button>
             </a>
+          )}
+          {/* Delete — only for own draft/pending_review projects */}
+          {(isDraft || isPendingReview) && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+              onClick={() => setDeleteDialogOpen(true)}
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </Button>
           )}
         </div>
       </div>
@@ -601,6 +641,30 @@ export default function ProjectDetailPage() {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Delete Project Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <Trash2 className="h-5 w-5" />
+              {t('client.deleteProject')}
+            </DialogTitle>
+            <DialogDescription className="pt-2">
+              {t('client.deleteProjectConfirm', { name: project.name })}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="ghost" onClick={() => setDeleteDialogOpen(false)} disabled={deleting}>
+              {t('common.cancel')}
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteProject} disabled={deleting} className="gap-2">
+              {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+              {t('client.deleteConfirm')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
