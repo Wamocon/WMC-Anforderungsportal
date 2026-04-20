@@ -155,6 +155,29 @@ export default async function FormFillPage({
       }
     }
 
+    // Fallback for owners/staff: find ANY response for this project
+    // (handles MCP-created responses where respondent_id may be null or different)
+    if (!existingResponse && (isOwner || isStaff)) {
+      const { data: anyResponse } = await supabase
+        .from('responses')
+        .select('id')
+        .eq('project_id', project.id)
+        .in('status', allowedStatuses)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      existingResponse = anyResponse;
+
+      // Link this response to the owner for future lookups
+      if (existingResponse) {
+        await supabase
+          .from('responses')
+          .update({ respondent_id: user.id })
+          .eq('id', existingResponse.id);
+      }
+    }
+
     if (existingResponse) {
       existingResponseId = existingResponse.id;
 

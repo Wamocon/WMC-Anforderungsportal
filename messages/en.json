@@ -642,6 +642,7 @@
     "approvedStatus": "Approved",
     "fillRequirements": "Fill Requirements",
     "editRequirements": "Edit Requirements",
+    "editRequirementsDesc": "View and edit the requirement answers filled via the form or MCP",
     "deleteProject": "Delete Project",
     "deleteProjectConfirm": "Are you sure you want to delete \"{name}\"? This action cannot be undone. All project data will be archived.",
     "deleteConfirm": "Delete",

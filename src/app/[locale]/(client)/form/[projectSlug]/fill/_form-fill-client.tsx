@@ -9,7 +9,6 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import {
   Select,
@@ -1024,26 +1023,31 @@ export function FormFillClient({
                           <div className="space-y-2">
                             {question.options.map((option, index) => {
                               const selected = ((answers[question.id] as string[]) || []).includes(option.value);
+                              const checkId = `chk-${question.id}-${index}`;
                               return (
-                                <div
+                                <label
                                   key={`${option.value}-${index}`}
-                                  onClick={() => toggleMultiSelect(question.id, option.value)}
+                                  htmlFor={checkId}
                                   className={`flex items-center space-x-3 rounded-lg border p-3 cursor-pointer transition-colors ${
                                     selected ? 'border-[#FE0404]/30 bg-[#FE0404]/5' : 'hover:bg-accent/50'
                                   }`}
                                 >
-                                  {/* Wrapper span catches the PointerEvent that Base UI's
-                                      Checkbox dispatches on its hidden <input> (bubbles:true).
-                                      Without it, that second event reaches the div's onClick
-                                      causing a double-toggle that cancels the selection. */}
-                                  <span className="flex shrink-0" onClick={(e) => e.stopPropagation()}>
-                                    <Checkbox
-                                      checked={selected}
-                                      onCheckedChange={() => toggleMultiSelect(question.id, option.value)}
-                                    />
+                                  <input
+                                    type="checkbox"
+                                    id={checkId}
+                                    checked={selected}
+                                    onChange={() => toggleMultiSelect(question.id, option.value)}
+                                    className="sr-only peer"
+                                  />
+                                  <span className={`flex size-4 shrink-0 items-center justify-center rounded-[4px] border transition-colors ${
+                                    selected
+                                      ? 'border-primary bg-primary text-primary-foreground'
+                                      : 'border-input'
+                                  }`}>
+                                    {selected && <Check className="h-3.5 w-3.5" />}
                                   </span>
-                                  <span className="cursor-pointer flex-1 text-sm">{option.label}</span>
-                                </div>
+                                  <span className="flex-1 text-sm">{option.label}</span>
+                                </label>
                               );
                             })}
                           </div>

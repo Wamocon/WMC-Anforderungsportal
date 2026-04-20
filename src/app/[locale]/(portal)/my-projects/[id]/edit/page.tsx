@@ -26,6 +26,7 @@ import {
   Trash2,
   CheckCircle,
   Send,
+  ClipboardEdit,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
@@ -395,6 +396,26 @@ export default function EditProjectPage() {
         </Card>
       )}
 
+      {/* Edit Requirements — prominent link to the form fill page */}
+      {projectSlug && (
+        <a href={`/${locale}/form/${projectSlug}/fill`} className="block">
+          <Card className="border-[#FE0404]/30 bg-[#FE0404]/5 hover:bg-[#FE0404]/10 transition-colors cursor-pointer shadow-md shadow-black/5">
+            <CardContent className="flex items-center gap-4 p-5">
+              <div className="rounded-xl bg-[#FE0404]/10 p-3">
+                <ClipboardEdit className="h-6 w-6 text-[#FE0404]" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-base font-semibold">{t('client.editRequirements')}</h3>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  {t('client.editRequirementsDesc')}
+                </p>
+              </div>
+              <ArrowLeft className="h-5 w-5 text-muted-foreground rotate-180" />
+            </CardContent>
+          </Card>
+        </a>
+      )}
+
       <form onSubmit={handleSave} className="space-y-6">
         {/* Project Details */}
         <Card className="border-0 shadow-md shadow-black/5 glass-v2">
@@ -689,13 +710,13 @@ export default function EditProjectPage() {
               </Button>
             </div>
           </div>
-          {/* Fill Requirements shortcut */}
+          {/* Edit Requirements shortcut */}
           {projectSlug && (
             <div className="flex justify-end">
               <a href={`/${locale}/form/${projectSlug}/fill`}>
-                <Button type="button" variant="outline" size="sm" className="gap-2 text-xs">
-                  <FileText className="h-3.5 w-3.5" />
-                  {t('client.fillRequirements')}
+                <Button type="button" variant="outline" className="gap-2 border-[#FE0404]/30 text-[#FE0404] hover:bg-[#FE0404]/5">
+                  <ClipboardEdit className="h-4 w-4" />
+                  {t('client.editRequirements')}
                 </Button>
               </a>
             </div>

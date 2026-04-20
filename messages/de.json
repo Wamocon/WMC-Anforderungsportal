@@ -642,6 +642,7 @@
     "approvedStatus": "Genehmigt",
     "fillRequirements": "Anforderungen ausfüllen",
     "editRequirements": "Anforderungen bearbeiten",
+    "editRequirementsDesc": "Anforderungsantworten anzeigen und bearbeiten, die über das Formular oder MCP ausgefüllt wurden",
     "deleteProject": "Projekt löschen",
     "deleteProjectConfirm": "Möchten Sie \"{name}\" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden. Alle Projektdaten werden archiviert.",
     "deleteConfirm": "Löschen",

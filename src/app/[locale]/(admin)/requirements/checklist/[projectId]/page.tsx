@@ -10,7 +10,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import {
   Dialog,
@@ -20,7 +19,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import {
-  ClipboardCheck, ArrowLeft, Save, Download,
+  ClipboardCheck, ArrowLeft, Save, Download, Check,
   CheckCircle2, XCircle, Target, AlertTriangle,
   Loader2, Trophy, Frown, Presentation,
   Smartphone, Brain, RotateCcw, Globe,
@@ -503,15 +502,22 @@ export default function ChecklistPage() {
             {items.map(item => (
               <div
                 key={item.id}
-                className={`flex items-start gap-4 px-5 py-4 transition-colors ${
+                className={`flex items-start gap-4 px-5 py-4 transition-colors cursor-pointer ${
                   item.isFulfilled ? 'bg-green-50/50 dark:bg-green-950/10' : 'hover:bg-accent/30'
                 }`}
+                onClick={(e) => {
+                  // Don't toggle when clicking on the notes input
+                  if ((e.target as HTMLElement).tagName === 'INPUT') return;
+                  toggleItem(item.id);
+                }}
               >
-                <Checkbox
-                  checked={item.isFulfilled}
-                  onCheckedChange={() => toggleItem(item.id)}
-                  className="mt-0.5 h-5 w-5 shrink-0"
-                />
+                <span className={`flex mt-0.5 size-5 shrink-0 items-center justify-center rounded-[4px] border transition-colors ${
+                  item.isFulfilled
+                    ? 'border-primary bg-primary text-primary-foreground'
+                    : 'border-input'
+                }`}>
+                  {item.isFulfilled && <Check className="h-3.5 w-3.5" />}
+                </span>
                 <div className="flex-1 min-w-0 space-y-1.5">
                   <p className={`text-sm font-medium ${item.isFulfilled ? 'line-through text-muted-foreground' : ''}`}>
                     {item.text}
