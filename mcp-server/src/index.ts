@@ -59,7 +59,7 @@ function requireStaff(): ContentResult | null {
 
 const server = new McpServer({
   name: 'anforderungsportal',
-  version: '1.7.3',
+  version: '1.8.1',
 });
 
 // ═══════════════════════════════════════════════════════════════
@@ -325,7 +325,7 @@ server.tool(
   { status: z.enum(['all', 'draft', 'pending_review', 'active', 'approved', 'archived']).optional().describe('Filter by project status') },
   async ({ status }) => {
     const sb = getSupabaseClient();
-    let q = sb.from('projects').select('id, name, slug, status, description, requirement_type, created_at, deadline_days');
+    let q = sb.from('projects').select('id, name, slug, status, description, requirement_type, welle, welle_notes, created_at, deadline_days');
     if (status && status !== 'all') q = q.eq('status', status);
     q = q.order('created_at', { ascending: false }).limit(50);
     const { data, error } = await q;
@@ -357,8 +357,10 @@ server.tool(
     requirement_type: z.array(z.string()).optional().default(['web_application']).describe('e.g. ["web_application","mobile_application"]'),
     template_id: z.string().optional().describe('Template ID. Omit to use default.'),
     org_id: z.string().optional().describe('Organization ID. Omit to use the default org.'),
+    welle: z.number().int().min(1).optional().describe('Sprint/wave number (Welle). Each week is a new Welle. Defaults to 1.'),
+    welle_notes: z.string().optional().describe('Optional notes about this sprint wave'),
   },
-  async ({ name, description, requirement_type, template_id, org_id }) => {
+  async ({ name, description, requirement_type, template_id, org_id, welle, welle_notes }) => {
     const guard = requireLogin();
     if (guard) return guard;
     const sb = getSupabaseClient();
@@ -389,6 +391,8 @@ server.tool(
       template_id: tid ?? null, deadline_days: 5,
       org_id: oid ?? null,
       created_by: createdBy,
+      welle: welle ?? 1,
+      welle_notes: welle_notes ?? null,
     }).select('id, slug').single();
 
     if (error) return { content: [{ type: 'text', text: `Error: ${error.message}` }] };
@@ -414,8 +418,10 @@ server.tool(
     name: z.string().optional(),
     description: z.string().optional(),
     template_id: z.string().optional(),
+    welle: z.number().int().min(1).optional().describe('Sprint/wave number (Welle)'),
+    welle_notes: z.string().optional().describe('Notes about this sprint wave'),
   },
-  async ({ project_id, name, description, template_id }) => {
+  async ({ project_id, name, description, template_id, welle, welle_notes }) => {
     const guard = requireLogin();
     if (guard) return guard;
     const sb = getSupabaseClient();
@@ -423,6 +429,8 @@ server.tool(
     if (name !== undefined) updates.name = name;
     if (description !== undefined) updates.description = description;
     if (template_id !== undefined) updates.template_id = template_id;
+    if (welle !== undefined) updates.welle = welle;
+    if (welle_notes !== undefined) updates.welle_notes = welle_notes;
     const { error } = await sb.from('projects').update(updates).eq('id', project_id);
     if (error) return { content: [{ type: 'text', text: `Error: ${error.message}` }] };
     return { content: [{ type: 'text', text: 'Project updated successfully.' }] };
