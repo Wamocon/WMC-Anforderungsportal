@@ -58,7 +58,8 @@
     "confirmAction": "Confirm Action",
     "descriptionRecommended": "A description helps reviewers understand the project scope.",
     "selected": "selected",
-    "download": "Download"
+    "download": "Download",
+    "view": "Vis"
   },
   "auth": {
     "login": "Logg inn",
