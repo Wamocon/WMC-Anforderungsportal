@@ -494,7 +494,7 @@ export default function EditProjectPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Paperclip className="h-5 w-5 text-muted-foreground" />
-              {t('admin.attachments')} ({attachments.length})
+              {t('client.attachments')} ({attachments.length})
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">

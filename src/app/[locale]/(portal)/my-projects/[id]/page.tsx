@@ -36,6 +36,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { statusKey } from '@/lib/utils';
 import { toast } from 'sonner';
 import type { ProjectAttachment } from '@/lib/supabase/types';
 
@@ -449,14 +450,14 @@ export default function ProjectDetailPage() {
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="w-full sm:w-auto grid grid-cols-3 sm:inline-flex h-11 bg-muted/50 rounded-xl p-1">
           <TabsTrigger value="overview" className="gap-1.5 rounded-lg data-[state=active]:shadow-sm">
-            <LayoutDashboard className="h-3.5 w-3.5" /><span className="hidden sm:inline">{t('common.overview')}</span>
+            <LayoutDashboard className="h-3.5 w-3.5" /><span className="hidden sm:inline">{t('admin.overview')}</span>
           </TabsTrigger>
           <TabsTrigger value="responses" className="gap-1.5 rounded-lg data-[state=active]:shadow-sm">
             <MessageSquare className="h-3.5 w-3.5" /><span className="hidden sm:inline">{t('admin.responses')}</span>
             {responses.length > 0 && <Badge variant="secondary" className="h-5 px-1.5 text-[10px] ml-1">{responses.length}</Badge>}
           </TabsTrigger>
           <TabsTrigger value="files" className="gap-1.5 rounded-lg data-[state=active]:shadow-sm">
-            <Paperclip className="h-3.5 w-3.5" /><span className="hidden sm:inline">{t('admin.attachments')}</span>
+            <Paperclip className="h-3.5 w-3.5" /><span className="hidden sm:inline">{t('client.attachments')}</span>
             {attachments.length > 0 && <Badge variant="secondary" className="h-5 px-1.5 text-[10px] ml-1">{attachments.length}</Badge>}
           </TabsTrigger>
         </TabsList>
@@ -465,7 +466,7 @@ export default function ProjectDetailPage() {
         <TabsContent value="overview" className="mt-6 space-y-4">
           <div className="grid gap-4 sm:grid-cols-3">
             <Card className="border-0 shadow-sm glass-v2"><CardContent className="p-4 text-center"><p className="text-2xl font-bold">{responses.length}</p><p className="text-xs text-muted-foreground mt-0.5">{t('admin.responses')}</p></CardContent></Card>
-            <Card className="border-0 shadow-sm glass-v2"><CardContent className="p-4 text-center"><p className="text-2xl font-bold">{attachments.length}</p><p className="text-xs text-muted-foreground mt-0.5">{t('admin.attachments')}</p></CardContent></Card>
+            <Card className="border-0 shadow-sm glass-v2"><CardContent className="p-4 text-center"><p className="text-2xl font-bold">{attachments.length}</p><p className="text-xs text-muted-foreground mt-0.5">{t('client.attachments')}</p></CardContent></Card>
             <Card className="border-0 shadow-sm glass-v2"><CardContent className="p-4 text-center"><p className="text-2xl font-bold">{feedbackItems.length}</p><p className="text-xs text-muted-foreground mt-0.5">{t('client.staffMessages')}</p></CardContent></Card>
           </div>
 
@@ -525,7 +526,7 @@ export default function ProjectDetailPage() {
                   </div>
                   <Badge variant="outline" className={resp.status === 'submitted' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-0' : resp.status === 'in_progress' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border-0' : 'bg-muted text-muted-foreground border-0'}>
                     {resp.status === 'submitted' ? <CheckCircle className="h-3 w-3 mr-1" /> : resp.status === 'in_progress' ? <Clock className="h-3 w-3 mr-1" /> : null}
-                    {resp.status}
+                    {t(`common.${statusKey(resp.status)}`)}
                   </Badge>
                 </div>
                 <CardContent className="p-5 space-y-6">
