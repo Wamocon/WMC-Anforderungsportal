@@ -216,6 +216,13 @@ function LoginForm() {
                 )}
               </button>
             </form>
+
+            <p className="mt-6 text-center text-sm text-muted-foreground">
+              {t('auth.noAccount')}{' '}
+              <Link href="/register" className="text-[#FE0404] hover:text-[#D00303] font-medium transition-colors">
+                {t('auth.register')}
+              </Link>
+            </p>
           </CardContent>
         </Card>
 

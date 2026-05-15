@@ -98,7 +98,20 @@
     "notLoggedIn": "You must be logged in. Please refresh the page.",
     "noOrganization": "Your account is not linked to any organization. Please contact an admin.",
     "slugExists": "A project with this slug already exists. Please choose a different name.",
-    "permissionDenied": "Permission denied. Please log out and log back in, then try again."
+    "permissionDenied": "Permission denied. Please log out and log back in, then try again.",
+    "register": "Register",
+    "registerTitle": "Create Account",
+    "registerSubtitle": "Sign up to manage your projects",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "John Doe",
+    "createAccount": "Create Account",
+    "alreadyHaveAccount": "Already have an account?",
+    "noAccount": "Don't have an account?",
+    "registerSuccess": "Account created! Please check your email to confirm.",
+    "registerSuccessTitle": "Check your inbox!",
+    "registerSuccessMessage": "We sent a confirmation link to {email}. Click it to activate your account.",
+    "registrationFailed": "Registration failed. Please try again.",
+    "emailAlreadyUsed": "An account with this email already exists. Try logging in instead."
   },
   "admin": {
     "dashboard": "Dashboard",

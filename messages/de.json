@@ -98,7 +98,20 @@
     "notLoggedIn": "Sie müssen angemeldet sein. Bitte aktualisieren Sie die Seite.",
     "noOrganization": "Ihr Konto ist keiner Organisation zugeordnet. Bitte kontaktieren Sie einen Administrator.",
     "slugExists": "Ein Projekt mit diesem Slug existiert bereits. Bitte wählen Sie einen anderen Namen.",
-    "permissionDenied": "Zugriff verweigert. Bitte abmelden und erneut anmelden."
+    "permissionDenied": "Zugriff verweigert. Bitte abmelden und erneut anmelden.",
+    "register": "Registrieren",
+    "registerTitle": "Konto erstellen",
+    "registerSubtitle": "Registrieren Sie sich, um Ihre Projekte zu verwalten",
+    "fullName": "Vollständiger Name",
+    "fullNamePlaceholder": "Max Mustermann",
+    "createAccount": "Konto erstellen",
+    "alreadyHaveAccount": "Haben Sie bereits ein Konto?",
+    "noAccount": "Noch kein Konto?",
+    "registerSuccess": "Konto erstellt! Bitte prüfen Sie Ihre E-Mail zur Bestätigung.",
+    "registerSuccessTitle": "Prüfen Sie Ihren Posteingang!",
+    "registerSuccessMessage": "Wir haben einen Bestätigungslink an {email} gesendet. Klicken Sie darauf, um Ihr Konto zu aktivieren.",
+    "registrationFailed": "Registrierung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "emailAlreadyUsed": "Ein Konto mit dieser E-Mail existiert bereits. Versuchen Sie sich anzumelden."
   },
   "admin": {
     "dashboard": "Dashboard",
